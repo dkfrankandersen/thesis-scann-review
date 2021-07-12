@@ -16,18 +16,13 @@ RUN apt-get install -y g++-9 clang-8
 
 RUN pip3 install --upgrade pip
 
+WORKDIR /home/
+COPY . .
+
 #RUN git clone https://github.com/google-research/google-research.git --depth=1
 #RUN cd google-research/scann && python3 configure.py
-RUN git clone https://github.com/dkfrankandersen/thesis-scann-review
+#RUN git clone https://github.com/dkfrankandersen/thesis-scann-review
 RUN cd scann && python3 configure.py
 RUN PY3="$(which python3)" && cd scann && PYTHON_BIN_PATH=$PY3 CC=clang-8 bazel-3.4.1 build -c opt --features=thin_lto --copt=-mavx2 --copt=-mfma --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0" --cxxopt="-std=c++17" --copt=-fsized-deallocation --copt=-w :build_pip_pkg
 RUN cd scann && PYTHON=python3 ./bazel-bin/build_pip_pkg && pip3 install *.whl
 #RUN python3 -c 'import scann'
-
-RUN mkdir datasets
-RUN cd datasets
-RUN curl http://ann-benchmarks.com/glove-25-angular.hdf5
-RUN curl http://ann-benchmarks.com/glove-50-angular.hdf5
-RUN curl http://ann-benchmarks.com/glove-100-angular.hdf5
-RUN curl http://ann-benchmarks.com/lastfm-64-dot.hdf5
-RUN curl http://ann-benchmarks.com/nytimes-256-angular.hdf5
