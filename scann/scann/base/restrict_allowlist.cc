@@ -26,6 +26,7 @@ namespace {
 
 void ClearRemainderBits(MutableSpan<size_t> whitelist_array,
                         size_t num_points) {
+  LOG(INFO) << "FA called (not expected)";
   const uint8_t num_leftover_bits =
       RestrictAllowlist::kBitsPerWord -
       num_points % RestrictAllowlist::kBitsPerWord;
@@ -37,6 +38,7 @@ void ClearRemainderBits(MutableSpan<size_t> whitelist_array,
 }
 
 void SetRemainderBits(MutableSpan<size_t> whitelist_array, size_t num_points) {
+  LOG(INFO) << "FA called (not expected)";
   const uint8_t num_used_bits_in_last_word =
       num_points % RestrictAllowlist::kBitsPerWord;
   if (num_used_bits_in_last_word == 0) return;
@@ -49,6 +51,7 @@ void SetRemainderBits(MutableSpan<size_t> whitelist_array, size_t num_points) {
 
 RestrictAllowlist::RestrictAllowlist(DatapointIndex num_points,
                                      bool default_whitelisted) {
+  LOG(INFO) << "FA called (not expected)";
   Initialize(num_points, default_whitelisted);
 }
 
@@ -62,6 +65,7 @@ RestrictAllowlist::RestrictAllowlist(std::vector<size_t>&& allowlist_array,
                                      DatapointIndex num_points,
                                      bool default_whitelisted)
     : allowlist_array_(std::move(allowlist_array)), num_points_(num_points) {
+  LOG(INFO) << "FA called (not expected)";
   CHECK_EQ(allowlist_array_.size(), DivRoundUp(num_points, kBitsPerWord));
 
   VLOG(1) << "Using recycled allowlist_array_ at " << allowlist_array_.data();
@@ -76,6 +80,7 @@ RestrictAllowlist::~RestrictAllowlist() {}
 
 void RestrictAllowlist::Initialize(DatapointIndex num_points,
                                    bool default_whitelisted) {
+  LOG(INFO) << "FA called (not expected)";
   num_points_ = num_points;
 
   allowlist_array_.resize(0);
@@ -88,6 +93,7 @@ void RestrictAllowlist::Initialize(DatapointIndex num_points,
 
 void RestrictAllowlist::Resize(size_t num_points, bool default_whitelisted) {
   if (default_whitelisted && num_points > num_points_) {
+    LOG(INFO) << "FA called (not expected)";
     SetRemainderBits(MakeMutableSpan(allowlist_array_), num_points_);
   }
 

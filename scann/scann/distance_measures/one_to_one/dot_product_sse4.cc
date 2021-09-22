@@ -26,6 +26,7 @@ template <typename Byte, typename SseFuncs>
 SCANN_SSE4_INLINE double DenseDotProductByteImpl(const Byte* aptr,
                                                  const Byte* bptr,
                                                  size_t length) {
+  LOG(INFO) << "FA Called";
   const Byte* aend = aptr + length;
 
   auto as_m128i = [](const Byte* x) SCANN_SSE4_INLINE_LAMBDA -> __m128i* {
@@ -93,22 +94,27 @@ SCANN_SSE4_INLINE double DenseDotProductByteImpl(const Byte* aptr,
 class UnsignedDotProductSseFunctionsSse4 {
  public:
   SCANN_SSE4_INLINE static __m128i ExtendLower8To16(__m128i v) {
+    LOG(INFO) << "FA Called";
     return _mm_cvtepu8_epi16(v);
   }
 
   SCANN_SSE4_INLINE static __m128i ExtendUpper8To16(__m128i v) {
+    LOG(INFO) << "FA Called";
     return _mm_unpackhi_epi8(v, _mm_setzero_si128());
   }
 
   SCANN_SSE4_INLINE static __m128i ExtendLower16To32(__m128i v) {
+    LOG(INFO) << "FA Called";
     return _mm_cvtepu16_epi32(v);
   }
 
   SCANN_SSE4_INLINE static __m128i ExtendUpper16To32(__m128i v) {
+    LOG(INFO) << "FA Called";
     return _mm_unpackhi_epi16(v, _mm_setzero_si128());
   }
 
   SCANN_SSE4_INLINE static uint32_t HorizontalSum32(__m128i v) {
+    LOG(INFO) << "FA Called";
     v = _mm_add_epi32(v, _mm_srli_si128(v, 8));
     v = _mm_add_epi32(v, _mm_srli_si128(v, 4));
     return _mm_cvtsi128_si32(v);
@@ -118,22 +124,27 @@ class UnsignedDotProductSseFunctionsSse4 {
 class SignedDotProductSseFunctionsSse4 {
  public:
   SCANN_SSE4_INLINE static __m128i ExtendLower8To16(__m128i v) {
+    LOG(INFO) << "FA Called";
     return _mm_cvtepi8_epi16(v);
   }
 
   SCANN_SSE4_INLINE static __m128i ExtendUpper8To16(__m128i v) {
+    LOG(INFO) << "FA Called";
     return _mm_cvtepi8_epi16(_mm_srli_si128(v, 8));
   }
 
   SCANN_SSE4_INLINE static __m128i ExtendLower16To32(__m128i v) {
+    LOG(INFO) << "FA Called";
     return _mm_cvtepi16_epi32(v);
   }
 
   SCANN_SSE4_INLINE static __m128i ExtendUpper16To32(__m128i v) {
+    LOG(INFO) << "FA Called";
     return _mm_cvtepi16_epi32(_mm_srli_si128(v, 8));
   }
 
   SCANN_SSE4_INLINE static uint32_t HorizontalSum32(__m128i v) {
+    LOG(INFO) << "FA Called";
     v = _mm_add_epi32(v, _mm_srli_si128(v, 8));
     v = _mm_add_epi32(v, _mm_srli_si128(v, 4));
     return _mm_cvtsi128_si32(v);
@@ -142,6 +153,8 @@ class SignedDotProductSseFunctionsSse4 {
 
 SCANN_SSE4_OUTLINE double DenseDotProductSse4(const DatapointPtr<uint8_t>& a,
                                               const DatapointPtr<uint8_t>& b) {
+  LOG(INFO) << "FA Called";
+  
   DCHECK_EQ(a.nonzero_entries(), b.nonzero_entries());
   DCHECK(a.IsDense());
   DCHECK(b.IsDense());
@@ -151,6 +164,8 @@ SCANN_SSE4_OUTLINE double DenseDotProductSse4(const DatapointPtr<uint8_t>& a,
 
 SCANN_SSE4_OUTLINE double DenseDotProductSse4(const DatapointPtr<int8_t>& a,
                                               const DatapointPtr<int8_t>& b) {
+  LOG(INFO) << "FA Called";
+  
   DCHECK_EQ(a.nonzero_entries(), b.nonzero_entries());
   DCHECK(a.IsDense());
   DCHECK(b.IsDense());
@@ -160,6 +175,8 @@ SCANN_SSE4_OUTLINE double DenseDotProductSse4(const DatapointPtr<int8_t>& a,
 
 SCANN_SSE4_OUTLINE double DenseDotProductSse4(const DatapointPtr<int8_t>& a,
                                               const DatapointPtr<float>& b) {
+  LOG(INFO) << "FA Called";
+  
   DCHECK(a.IsDense());
   DCHECK(b.IsDense());
   const int8_t* aptr = a.values();
@@ -237,6 +254,7 @@ SCANN_SSE4_OUTLINE double DenseDotProductSse4(const DatapointPtr<int8_t>& a,
 
 SCANN_SSE4_OUTLINE double DenseDotProductSse4(const DatapointPtr<float>& a,
                                               const DatapointPtr<float>& b) {
+  LOG(INFO) << "FA Called";
   DCHECK_EQ(a.nonzero_entries(), b.nonzero_entries());
   DCHECK(a.IsDense());
   DCHECK(b.IsDense());
@@ -293,6 +311,7 @@ SCANN_SSE4_OUTLINE double DenseDotProductSse4(const DatapointPtr<float>& a,
 
 SCANN_SSE4_OUTLINE double DenseDotProductSse4(const DatapointPtr<double>& a,
                                               const DatapointPtr<double>& b) {
+  LOG(INFO) << "FA Called";
   DCHECK_EQ(a.nonzero_entries(), b.nonzero_entries());
   DCHECK(a.IsDense());
   DCHECK(b.IsDense());
@@ -340,6 +359,7 @@ SCANN_SSE4_OUTLINE double DenseDotProductSse4(const DatapointPtr<double>& a,
 SCANN_SSE4_OUTLINE double DenseDotProductSse4(const DatapointPtr<int8_t>& a,
                                               const DatapointPtr<float>& b,
                                               const DatapointPtr<float>& c) {
+  LOG(INFO) << "FA Called";
   DCHECK(a.IsDense());
   DCHECK(b.IsDense());
   DCHECK(c.IsDense());
@@ -437,6 +457,7 @@ SCANN_SSE4_OUTLINE double DenseDotProductSse4(const DatapointPtr<int8_t>& a,
 SCANN_SSE4_OUTLINE double DenseDotProductSse4(const DatapointPtr<int8_t>& a,
                                               const DatapointPtr<int8_t>& b,
                                               const DatapointPtr<float>& c) {
+  LOG(INFO) << "FA Called";
   DCHECK(a.IsDense());
   DCHECK(b.IsDense());
   DCHECK(c.IsDense());

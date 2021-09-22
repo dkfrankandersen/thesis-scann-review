@@ -17,6 +17,7 @@
 #include <cstdint>
 
 #include "absl/base/internal/spinlock.h"
+#include "absl/memory/memory.h"
 #include "absl/synchronization/mutex.h"
 #include "scann/base/search_parameters.h"
 #include "scann/base/single_machine_base.h"
@@ -60,6 +61,8 @@ KMeansTreePartitioner<T>::KMeansTreePartitioner(
     : kmeans_tree_(std::move(pretrained_tree)),
       database_tokenization_dist_(database_tokenization_dist),
       query_tokenization_dist_(query_tokenization_dist) {
+  LOG(INFO) << "FA called";
+  
   CHECK(kmeans_tree_->is_trained())
       << "The pre-trained tree overload of KMeansTreePartitioner can only be "
          "used with a tree that has already been trained.";
@@ -68,6 +71,8 @@ KMeansTreePartitioner<T>::KMeansTreePartitioner(
 
 template <typename T>
 unique_ptr<Partitioner<T>> KMeansTreePartitioner<T>::Clone() const {
+  LOG(INFO) << "FA called";
+
   auto result = make_unique<KMeansTreePartitioner<T>>(
       database_tokenization_dist_, query_tokenization_dist_, kmeans_tree_);
   result->query_spilling_type_ = query_spilling_type_;
@@ -90,6 +95,8 @@ template <typename T>
 Status KMeansTreePartitioner<T>::CreatePartitioning(
     const Dataset& training_dataset, const DistanceMeasure& training_dist,
     int32_t k_per_level, KMeansTreeTrainingOptions* opts) {
+  LOG(INFO) << "FA called";
+  
   if (kmeans_tree_) {
     return FailedPreconditionError(
         "Cannot call CreatePartitioning twice with the same "
@@ -115,6 +122,8 @@ constexpr int kAhMultiplierNoSpilling = 100;
 template <typename T>
 Status KMeansTreePartitioner<T>::TokenForDatapoint(
     const DatapointPtr<T>& dptr, KMeansTreeSearchResult* result) const {
+  LOG(INFO) << "FA called";
+  
   DCHECK(result);
   if (!kmeans_tree_) {
     return FailedPreconditionError(
@@ -149,6 +158,8 @@ template <typename T>
 Status KMeansTreePartitioner<T>::TokenForDatapointBatched(
     const TypedDataset<T>& queries, vector<int32_t>* results,
     ThreadPool* pool) const {
+  LOG(INFO) << "FA called";
+  
   if (cur_tokenization_type() != FLOAT || queries.IsSparse() ||
       !is_one_level_tree_) {
     return Partitioner<T>::TokenForDatapointBatched(queries, results);
@@ -183,6 +194,8 @@ template <typename T>
 Status KMeansTreePartitioner<T>::TokensForDatapointWithSpilling(
     const DatapointPtr<T>& dptr, int32_t max_centers_override,
     vector<KMeansTreeSearchResult>* result) const {
+  LOG(INFO) << "FA KMeansTreePartitioner<T>::TokensForDatapointWithSpilling";
+  
   DCHECK(result);
 
   if (this->tokenization_mode() == UntypedPartitioner::QUERY) {
@@ -261,6 +274,8 @@ template <typename T>
 Status KMeansTreePartitioner<T>::TokenForDatapointUseSearcher(
     const DatapointPtr<T>& dptr, KMeansTreeSearchResult* result,
     int32_t pre_reordering_num_neighbors) const {
+  LOG(INFO) << "FA called";
+  
   if (!TokenizationSearcher()) {
     return FailedPreconditionError(
         "CreateAsymmetricHashingSearcherForTokenization must "
@@ -296,6 +311,8 @@ Status KMeansTreePartitioner<T>::TokenForDatapointUseSearcher(
 template <typename T>
 Status KMeansTreePartitioner<T>::TokenForDatapoint(const DatapointPtr<T>& dptr,
                                                    int32_t* result) const {
+  LOG(INFO) << "FA called";
+  
   KMeansTreeSearchResult tree_res;
   SCANN_RETURN_IF_ERROR(TokenForDatapoint(dptr, &tree_res));
   *result = tree_res.node->LeafId();
@@ -306,6 +323,8 @@ template <typename T>
 Status KMeansTreePartitioner<T>::TokensForDatapointWithSpillingAndOverride(
     const DatapointPtr<T>& dptr, int32_t max_centers_override,
     vector<int32_t>* result) const {
+  LOG(INFO) << "FA called";
+  
   vector<KMeansTreeSearchResult> result_raw;
   SCANN_RETURN_IF_ERROR(
       TokensForDatapointWithSpilling(dptr, max_centers_override, &result_raw));
@@ -321,6 +340,8 @@ template <typename T>
 Status KMeansTreePartitioner<T>::TokensForDatapointWithSpillingUseSearcher(
     const DatapointPtr<T>& dptr, vector<KMeansTreeSearchResult>* result,
     int32_t num_neighbors, int32_t pre_reordering_num_neighbors) const {
+  LOG(INFO) << "FA called";
+  
   if (!TokenizationSearcher()) {
     return FailedPreconditionError(
         "CreateAsymmetricHashingSearcherForTokenization must "
@@ -364,6 +385,8 @@ template <typename FloatT, typename T>
 Datapoint<FloatT> ResidualizeImpl(const DatapointPtr<T>& dptr,
                                   const DatapointPtr<float>& center,
                                   float multiplier = 1.0) {
+  LOG(INFO) << "FA ResidualizeImpl";
+  
   Datapoint<FloatT> residual;
   auto& values = *residual.mutable_values();
   values.resize(center.nonzero_entries());
@@ -380,6 +403,8 @@ template <typename T>
 StatusOr<Datapoint<float>> KMeansTreePartitioner<T>::ResidualizeToFloat(
     const DatapointPtr<T>& dptr, int32_t token,
     bool normalize_residual_by_cluster_stdev) const {
+  LOG(INFO) << "FA KMeansTreePartitioner<T>::ResidualizeToFloat";
+  
   DatapointPtr<float> center = kmeans_tree()->CenterForToken(token);
   if (normalize_residual_by_cluster_stdev) {
     if (!populate_residual_stdev_) {
@@ -397,6 +422,8 @@ StatusOr<Datapoint<float>> KMeansTreePartitioner<T>::ResidualizeToFloat(
 
 template <typename T>
 const DenseDataset<float>& KMeansTreePartitioner<T>::LeafCenters() const {
+  LOG(INFO) << "FA called";
+
   {
     absl::ReaderMutexLock lock(&leaf_centers_mutex_);
     if (!leaf_centers_.empty()) return leaf_centers_;
@@ -427,6 +454,8 @@ const DenseDataset<float>& KMeansTreePartitioner<T>::LeafCenters() const {
 template <typename T>
 void KMeansTreePartitioner<T>::CopyToProto(
     SerializedPartitioner* result) const {
+  LOG(INFO) << "FA called";
+
   DCHECK(result);
   DCHECK(kmeans_tree_)
       << "Cannot call CopyToProto on a KMeansTreePartitioner that has not "
@@ -443,6 +472,8 @@ namespace {
 template <typename ResultType, typename T>
 DenseDataset<ResultType> GetBatchSubmatrix(const DenseDataset<T>& database,
                                            size_t start, size_t end) {
+  LOG(INFO) << "FA called";
+  
   DCHECK(!database.is_binary());
   DCHECK_GT(end, start);
   const size_t length = end - start;
@@ -460,6 +491,8 @@ template <typename T>
 StatusOr<vector<std::vector<DatapointIndex>>>
 KMeansTreePartitioner<T>::TokenizeDatabase(const TypedDataset<T>& database,
                                            ThreadPool* pool_or_null) const {
+  LOG(INFO) << "FA called";
+  
   if (this->tokenization_mode() != UntypedPartitioner::DATABASE) {
     return FailedPreconditionError(
         "Cannot run TokenizeDatabase when not in database tokenization mode.");
@@ -495,6 +528,8 @@ template <typename T>
 StatusOr<vector<KMeansTreeSearchResult>>
 KMeansTreePartitioner<T>::TokenizeDatabaseImplFastPath(
     const DenseDataset<T>& database, ThreadPool* pool_or_null) const {
+  LOG(INFO) << "FA called";
+  
   vector<KMeansTreeSearchResult> datapoint_index_to_result;
   if (kmeans_tree_->root()->IsLeaf()) {
     datapoint_index_to_result.resize(
@@ -518,6 +553,8 @@ enable_if_t<IsSame<T, CenterType>(), StatusOr<vector<KMeansTreeSearchResult>>>
 KMeansTreePartitioner<T>::TokenizeDatabaseImplFastPath(
     const DenseDataset<T>& database, const DenseDataset<CenterType>& centers,
     ThreadPool* pool_or_null) const {
+  LOG(INFO) << "FA called";
+  
   SquaredL2Distance dist;
   auto nearest_centers =
       DenseDistanceManyToManyTop1<T>(dist, database, centers, pool_or_null);
@@ -530,6 +567,8 @@ enable_if_t<!IsSame<T, CenterType>(), StatusOr<vector<KMeansTreeSearchResult>>>
 KMeansTreePartitioner<T>::TokenizeDatabaseImplFastPath(
     const DenseDataset<T>& database, const DenseDataset<CenterType>& centers,
     ThreadPool* pool_or_null) const {
+  LOG(INFO) << "FA called";
+  
   constexpr size_t kBatchSize = 128;
   vector<pair<DatapointIndex, CenterType>> nearest_centers(database.size());
   SquaredL2Distance dist;
@@ -555,6 +594,8 @@ template <typename FloatT>
 vector<KMeansTreeSearchResult>
 KMeansTreePartitioner<T>::PostprocessNearestCenters(
     ConstSpan<pair<DatapointIndex, FloatT>> nearest_centers) const {
+  LOG(INFO) << "FA called";
+  
   vector<KMeansTreeSearchResult> datapoint_index_to_result(
       nearest_centers.size());
   const auto* root = kmeans_tree_->root();
@@ -578,6 +619,8 @@ Status
 KMeansTreePartitioner<T>::TokensForDatapointWithSpillingBatchedAndOverride(
     const TypedDataset<T>& queries, ConstSpan<int32_t> max_centers_override,
     MutableSpan<vector<int32_t>> results) const {
+  LOG(INFO) << "FA called";
+  
   vector<vector<KMeansTreeSearchResult>> raw_results(queries.size());
   SCANN_RETURN_IF_ERROR(TokensForDatapointWithSpillingBatched(
       queries, max_centers_override, MakeMutableSpan(raw_results)));
@@ -597,6 +640,8 @@ template <typename T>
 Status KMeansTreePartitioner<T>::TokensForDatapointWithSpillingBatched(
     const TypedDataset<T>& queries, ConstSpan<int32_t> max_centers_override,
     MutableSpan<vector<KMeansTreeSearchResult>> results) const {
+  LOG(INFO) << "FA called";
+  
   if (!max_centers_override.empty() &&
       queries.size() != max_centers_override.size())
     return InvalidArgumentError(
@@ -655,12 +700,8 @@ Status KMeansTreePartitioner<T>::TokensForDatapointWithSpillingBatched(
                                    : max_centers_override[query_idx];
       ftns[query_idx] = FastTopNeighbors<float>(max_centers);
     }
-    DenseDistanceManyToMany<float>(
-        *query_tokenization_dist_, *float_queries, centers,
-        [&ftns](MutableSpan<float> dists, DatapointIndex base_dp_idx,
-                DatapointIndex query_idx) {
-          ftns[query_idx].PushBlock(dists, base_dp_idx);
-        });
+    DenseDistanceManyToManyTopK(*query_tokenization_dist_, *float_queries,
+                                centers, MakeMutableSpan(ftns));
     NNResultsVector child_centers;
     for (DatapointIndex query_idx : IndicesOf(*float_queries)) {
       ftns[query_idx].FinishUnsorted(&child_centers);
@@ -809,7 +850,7 @@ KMeansTreePartitioner<T>::CreateAsymmetricHashingSearcherForQueryTokenization(
   }
 
   const auto& original_centers = kmeans_tree_->root()->Centers();
-  auto centers = unique_ptr<DenseDataset<float>>(new DenseDataset<float>);
+  auto centers = absl::make_unique<DenseDataset<float>>();
   original_centers.ConvertType(centers.get());
 
   TF_ASSIGN_OR_RETURN(

@@ -55,6 +55,8 @@ template <typename T>
 StatusOr<unique_ptr<Partitioner<T>>> CreateTreeXPartitioner(
     shared_ptr<const TypedDataset<T>> dataset, const ScannConfig& config,
     SingleMachineFactoryOptions* opts) {
+  LOG(INFO) << "FA called (not expected)";
+  
   if (config.partitioning().num_partitioning_epochs() != 1) {
     return InvalidArgumentError(
         "num_partitioning_epochs must be == 1 for tree-X hybrids.");
@@ -91,6 +93,8 @@ template <typename T>
 StatusOrSearcherUntyped AsymmetricHasherFactory(
     shared_ptr<TypedDataset<T>> dataset, const ScannConfig& config,
     SingleMachineFactoryOptions* opts, const GenericSearchParameters& params) {
+  LOG(INFO) << "FA called";
+  
   const auto& ah_config = config.hash().asymmetric_hash();
   shared_ptr<const DistanceMeasure> quantization_distance;
   std::shared_ptr<ThreadPool> pool = opts->parallelization_pool;
@@ -137,6 +141,8 @@ template <typename T>
 StatusOrSearcherUntyped TreeAhHybridResidualFactory(
     const ScannConfig& config, const shared_ptr<TypedDataset<T>>& dataset,
     const GenericSearchParameters& params, SingleMachineFactoryOptions* opts) {
+  LOG(INFO) << "FA called";
+  
   return InvalidArgumentError(
       "Tree-AH with residual quantization only works with float data.");
 }
@@ -144,6 +150,8 @@ template <>
 StatusOrSearcherUntyped TreeAhHybridResidualFactory<float>(
     const ScannConfig& config, const shared_ptr<TypedDataset<float>>& dataset,
     const GenericSearchParameters& params, SingleMachineFactoryOptions* opts) {
+  LOG(INFO) << "FA called";
+      
   unique_ptr<Partitioner<float>> partitioner;
   if (config.partitioning().has_partitioner_prefix()) {
     return InvalidArgumentError("Loading a partitioner is not supported.");
@@ -267,6 +275,8 @@ StatusOrSearcherUntyped TreeAhHybridResidualFactory<float>(
 }
 
 std::vector<float> InverseMultiplier(PreQuantizedFixedPoint* fixed_point) {
+  LOG(INFO) << "FA called";
+
   std::vector<float> inverse_multipliers;
   inverse_multipliers.resize(fixed_point->multiplier_by_dimension->size());
 
@@ -281,6 +291,8 @@ void PartitionPreQuantizedFixedPoint(
     PreQuantizedFixedPoint* whole_fp,
     vector<DenseDataset<int8_t>>* tokenized_quantized_datasets,
     vector<std::vector<float>>* tokenized_squared_l2_norms) {
+  LOG(INFO) << "FA called";
+    
   auto& original = *(whole_fp->fixed_point_dataset);
   auto& original_l2 = *(whole_fp->squared_l2_norm_by_datapoint);
   tokenized_quantized_datasets->clear();
@@ -316,6 +328,8 @@ StatusOrSearcherUntyped PretrainedTreeSQFactoryFromAssets(
     const vector<std::vector<DatapointIndex>>& datapoints_by_token,
     unique_ptr<Partitioner<float>> partitioner,
     shared_ptr<PreQuantizedFixedPoint> fp_assets) {
+  LOG(INFO) << "FA called";
+  
   vector<DenseDataset<int8_t>> tokenized_quantized_datasets;
   vector<std::vector<float>> tokenized_squared_l2_norms;
   PartitionPreQuantizedFixedPoint(datapoints_by_token, fp_assets.get(),
@@ -363,6 +377,8 @@ StatusOrSearcherUntyped PretrainedTreeSQFactoryFromAssets(
 StatusOrSearcherUntyped PretrainedSQTreeXHybridFactory(
     const ScannConfig& config, const shared_ptr<TypedDataset<float>>& dataset,
     const GenericSearchParameters& params, SingleMachineFactoryOptions* opts) {
+  LOG(INFO) << "FA called";
+  
   TF_ASSIGN_OR_RETURN(unique_ptr<Partitioner<float>> partitioner,
                       CreateTreeXPartitioner<float>(nullptr, config, opts));
   DCHECK(partitioner);
@@ -381,6 +397,8 @@ template <typename T>
 StatusOrSearcherUntyped NonResidualTreeXHybridFactory(
     const ScannConfig& config, const shared_ptr<TypedDataset<T>>& dataset,
     const GenericSearchParameters& params, SingleMachineFactoryOptions* opts) {
+  LOG(INFO) << "FA called";
+  
   TF_ASSIGN_OR_RETURN(auto partitioner,
                       CreateTreeXPartitioner<T>(dataset, config, opts));
   DCHECK(partitioner);
@@ -545,6 +563,8 @@ template <typename T>
 StatusOrSearcherUntyped TreeXHybridFactory(
     const ScannConfig& config, const shared_ptr<TypedDataset<T>>& dataset,
     const GenericSearchParameters& params, SingleMachineFactoryOptions* opts) {
+  LOG(INFO) << "FA called";
+  
   if (config.hash().asymmetric_hash().use_residual_quantization()) {
     return TreeAhHybridResidualFactory<T>(config, dataset, params, opts);
   } else if (std::is_same<T, float>::value &&
@@ -560,6 +580,8 @@ template <typename T>
 StatusOrSearcherUntyped BruteForceFactory(
     const BruteForceConfig& config, const shared_ptr<TypedDataset<T>>& dataset,
     const GenericSearchParameters& params) {
+  LOG(INFO) << "FA called";
+  
   SCANN_RET_CHECK(dataset);
 
   if (config.fixed_point().enabled()) {
@@ -574,6 +596,8 @@ StatusOrSearcherUntyped BruteForceFactory(
 StatusOrSearcherUntyped BruteForceFactory(const BruteForceConfig& config,
                                           const GenericSearchParameters& params,
                                           PreQuantizedFixedPoint* fixed_point) {
+  LOG(INFO) << "FA called";
+  
   auto fixed_point_dataset = std::move(*(fixed_point->fixed_point_dataset));
 
   std::vector<float> inverse_multipliers = InverseMultiplier(fixed_point);
@@ -600,6 +624,8 @@ StatusOrSearcherUntyped BruteForceFactory<float>(
     const BruteForceConfig& config,
     const shared_ptr<TypedDataset<float>>& dataset,
     const GenericSearchParameters& params) {
+  LOG(INFO) << "FA called";
+
   SCANN_RET_CHECK(dataset);
 
   if (config.fixed_point().enabled()) {
@@ -641,6 +667,8 @@ StatusOrSearcherUntyped HashFactory(shared_ptr<TypedDataset<T>> dataset,
                                     const ScannConfig& config,
                                     SingleMachineFactoryOptions* opts,
                                     const GenericSearchParameters& params) {
+  LOG(INFO) << "FA called";
+  
   const HashConfig& hash_config = config.hash();
   const int num_hashes =
       hash_config.has_asymmetric_hash() + hash_config.has_bit_sampling_hash() +
@@ -667,6 +695,8 @@ class ScannLeafSearcher {
       const ScannConfig& config, const shared_ptr<TypedDataset<T>>& dataset,
       const GenericSearchParameters& params,
       SingleMachineFactoryOptions* opts) {
+    LOG(INFO) << "FA called";
+    
     if (internal::NumQueryDatabaseSearchTypesConfigured(config) != 1) {
       return InvalidArgumentError(
           "Exactly one single-machine search type must be configured in "
@@ -698,6 +728,7 @@ template <typename T>
 StatusOr<unique_ptr<SingleMachineSearcherBase<T>>> SingleMachineFactoryScann(
     const ScannConfig& config, shared_ptr<TypedDataset<T>> dataset,
     SingleMachineFactoryOptions opts) {
+  LOG(INFO) << "FA called";
   opts.type_tag = TagForType<T>();
   TF_ASSIGN_OR_RETURN(auto searcher, SingleMachineFactoryUntypedScann(
                                          config, dataset, std::move(opts)));
@@ -708,6 +739,7 @@ StatusOr<unique_ptr<SingleMachineSearcherBase<T>>> SingleMachineFactoryScann(
 StatusOrSearcherUntyped SingleMachineFactoryUntypedScann(
     const ScannConfig& config, shared_ptr<Dataset> dataset,
     SingleMachineFactoryOptions opts) {
+  LOG(INFO) << "FA called";
   return internal::SingleMachineFactoryUntypedImpl<ScannLeafSearcher>(
       config, dataset, opts);
 }
@@ -718,6 +750,7 @@ template <typename T>
 StatusOrSearcherUntyped SingleMachineFactoryLeafSearcherScann(
     const ScannConfig& config, const shared_ptr<TypedDataset<T>>& dataset,
     const GenericSearchParameters& params, SingleMachineFactoryOptions* opts) {
+  LOG(INFO) << "FA called";
   return ScannLeafSearcher::SingleMachineFactoryLeafSearcher(config, dataset,
                                                              params, opts);
 }

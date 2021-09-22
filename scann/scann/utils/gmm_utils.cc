@@ -24,6 +24,7 @@
 #include "Eigen/StdVector"
 #include "absl/base/internal/endian.h"
 #include "absl/container/flat_hash_set.h"
+#include "absl/numeric/bits.h"
 #include "absl/random/distributions.h"
 #include "absl/time/time.h"
 #include "scann/base/restrict_allowlist.h"
@@ -34,7 +35,6 @@
 #include "scann/distance_measures/many_to_many/many_to_many.h"
 #include "scann/distance_measures/one_to_many/one_to_many.h"
 #include "scann/distance_measures/one_to_one/l2_distance.h"
-#include "scann/oss_wrappers/scann_bits.h"
 #include "scann/oss_wrappers/scann_status.h"
 #include "scann/proto/partitioning.pb.h"
 #include "scann/utils/common.h"
@@ -307,6 +307,7 @@ namespace {
 vector<pair<DatapointIndex, double>> UnbalancedPartitionAssignment(
     GmmUtilsImplInterface* impl, const DistanceMeasure& distance,
     const DenseDataset<double>& centers, ThreadPool* pool) {
+  LOG(INFO) << "FA UnbalancedPartitionAssignment";
   vector<pair<DatapointIndex, double>> top1_results(impl->size());
 
   impl->IterateDataset(
@@ -344,6 +345,7 @@ vector<pair<DatapointIndex, double>> GreedyBalancedPartitionAssignment(
 
 GmmUtils::PartitionAssignmentFn GetPartitionAssignmentFn(
     GmmUtils::Options::PartitionAssignmentType type) {
+  LOG(INFO) << "FA GetPartitionAssignmentFn";
   switch (type) {
     case GmmUtils::Options::UNBALANCED:
       return &UnbalancedPartitionAssignment;
@@ -362,6 +364,7 @@ Status GmmUtils::GenericKmeans(
     const Dataset& dataset, const int32_t num_clusters,
     DenseDataset<double>* final_centers,
     vector<vector<DatapointIndex>>* final_partitions) {
+  LOG(INFO) << "FA GmmUtils::GenericKmeans";
   return KMeansImpl(false, dataset, {}, num_clusters,
                     GetPartitionAssignmentFn(opts_.partition_assignment_type),
                     final_centers, final_partitions);
@@ -370,6 +373,7 @@ Status GmmUtils::GenericKmeans(
     const Dataset& dataset, ConstSpan<DatapointIndex> subset,
     const int32_t num_clusters, DenseDataset<double>* final_centers,
     vector<vector<DatapointIndex>>* final_partitions) {
+  LOG(INFO) << "FA GmmUtils::GenericKmeans";
   return KMeansImpl(false, dataset, subset, num_clusters,
                     GetPartitionAssignmentFn(opts_.partition_assignment_type),
                     final_centers, final_partitions);
@@ -379,6 +383,7 @@ Status GmmUtils::SphericalKmeans(
     const Dataset& dataset, const int32_t num_clusters,
     DenseDataset<double>* final_centers,
     vector<vector<DatapointIndex>>* final_partitions) {
+  LOG(INFO) << "FA GmmUtils::SphericalKmeans";
   return KMeansImpl(true, dataset, {}, num_clusters,
                     GetPartitionAssignmentFn(opts_.partition_assignment_type),
                     final_centers, final_partitions);
@@ -387,6 +392,7 @@ Status GmmUtils::SphericalKmeans(
     const Dataset& dataset, ConstSpan<DatapointIndex> subset,
     const int32_t num_clusters, DenseDataset<double>* final_centers,
     vector<vector<DatapointIndex>>* final_partitions) {
+  LOG(INFO) << "FA GmmUtils::SphericalKmeans";
   return KMeansImpl(true, dataset, subset, num_clusters,
                     GetPartitionAssignmentFn(opts_.partition_assignment_type),
                     final_centers, final_partitions);
@@ -396,6 +402,7 @@ Status GmmUtils::InitializeCenters(const Dataset& dataset,
                                    ConstSpan<DatapointIndex> subset,
                                    int32_t num_clusters,
                                    DenseDataset<double>* initial_centers) {
+  LOG(INFO) << "FA GmmUtils::InitializeCenters";
   switch (opts_.center_initialization_type) {
     case Options::KMEANS_PLUS_PLUS:
       return KMeansPPInitializeCenters(dataset, subset, num_clusters,
@@ -412,6 +419,7 @@ Status GmmUtils::InitializeCenters(const Dataset& dataset,
 Status GmmUtils::MeanDistanceInitializeCenters(
     const Dataset& dataset, ConstSpan<DatapointIndex> subset,
     int32_t num_clusters, DenseDataset<double>* initial_centers) {
+  LOG(INFO) << "FA GmmUtils::MeanDistanceInitializeCenters";
   SCANN_RET_CHECK(initial_centers);
   initial_centers->clear();
   auto impl = GmmUtilsImplInterface::Create(*distance_, dataset, subset,
@@ -482,6 +490,7 @@ Status GmmUtils::MeanDistanceInitializeCenters(
 Status GmmUtils::KMeansPPInitializeCenters(
     const Dataset& dataset, ConstSpan<DatapointIndex> subset,
     int32_t num_clusters, DenseDataset<double>* initial_centers) {
+  LOG(INFO) << "FA GmmUtils::KMeansPPInitializeCenters";
   SCANN_RET_CHECK(initial_centers);
   initial_centers->clear();
   auto impl = GmmUtilsImplInterface::Create(*distance_, dataset, subset,
@@ -559,6 +568,7 @@ Status GmmUtils::KMeansPPInitializeCenters(
 Status GmmUtils::RandomInitializeCenters(
     const Dataset& dataset, ConstSpan<DatapointIndex> subset,
     int32_t num_clusters, DenseDataset<double>* initial_centers) {
+  LOG(INFO) << "FA GmmUtils::RandomInitializeCenters";
   SCANN_RET_CHECK(initial_centers);
   initial_centers->clear();
   auto impl = GmmUtilsImplInterface::Create(*distance_, dataset, subset,
@@ -607,6 +617,7 @@ SCANN_OUTLINE Status GmmUtils::KMeansImpl(
     int32_t num_clusters, PartitionAssignmentFn partition_assignment_fn,
     DenseDataset<double>* final_centers,
     vector<vector<DatapointIndex>>* final_partitions) {
+  LOG(INFO) << "FA GmmUtils::KMeansImpl";
   DCHECK(final_centers);
   if (dataset.IsDense() && subset.size() == dataset.size() &&
       IsStdIota(subset)) {
@@ -767,6 +778,7 @@ StatusOr<double> GmmUtils::ComputeSpillingThreshold(
     const DenseDataset<double>& centers,
     const DatabaseSpillingConfig::SpillingType spilling_type,
     const float total_spill_factor, const uint32_t max_centers) {
+  LOG(INFO) << "FA GmmUtils::ComputeSpillingThreshold";
   if (max_centers <= 1) {
     return InvalidArgumentError(
         "max_centers must be > 1 for ComputeSpillingThreshold.");
@@ -855,6 +867,7 @@ Status GmmUtils::RecomputeCentroidsSimple(
     ConstSpan<pair<uint32_t, double>> top1_results, GmmUtilsImplInterface* impl,
     ConstSpan<uint32_t> partition_sizes, bool spherical,
     DenseDataset<double>* centroids) const {
+  LOG(INFO) << "FA GmmUtils::RecomputeCentroidsSimple";
   const size_t dataset_size = impl->size();
   const size_t dimensionality = impl->dimensionality();
   std::fill(centroids->mutable_data().begin(), centroids->mutable_data().end(),
@@ -892,6 +905,7 @@ Status GmmUtils::RandomReinitializeCenters(
     ConstSpan<pair<uint32_t, double>> top1_results, GmmUtilsImplInterface* impl,
     ConstSpan<uint32_t> partition_sizes, bool spherical,
     DenseDataset<double>* centroids, std::vector<double>* convergence_means) {
+  LOG(INFO) << "FA GmmUtils::RandomReinitializeCenters";
   Datapoint<double> storage;
   int num_reinit_this_iter = 0;
   const uint32_t dimensionality = centroids->dimensionality();
@@ -947,6 +961,7 @@ Status GmmUtils::RandomReinitializeCenters(
 Status GmmUtils::SplitLargeClusterReinitialization(
     ConstSpan<uint32_t> partition_sizes, bool spherical,
     DenseDataset<double>* centroids, std::vector<double>* convergence_means) {
+  LOG(INFO) << "FA GmmUtils::SplitLargeClusterReinitialization";
   std::vector<uint32_t> sorted_partition_sizes(partition_sizes.size());
   std::vector<uint32_t> partition_permutation(partition_sizes.size());
   std::copy(partition_sizes.begin(), partition_sizes.end(),
@@ -1018,6 +1033,8 @@ Status GmmUtils::PCAKmeansReinitialization(
   using Eigen::RowVectorXd;
   using Eigen::VectorXd;
 
+  LOG(INFO) << "FA GmmUtils::PCAKmeansReinitialization";
+
   uint32_t dim = centroids->dimensionality();
   std::vector<uint32_t> sorted_partition_sizes(partition_sizes.size());
   std::vector<uint32_t> partition_permutation(partition_sizes.size());
@@ -1085,9 +1102,8 @@ Status GmmUtils::PCAKmeansReinitialization(
   uint32_t min_partition_idx = sorted_partition_sizes.size();
   for (const auto& i : Seq(covariances.size())) {
     const uint32_t multiple_of_avg = (sorted_partition_sizes[i] - 1) / avg_size;
-    const uint32_t num_split_directions =
-        std::min(opts_.max_power_of_2_split,
-                 32 - bits::CountLeadingZeros32(multiple_of_avg));
+    const uint32_t num_split_directions = std::min(
+        opts_.max_power_of_2_split, 32 - absl::countl_zero(multiple_of_avg));
 
     covariances[i] /= sorted_partition_sizes[i];
 
@@ -1156,6 +1172,7 @@ Status GmmUtils::RecomputeCentroidsWithParallelCostMultiplier(
     ConstSpan<pair<uint32_t, double>> top1_results, GmmUtilsImplInterface* impl,
     ConstSpan<uint32_t> partition_sizes, bool spherical,
     DenseDataset<double>* centroids) const {
+  LOG(INFO) << "FA GmmUtils::RecomputeCentroidsWithParallelCostMultiplier";
   const double parallel_cost_multiplier = opts_.parallel_cost_multiplier;
   SCANN_RET_CHECK_NE(parallel_cost_multiplier, 1.0);
   const size_t dimensionality = impl->dimensionality();

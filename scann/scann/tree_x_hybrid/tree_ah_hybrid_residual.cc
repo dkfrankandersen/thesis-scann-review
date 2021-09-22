@@ -102,6 +102,7 @@ Status TreeAHHybridResidual::CheckBuildLeafSearchersPreconditions(
 namespace {
 vector<uint32_t> OrderLeafTokensByCenterNorm(
     const KMeansTreeLikePartitioner<float>& partitioner) {
+  LOG(INFO) << "FA OrderLeafTokensByCenterNorm";
   vector<float> norms(partitioner.n_tokens());
   std::function<void(const KMeansTreeNode&)> impl =
       [&](const KMeansTreeNode& node) {
@@ -128,6 +129,7 @@ template <typename GetResidual>
 StatusOr<DenseDataset<float>> ComputeResidualsImpl(
     const DenseDataset<float>& dataset, GetResidual get_residual,
     ConstSpan<std::vector<DatapointIndex>> datapoints_by_token) {
+  LOG(INFO) << "FA ComputeResidualsImpl";
   const size_t dimensionality = dataset.dimensionality();
 
   vector<uint32_t> tokens_by_datapoint(dataset.size());
@@ -157,6 +159,7 @@ StatusOr<DenseDataset<float>> TreeAHHybridResidual::ComputeResiduals(
     const DenseDataset<float>& dataset,
     const DenseDataset<float>& kmeans_centers,
     ConstSpan<std::vector<DatapointIndex>> datapoints_by_token) {
+  LOG(INFO) << "FA TreeAHHybridResidual::ComputeResiduals";
   DCHECK(!kmeans_centers.empty());
   DCHECK_EQ(kmeans_centers.size(), datapoints_by_token.size());
   DCHECK_EQ(kmeans_centers.dimensionality(), dataset.dimensionality());
@@ -183,6 +186,7 @@ StatusOr<DenseDataset<float>> TreeAHHybridResidual::ComputeResiduals(
     const KMeansTreeLikePartitioner<float>* partitioner,
     ConstSpan<std::vector<DatapointIndex>> datapoints_by_token,
     bool normalize_residual_by_cluster_stdev) {
+  LOG(INFO) << "FA TreeAHHybridResidual::ComputeResiduals";
   Datapoint<float> residual;
   auto get_residual =
       [&](const DatapointPtr<float>& dptr,
@@ -197,6 +201,7 @@ StatusOr<DenseDataset<float>> TreeAHHybridResidual::ComputeResiduals(
 
 StatusOr<uint8_t> TreeAHHybridResidual::ComputeGlobalTopNShift(
     ConstSpan<std::vector<DatapointIndex>> datapoints_by_token) {
+  LOG(INFO) << "FA TreeAHHybridResidual::ComputeGlobalTopNShift";
   size_t largest_partition_size = 0;
   for (const auto& dps_in_partition : datapoints_by_token)
     largest_partition_size =
@@ -222,6 +227,7 @@ StatusOr<uint8_t> TreeAHHybridResidual::ComputeGlobalTopNShift(
 
 Status TreeAHHybridResidual::PreprocessQueryIntoParamsUnlocked(
     const DatapointPtr<float>& query, SearchParameters& search_params) const {
+  LOG(INFO) << "FA TreeAHHybridResidual::PreprocessQueryIntoParamsUnlocked";
   const auto& params =
       search_params
           .searcher_specific_optional_parameters<TreeXOptionalParameters>();
@@ -249,6 +255,7 @@ Status TreeAHHybridResidual::BuildLeafSearchers(
     shared_ptr<const asymmetric_hashing2::Model<float>> ah_model,
     vector<std::vector<DatapointIndex>> datapoints_by_token,
     const DenseDataset<uint8_t>* hashed_dataset, ThreadPool* pool) {
+  LOG(INFO) << "FA TreeAHHybridResidual::BuildLeafSearchers";
   DCHECK(partitioner);
   SCANN_RETURN_IF_ERROR(
       CheckBuildLeafSearchersPreconditions(config, *partitioner));
@@ -378,6 +385,7 @@ Status TreeAHHybridResidual::BuildLeafSearchers(
 Status TreeAHHybridResidual::FindNeighborsImpl(const DatapointPtr<float>& query,
                                                const SearchParameters& params,
                                                NNResultsVector* result) const {
+  LOG(INFO) << "FA TreeAHHybridResidual::FindNeighborsImpl";
   auto query_preprocessing_results =
       params.unlocked_query_preprocessing_results<
           UnlockedTreeAHHybridResidualPreprocessingResults>();
@@ -406,6 +414,7 @@ using QueryForLeaf = tree_x_internal::QueryForResidualLeaf;
 vector<std::vector<QueryForLeaf>> InvertCentersToSearch(
     ConstSpan<vector<KMeansTreeSearchResult>> centers_to_search,
     size_t num_centers) {
+  LOG(INFO) << "FA InvertCentersToSearch";
   vector<std::vector<QueryForLeaf>> result(num_centers);
   for (DatapointIndex query_index : IndicesOf(centers_to_search)) {
     ConstSpan<KMeansTreeSearchResult> cur_query_centers =
@@ -428,6 +437,7 @@ inline void AssignResults(TopN* top_n, NNResultsVector* results) {
 Status TreeAHHybridResidual::FindNeighborsBatchedImpl(
     const TypedDataset<float>& queries, ConstSpan<SearchParameters> params,
     MutableSpan<NNResultsVector> results) const {
+  LOG(INFO) << "FA TreeAHHybridResidual::FindNeighborsBatchedImpl";
   vector<int32_t> centers_override(queries.size());
   bool centers_overridden = false;
   for (int i = 0; i < queries.size(); i++) {
@@ -526,6 +536,7 @@ Status TreeAHHybridResidual::FindNeighborsInternal1(
     const DatapointPtr<float>& query, const SearchParameters& params,
     ConstSpan<KMeansTreeSearchResult> centers_to_search,
     NNResultsVector* result) const {
+  LOG(INFO) << "FA TreeAHHybridResidual::FindNeighborsInternal1";
   if (params.pre_reordering_crowding_enabled()) {
     return FailedPreconditionError("Crowding is not supported.");
   } else if (enable_global_topn_) {
@@ -592,6 +603,7 @@ Status TreeAHHybridResidual::FindNeighborsInternal2(
     const DatapointPtr<float>& query, const SearchParameters& params,
     ConstSpan<KMeansTreeSearchResult> centers_to_search, TopN top_n,
     NNResultsVector* result) const {
+  LOG(INFO) << "FA TreeAHHybridResidual::FindNeighborsInternal2";
   DCHECK(result);
   SearchParameters leaf_params;
   leaf_params.set_pre_reordering_num_neighbors(
@@ -640,6 +652,7 @@ Status TreeAHHybridResidual::FindNeighborsInternal2(
 StatusOr<pair<int32_t, DatapointPtr<float>>>
 TreeAHHybridResidual::TokenizeAndMaybeResidualize(
     const DatapointPtr<float>& dptr, Datapoint<float>* residual_storage) {
+  LOG(INFO) << "FA TreeAHHybridResidual::TokenizeAndMaybeResidualize";
   KMeansTreeSearchResult token_storage;
   SCANN_RETURN_IF_ERROR(
       database_tokenizer_->TokenForDatapoint(dptr, &token_storage));
@@ -658,6 +671,7 @@ StatusOr<vector<pair<int32_t, DatapointPtr<float>>>>
 TreeAHHybridResidual::TokenizeAndMaybeResidualize(
     const TypedDataset<float>& dps,
     MutableSpan<Datapoint<float>*> residual_storage) {
+  LOG(INFO) << "FA TreeAHHybridResidual::TokenizeAndMaybeResidualize";
   SCANN_RET_CHECK_EQ(dps.size(), residual_storage.size());
   vector<vector<KMeansTreeSearchResult>> token_storage(dps.size());
   vector<int32_t> max_centers(dps.size(), 1);
@@ -683,6 +697,7 @@ TreeAHHybridResidual::TokenizeAndMaybeResidualize(
 
 StatusOr<SingleMachineFactoryOptions>
 TreeAHHybridResidual::ExtractSingleMachineFactoryOptions() {
+  LOG(INFO) << "FA TreeAHHybridResidual::ExtractSingleMachineFactoryOptions";
   TF_ASSIGN_OR_RETURN(const int dataset_size,
                       UntypedSingleMachineSearcherBase::DatasetSize());
   TF_ASSIGN_OR_RETURN(
@@ -705,6 +720,7 @@ TreeAHHybridResidual::ExtractSingleMachineFactoryOptions() {
 }
 
 void TreeAHHybridResidual::AttemptEnableGlobalTopN() {
+  LOG(INFO) << "FA TreeAHHybridResidual::AttemptEnableGlobalTopN";
   if (datapoints_by_token_.empty()) {
     LOG(ERROR) << "datapoints_by_token_ is empty. EnableGlobalTopN() should be "
                   "called after all leaves are trained and initialized.";

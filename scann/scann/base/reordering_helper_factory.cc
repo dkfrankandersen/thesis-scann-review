@@ -40,6 +40,8 @@ StatusOrHelper<T> BuildFixedPointReorderingHelper(
     const shared_ptr<const DistanceMeasure>& reordering_dist,
     const shared_ptr<TypedDataset<T>>& dataset,
     SingleMachineFactoryOptions* opts) {
+  LOG(INFO) << "FA Called";
+  
   return InvalidArgumentError(
       "Fixed-point reordering is only supported for float types.");
 }
@@ -50,6 +52,7 @@ StatusOrHelper<float> BuildFixedPointReorderingHelper<float>(
     const shared_ptr<const DistanceMeasure>& reordering_dist,
     const shared_ptr<TypedDataset<float>>& dataset,
     SingleMachineFactoryOptions* opts) {
+  LOG(INFO) << "FA called";
   if (dataset && !dataset->IsDense()) return {nullptr};
   const auto& distance_type = typeid(*reordering_dist);
 
@@ -115,6 +118,7 @@ StatusOrHelper<T> ExactReorderingFactory(
     const shared_ptr<const DistanceMeasure>& reordering_dist,
     const shared_ptr<TypedDataset<T>>& dataset,
     SingleMachineFactoryOptions* opts) {
+  LOG(INFO) << "FA StatusOrHelper<T> ExactReorderingFactory";
   if (config.fixed_point().enabled() || config.use_fixed_point_if_possible()) {
     auto statusor = BuildFixedPointReorderingHelper<T>(
         config.fixed_point(), reordering_dist, dataset, opts);
@@ -136,6 +140,7 @@ ReorderingHelperFactory<T>::Build(
     const ScannConfig& config,
     const shared_ptr<const DistanceMeasure>& reordering_dist,
     shared_ptr<TypedDataset<T>> dataset, SingleMachineFactoryOptions* opts) {
+  LOG(INFO) << "FA ReorderingHelperFactory<T>::Build";
   if (config.has_exact_reordering()) {
     return ExactReorderingFactory<T>(config.exact_reordering(), reordering_dist,
                                      dataset, opts);

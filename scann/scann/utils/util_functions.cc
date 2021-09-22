@@ -32,6 +32,8 @@ namespace research_scann {
 #ifdef __SSE3__
 
 float MaxAbsValue(ConstSpan<float> arr) {
+  LOG(INFO) << "FA called";
+
   size_t num_simd_iter = arr.size() / 4;
   const float* ptr = arr.data();
   __m128 accumulators = _mm_setzero_ps();
@@ -63,6 +65,8 @@ float MaxAbsValue(ConstSpan<float> arr) {
 #else
 
 float MaxAbsValue(ConstSpan<float> arr) {
+  LOG(INFO) << "FA called";
+
   float max_abs_value = 0.0f;
   for (float elem : arr) {
     max_abs_value = std::max(max_abs_value, std::abs(elem));
@@ -75,6 +79,8 @@ float MaxAbsValue(ConstSpan<float> arr) {
 
 void RemoveNeighborsPastLimit(DatapointIndex num_neighbors,
                               NNResultsVector* result) {
+  LOG(INFO) << "FA called";
+  
   DCHECK(result);
   if (num_neighbors == 0) {
     result->clear();

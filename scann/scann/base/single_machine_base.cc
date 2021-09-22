@@ -40,6 +40,8 @@ UntypedSingleMachineSearcherBase::~UntypedSingleMachineSearcherBase() {}
 
 StatusOr<string_view> UntypedSingleMachineSearcherBase::GetDocid(
     DatapointIndex i) const {
+  LOG(INFO) << "FA Called";
+  
   if (!docids_) {
     return FailedPreconditionError(
         "This SingleMachineSearcherBase instance does not have access to "
@@ -57,6 +59,8 @@ StatusOr<string_view> UntypedSingleMachineSearcherBase::GetDocid(
 
 Status UntypedSingleMachineSearcherBase::set_docids(
     shared_ptr<const DocidCollectionInterface> docids) {
+  LOG(INFO) << "FA Called";
+
   if (dataset() || hashed_dataset()) {
     return FailedPreconditionError(
         "UntypedSingleMachineSearcherBase::set_docids may only be called "
@@ -79,17 +83,23 @@ Status UntypedSingleMachineSearcherBase::set_docids(
 
 void UntypedSingleMachineSearcherBase::SetUnspecifiedParametersToDefaults(
     SearchParameters* params) const {
+  LOG(INFO) << "FA UntypedSingleMachineSearcherBase::SetUnspecifiedParametersToDefaults";
+  
   params->SetUnspecifiedParametersFrom(default_search_parameters_);
 }
 
 Status UntypedSingleMachineSearcherBase::EnableCrowding(
     vector<int64_t> datapoint_index_to_crowding_attribute) {
+  LOG(INFO) << "FA Called";
+
   return EnableCrowding(std::make_shared<vector<int64_t>>(
       std::move(datapoint_index_to_crowding_attribute)));
 }
 
 Status UntypedSingleMachineSearcherBase::EnableCrowding(
     shared_ptr<vector<int64_t>> datapoint_index_to_crowding_attribute) {
+  LOG(INFO) << "FA Called";
+  
   SCANN_RET_CHECK(datapoint_index_to_crowding_attribute);
   if (!supports_crowding()) {
     return UnimplementedError("Crowding not supported for this searcher.");
@@ -105,6 +115,8 @@ Status UntypedSingleMachineSearcherBase::EnableCrowding(
 }
 
 StatusOr<DatapointIndex> UntypedSingleMachineSearcherBase::DatasetSize() const {
+  LOG(INFO) << "FA Called";
+
   if (dataset()) {
     return dataset()->size();
   } else if (hashed_dataset()) {
@@ -138,6 +150,8 @@ UntypedSingleMachineSearcherBase::UntypedSingleMachineSearcherBase(
                                  default_pre_reordering_epsilon,
                                  default_pre_reordering_num_neighbors,
                                  default_pre_reordering_epsilon) {
+  LOG(INFO) << "FA UntypedSingleMachineSearcherBase::UntypedSingleMachineSearcherBase";
+  
   if (default_pre_reordering_num_neighbors <= 0) {
     LOG(FATAL) << "default_pre_reordering_num_neighbors must be > 0, not "
                << default_pre_reordering_num_neighbors << ".";
@@ -158,11 +172,15 @@ SingleMachineSearcherBase<T>::SingleMachineSearcherBase(
                                        default_pre_reordering_num_neighbors,
                                        default_pre_reordering_epsilon),
       dataset_(dataset) {
+  LOG(INFO) << "FA SingleMachineSearcherBase<T>::SingleMachineSearcherBase";
+  
   TF_CHECK_OK(BaseInitImpl());
 }
 
 template <typename T>
 Status SingleMachineSearcherBase<T>::BaseInitImpl() {
+  LOG(INFO) << "FA SingleMachineSearcherBase<T>::BaseInitImpl";
+
   if (hashed_dataset_ && dataset_ &&
       dataset_->size() != hashed_dataset_->size()) {
     return FailedPreconditionError(
@@ -185,6 +203,8 @@ Status SingleMachineSearcherBase<T>::BaseInitFromDatasetAndConfig(
     shared_ptr<const TypedDataset<T>> dataset,
     shared_ptr<const DenseDataset<uint8_t>> hashed_dataset,
     const ScannConfig& config) {
+  LOG(INFO) << "FA Called";
+  
   dataset_ = std::move(dataset);
   hashed_dataset_ = std::move(hashed_dataset);
   SCANN_RETURN_IF_ERROR(PopulateDefaultParameters(config));
@@ -194,6 +214,8 @@ Status SingleMachineSearcherBase<T>::BaseInitFromDatasetAndConfig(
 template <typename T>
 Status SingleMachineSearcherBase<T>::PopulateDefaultParameters(
     const ScannConfig& config) {
+  LOG(INFO) << "FA Called";
+  
   GenericSearchParameters params;
   SCANN_RETURN_IF_ERROR(params.PopulateValuesFromScannConfig(config));
   const bool params_has_pre_norm =
@@ -232,6 +254,8 @@ SingleMachineSearcherBase<T>::~SingleMachineSearcherBase() {}
 
 Status UntypedSingleMachineSearcherBase::SetMetadataGetter(
     shared_ptr<UntypedMetadataGetter> metadata_getter) {
+  LOG(INFO) << "FA Called";
+  
   if (metadata_getter && metadata_getter->TypeTag() != this->TypeTag()) {
     return FailedPreconditionError(
         "SetMetadataGetter called with a MetadataGetter<%s>. Expected "
@@ -245,6 +269,8 @@ Status UntypedSingleMachineSearcherBase::SetMetadataGetter(
 
 template <typename T>
 bool SingleMachineSearcherBase<T>::needs_dataset() const {
+  LOG(INFO) << "FA Called";
+
   return impl_needs_dataset() ||
          (reordering_enabled() && reordering_helper_->needs_dataset()) ||
          (metadata_enabled() && metadata_getter_->needs_dataset()) ||
@@ -255,6 +281,8 @@ bool SingleMachineSearcherBase<T>::needs_dataset() const {
 template <typename T>
 StatusOr<SingleMachineFactoryOptions>
 SingleMachineSearcherBase<T>::ExtractSingleMachineFactoryOptions() {
+  LOG(INFO) << "FA Called";
+
   SingleMachineFactoryOptions opts;
 
   opts.hashed_dataset =
@@ -269,6 +297,8 @@ SingleMachineSearcherBase<T>::ExtractSingleMachineFactoryOptions() {
 }
 
 bool UntypedSingleMachineSearcherBase::needs_hashed_dataset() const {
+  LOG(INFO) << "FA UntypedSingleMachineSearcherBase::needs_hashed_dataset";
+
   return impl_needs_hashed_dataset() ||
 
          (hashed_dataset_ && mutator_outstanding_);
@@ -278,6 +308,8 @@ template <typename T>
 Status SingleMachineSearcherBase<T>::FindNeighbors(
     const DatapointPtr<T>& query, const SearchParameters& params,
     NNResultsVector* result) const {
+  LOG(INFO) << "FA SingleMachineSearcherBase<T>::FindNeighbors";
+  
   SCANN_RET_CHECK(query.IsFinite())
       << "Cannot query ScaNN with vectors that contain NaNs or infinity.";
   DCHECK(result);
@@ -295,6 +327,8 @@ template <typename T>
 Status SingleMachineSearcherBase<T>::FindNeighborsNoSortNoExactReorder(
     const DatapointPtr<T>& query, const SearchParameters& params,
     NNResultsVector* result) const {
+  LOG(INFO) << "FA SingleMachineSearcherBase<T>::FindNeighborsNoSortNoExactReorder";
+
   DCHECK(result);
   bool reordering_enabled = exact_reordering_enabled();
   SCANN_RETURN_IF_ERROR(params.Validate(reordering_enabled));
@@ -324,6 +358,8 @@ Status SingleMachineSearcherBase<T>::FindNeighborsNoSortNoExactReorder(
 template <typename T>
 Status SingleMachineSearcherBase<T>::FindNeighborsBatched(
     const TypedDataset<T>& queries, MutableSpan<NNResultsVector> result) const {
+  LOG(INFO) << "FA called (not expected)";
+  
   vector<SearchParameters> params(queries.size());
   for (auto& p : params) {
     p.SetUnspecifiedParametersFrom(default_search_parameters_);
@@ -335,6 +371,8 @@ template <typename T>
 Status SingleMachineSearcherBase<T>::FindNeighborsBatched(
     const TypedDataset<T>& queries, ConstSpan<SearchParameters> params,
     MutableSpan<NNResultsVector> results) const {
+  LOG(INFO) << "FA called (not expected)";
+
   SCANN_RETURN_IF_ERROR(
       FindNeighborsBatchedNoSortNoExactReorder(queries, params, results));
 
@@ -355,6 +393,8 @@ template <typename T>
 Status SingleMachineSearcherBase<T>::FindNeighborsBatchedNoSortNoExactReorder(
     const TypedDataset<T>& queries, ConstSpan<SearchParameters> params,
     MutableSpan<NNResultsVector> results) const {
+  LOG(INFO) << "FA called (not expected)";
+  
   if (queries.size() != params.size()) {
     return InvalidArgumentError(
         "queries.size != params.size in FindNeighbors batched (%d vs. %d).",
@@ -400,6 +440,8 @@ template <typename T>
 Status SingleMachineSearcherBase<T>::GetNeighborProto(
     const pair<DatapointIndex, float> neighbor, const DatapointPtr<T>& query,
     NearestNeighbors::Neighbor* result) const {
+  LOG(INFO) << "FA called (not expected)";
+  
   SCANN_RETURN_IF_ERROR(GetNeighborProtoNoMetadata(neighbor, query, result));
   if (!metadata_enabled()) return OkStatus();
 
@@ -413,6 +455,8 @@ template <typename T>
 Status SingleMachineSearcherBase<T>::GetNeighborProtoNoMetadata(
     const pair<DatapointIndex, float> neighbor, const DatapointPtr<T>& query,
     NearestNeighbors::Neighbor* result) const {
+  LOG(INFO) << "FA called (not expected)";
+  
   DCHECK(result);
   result->Clear();
   TF_ASSIGN_OR_RETURN(auto docid, GetDocid(neighbor.first));
@@ -427,6 +471,8 @@ Status SingleMachineSearcherBase<T>::GetNeighborProtoNoMetadata(
 
 template <typename T>
 void SingleMachineSearcherBase<T>::ReleaseDataset() {
+  LOG(INFO) << "FA called (not expected)";
+
   if (needs_dataset()) {
     LOG(FATAL) << "Cannot release dataset for this instance.";
     return;
@@ -444,12 +490,16 @@ void SingleMachineSearcherBase<T>::ReleaseDataset() {
 
 template <typename T>
 void SingleMachineSearcherBase<T>::ReleaseHashedDataset() {
+  LOG(INFO) << "FA SingleMachineSearcherBase<T>::ReleaseHashedDataset";
+
   if (!hashed_dataset_) return;
   hashed_dataset_.reset();
 }
 
 template <typename T>
 void SingleMachineSearcherBase<T>::ReleaseDatasetAndDocids() {
+  LOG(INFO) << "FA called (not expected)";
+
   if (needs_dataset()) {
     LOG(FATAL) << "Cannot release dataset for this instance.";
     return;
@@ -463,6 +513,8 @@ template <typename T>
 Status SingleMachineSearcherBase<T>::FindNeighborsBatchedImpl(
     const TypedDataset<T>& queries, ConstSpan<SearchParameters> params,
     MutableSpan<NNResultsVector> results) const {
+  LOG(INFO) << "FA called (not expected)";
+
   DCHECK_EQ(queries.size(), params.size());
   DCHECK_EQ(queries.size(), results.size());
   for (DatapointIndex i = 0; i < queries.size(); ++i) {
@@ -477,6 +529,8 @@ template <typename T>
 Status SingleMachineSearcherBase<T>::ReorderResults(
     const DatapointPtr<T>& query, const SearchParameters& params,
     NNResultsVector* result) const {
+  LOG(INFO) << "FA SingleMachineSearcherBase<T>::ReorderResults";
+
   if (params.post_reordering_num_neighbors() == 1) {
     TF_ASSIGN_OR_RETURN(
         auto top1,
@@ -498,6 +552,8 @@ Status SingleMachineSearcherBase<T>::ReorderResults(
 template <typename T>
 Status SingleMachineSearcherBase<T>::SortAndDropResults(
     NNResultsVector* result, const SearchParameters& params) const {
+  LOG(INFO) << "FA called (not expected)";
+  
   if (reordering_enabled()) {
     if (params.post_reordering_num_neighbors() == 1) {
       return OkStatus();
@@ -529,6 +585,8 @@ Status SingleMachineSearcherBase<T>::SortAndDropResults(
 
 template <typename T>
 bool SingleMachineSearcherBase<T>::fixed_point_reordering_enabled() const {
+  LOG(INFO) << "FA called (not expected)";
+
   return (reordering_helper_ &&
           absl::StartsWith(reordering_helper_->name(), "FixedPoint"));
 }

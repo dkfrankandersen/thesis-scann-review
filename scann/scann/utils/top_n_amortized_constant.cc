@@ -24,6 +24,8 @@ namespace research_scann {
 template <typename Distance>
 void TopNeighbors<Distance>::PartitionElements(vector<Neighbor>* elements,
                                                const DistanceComparator& cmp) {
+  LOG(INFO) << "FA called";
+
   ZipNthElementBranchOptimized(DistanceComparatorBranchOptimized(),
                                this->limit() - 1, elements->begin(),
                                elements->end());

@@ -141,7 +141,7 @@ class TreeXHybridSMMD : public SingleMachineSearcherBase<T> {
       const TypedDataset<T>& queries, ConstSpan<SearchParameters> params,
       MutableSpan<NNResultsVector> results) const final;
 
- private:
+ private:/*  */
   class CentersToSearch
       : public SearchParameters::UnlockedQueryPreprocessingResults {
    public:

@@ -133,9 +133,11 @@ Status KMeansTreeNode::Train(const Dataset& training_data,
   vector<vector<DatapointIndex>> subpartitions;
   DenseDataset<double> centers;
   if (opts->partitioning_type == PartitioningConfig::SPHERICAL) {
+    LOG(INFO) << "FA SphericalKmeans";
     SCANN_RETURN_IF_ERROR(gmm.SphericalKmeans(
         training_data, indices_, k_per_level, &centers, &subpartitions));
   } else {
+    LOG(INFO) << "FA GenericKmeans";
     DCHECK_EQ(opts->partitioning_type, PartitioningConfig::GENERIC);
     SCANN_RETURN_IF_ERROR(gmm.GenericKmeans(
         training_data, indices_, k_per_level, &centers, &subpartitions));
@@ -191,6 +193,7 @@ Status KMeansTreeNode::Train(const Dataset& training_data,
   }
 
   if (opts->compute_residual_stdev) {
+    LOG(INFO) << "FA compute_residual_stdev";
     residual_stdevs_.resize(centers.size());
     ParallelFor<1>(Seq(centers.size()),
                    opts->training_parallelization_pool.get(), [&](size_t i) {
@@ -226,6 +229,7 @@ Status KMeansTreeNode::Train(const Dataset& training_data,
 
   centers.ConvertType(&float_centers_);
 
+  LOG(INFO) << "FA KMeansTreeNode::Train finished";
   return OkStatus();
 }
 

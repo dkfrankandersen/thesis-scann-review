@@ -128,4 +128,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-/datasets
+/scann/datasets/
+tensorflow-2.6.0-cp36-cp36m-manylinux2010_x86_64.whl

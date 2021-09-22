@@ -27,6 +27,8 @@ TrainingOptions<T>::TrainingOptions(
     shared_ptr<const DistanceMeasure> quantization_distance,
     const TypedDataset<T>& dataset)
     : TrainingOptionsTyped<T>(config, std::move(quantization_distance)) {
+  LOG(INFO) << "FA called";
+
   auto statusor = ChunkingProjectionFactory<T>(config.projection(), &dataset);
   if (statusor.ok()) {
     this->projector_ = ValueOrDie(std::move(statusor));
@@ -37,6 +39,8 @@ TrainingOptions<T>::TrainingOptions(
 
 template <typename T>
 Status TrainingOptions<T>::Validate() const {
+  LOG(INFO) << "FA called";
+
   SCANN_RETURN_IF_ERROR(constructor_error_);
   if (this->config().num_clusters_per_block() < 1 ||
       this->config().num_clusters_per_block() > 256) {

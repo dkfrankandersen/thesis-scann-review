@@ -1,0 +1,10 @@
+sudo docker build -t scann-fa .
+
+sudo docker container ls -a
+
+sudo docker run -it scann-fa:latest /bin/bash
+
+
+
+copy from container
+sudo docker cp 07213847dd96:/home/scann/perf.svg /home/frank/Repos/perf.svg

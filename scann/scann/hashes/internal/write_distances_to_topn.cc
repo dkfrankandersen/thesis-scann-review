@@ -28,6 +28,8 @@ namespace {
 
 DatapointIndex CountLessEqual(const int16_t* begin, const int16_t* end,
                               int16_t max_distance) {
+  LOG(INFO) << "FA called";
+  
   DatapointIndex result = end - begin;
   __m128i max_distance_simd = _mm_set1_epi16(max_distance);
 
@@ -62,6 +64,8 @@ void WriteDistancesToTopNImpl(const RestrictAllowlist* whitelist_or_null,
                               int32_t max_distance,
                               ConstSpan<int16_t> distances,
                               TopFixedPointNeighbors* top_n_ptr) {
+  LOG(INFO) << "FA called";
+  
   DCHECK(top_n_ptr);
   DCHECK((restricts_enabled && whitelist_or_null) ||
          (!restricts_enabled && whitelist_or_null == nullptr));
@@ -201,6 +205,8 @@ void WriteDistancesToTopNImpl(const RestrictAllowlist* whitelist_or_null,
                               int32_t max_distance,
                               ConstSpan<int32_t> distances,
                               TopFixedPointNeighbors* top_n_ptr) {
+  LOG(INFO) << "FA called";
+
   DCHECK((restricts_enabled && whitelist_or_null) ||
          (!restricts_enabled && whitelist_or_null == nullptr));
   const size_t num_neighbors = top_n_ptr->limit();
@@ -256,6 +262,8 @@ void WriteDistancesToTopN(const RestrictAllowlist* whitelist_or_null,
                           int32_t max_distance, ConstSpan<int16_t> distances,
                           const IdentityPostprocessFunctor&,
                           TopFixedPointNeighbors* top_n) {
+  LOG(INFO) << "FA called";
+  
   return (!whitelist_or_null)
              ? WriteDistancesToTopNImpl<false>(whitelist_or_null, max_distance,
                                                distances, top_n)

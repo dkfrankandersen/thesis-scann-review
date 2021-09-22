@@ -17,9 +17,9 @@
 
 #include <cstdint>
 
+#include "absl/numeric/bits.h"
 #include "scann/distance_measures/distance_measure_base.h"
 #include "scann/distance_measures/one_to_one/common.h"
-#include "scann/oss_wrappers/scann_bits.h"
 
 namespace research_scann {
 
@@ -42,6 +42,7 @@ class BinaryDistanceMeasureBase : public DistanceMeasure {
   double GetDistanceDense(const DatapointPtr<uint8_t>& a,
                           const DatapointPtr<uint8_t>& b,
                           double threshold) const final {
+    LOG(INFO) << "FA called (not expected)";
     return GetDistanceDense(a, b);
   }
 };
@@ -50,32 +51,33 @@ template <typename Merge>
 inline DimensionIndex DenseBinaryMergeAndPopcnt(const DatapointPtr<uint8_t>& v1,
                                                 const DatapointPtr<uint8_t>& v2,
                                                 Merge merge) {
+  LOG(INFO) << "FA called (not expected)";
   DCHECK_EQ(v1.nonzero_entries(), v2.nonzero_entries());
 
   DimensionIndex result = 0;
   DimensionIndex i = 0;
   for (; i + 8 <= v1.nonzero_entries(); i += 8) {
-    result += bits::CountOnes64(
-        merge(ABSL_INTERNAL_UNALIGNED_LOAD64(v1.values() + i),
-              ABSL_INTERNAL_UNALIGNED_LOAD64(v2.values() + i)));
+    result +=
+        absl::popcount(merge(ABSL_INTERNAL_UNALIGNED_LOAD64(v1.values() + i),
+                             ABSL_INTERNAL_UNALIGNED_LOAD64(v2.values() + i)));
   }
 
   if (i + 4 <= v1.nonzero_entries()) {
     result +=
-        bits::CountOnes(merge(ABSL_INTERNAL_UNALIGNED_LOAD32(v1.values() + i),
-                              ABSL_INTERNAL_UNALIGNED_LOAD32(v2.values() + i)));
+        absl::popcount(merge(ABSL_INTERNAL_UNALIGNED_LOAD32(v1.values() + i),
+                             ABSL_INTERNAL_UNALIGNED_LOAD32(v2.values() + i)));
     i += 4;
   }
 
   if (i + 2 <= v1.nonzero_entries()) {
     result +=
-        bits::CountOnes(merge(ABSL_INTERNAL_UNALIGNED_LOAD16(v1.values() + i),
-                              ABSL_INTERNAL_UNALIGNED_LOAD16(v2.values() + i)));
+        absl::popcount(merge(ABSL_INTERNAL_UNALIGNED_LOAD16(v1.values() + i),
+                             ABSL_INTERNAL_UNALIGNED_LOAD16(v2.values() + i)));
     i += 2;
   }
 
   if (i < v1.nonzero_entries()) {
-    result += bits::CountOnes(merge(v1.values()[i], v2.values()[i]));
+    result += absl::popcount(merge(v1.values()[i], v2.values()[i]));
   }
 
   return result;

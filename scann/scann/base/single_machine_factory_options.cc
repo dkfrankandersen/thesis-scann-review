@@ -20,6 +20,8 @@ namespace research_scann {
 
 StatusOr<DatapointIndex> SingleMachineFactoryOptions::ComputeConsistentSize(
     const Dataset* dataset) const {
+  LOG(INFO) << "FA called (not expected)";
+
   return ComputeConsistentNumPointsFromIndex(dataset, hashed_dataset.get(),
                                              pre_quantized_fixed_point.get(),
                                              crowding_attributes.get());
@@ -28,6 +30,8 @@ StatusOr<DatapointIndex> SingleMachineFactoryOptions::ComputeConsistentSize(
 StatusOr<DimensionIndex>
 SingleMachineFactoryOptions::ComputeConsistentDimensionality(
     const HashConfig& config, const Dataset* dataset) const {
+  LOG(INFO) << "FA called (not expected)";
+
   return ComputeConsistentDimensionalityFromIndex(
       config, dataset, hashed_dataset.get(), pre_quantized_fixed_point.get());
 }

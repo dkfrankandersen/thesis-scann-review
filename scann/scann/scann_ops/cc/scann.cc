@@ -53,6 +53,7 @@ Status ScannInterface::Initialize(
     ConstSpan<uint8_t> hashed_dataset, ConstSpan<int8_t> int8_dataset,
     ConstSpan<float> int8_multipliers, ConstSpan<float> dp_norms,
     DatapointIndex n_points, const std::string& artifacts_dir) {
+  LOG(INFO) << "FA ScannInterface::Initialize";
   ScannConfig config;
   SCANN_RETURN_IF_ERROR(
       ReadProtobufFromFile(artifacts_dir + "/scann_config.pb", &config));
@@ -78,6 +79,7 @@ Status ScannInterface::Initialize(
     ConstSpan<uint8_t> hashed_dataset, ConstSpan<int8_t> int8_dataset,
     ConstSpan<float> int8_multipliers, ConstSpan<float> dp_norms,
     DatapointIndex n_points) {
+  LOG(INFO) << "FA ScannInterface::Initialize";
   config_ = config;
   if (opts.ah_codebook != nullptr) {
     vector<uint8_t> hashed_db(hashed_dataset.data(),
@@ -117,6 +119,7 @@ Status ScannInterface::Initialize(ConstSpan<float> dataset,
                                   DatapointIndex n_points,
                                   const std::string& config,
                                   int training_threads) {
+  LOG(INFO) << "FA ScannInterface::Initialize";
   SCANN_RETURN_IF_ERROR(ParseTextProto(&config_, config));
   if (training_threads < 0)
     return InvalidArgumentError("training_threads must be non-negative");
@@ -130,6 +133,7 @@ Status ScannInterface::Initialize(ConstSpan<float> dataset,
 
 Status ScannInterface::Initialize(shared_ptr<DenseDataset<float>> dataset,
                                   SingleMachineFactoryOptions opts) {
+  LOG(INFO) << "FA ScannInterface::Initialize";
   TF_ASSIGN_OR_RETURN(dimensionality_, opts.ComputeConsistentDimensionality(
                                            config_.hash(), dataset.get()));
   TF_ASSIGN_OR_RETURN(n_points_, opts.ComputeConsistentSize(dataset.get()));
@@ -162,6 +166,7 @@ Status ScannInterface::Initialize(shared_ptr<DenseDataset<float>> dataset,
 Status ScannInterface::Search(const DatapointPtr<float> query,
                               NNResultsVector* res, int final_nn,
                               int pre_reorder_nn, int leaves) const {
+  LOG(INFO) << "FA ScannInterface::Search";
   if (query.dimensionality() != dimensionality_)
     return InvalidArgumentError("Query doesn't match dataset dimsensionality");
   bool has_reordering = config_.has_exact_reordering();

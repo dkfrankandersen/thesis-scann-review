@@ -22,6 +22,8 @@ namespace research_scann {
 namespace asymmetric_hashing_internal {
 
 SCANN_AVX512_OUTLINE void Avx512Swizzle128(const uint8_t* src, uint8_t* dst) {
+  LOG(INFO) << "FA called";
+
   Avx512<uint8_t> orig = Avx512<uint8_t>::Load(src);
 
   Avx512<uint8_t> low_nib_mask = Avx512<uint8_t>::Broadcast(0x0F);
@@ -73,6 +75,8 @@ SCANN_AVX512_OUTLINE void Avx512Swizzle32(const uint8_t* src, uint8_t* dst) {
 SCANN_AVX512_OUTLINE void Avx512PlatformSpecificSwizzle(uint8_t* packed_dataset,
                                                         int num_datapoints,
                                                         int num_codes_per_dp) {
+  LOG(INFO) << "FA called";
+                                                        
   size_t num_32dp_simd_iters = DivRoundUp(num_datapoints, 32);
 
   const size_t num_256dp_simd_iters = num_32dp_simd_iters / 8;

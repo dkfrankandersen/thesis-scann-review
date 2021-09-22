@@ -32,6 +32,8 @@ bool DatapointPtr<T>::HasNonzero(DimensionIndex dimension_index) const {
 
 template <typename T>
 T DatapointPtr<T>::GetElement(DimensionIndex dimension_index) const {
+  LOG(INFO) << "FA called";
+
   DCHECK_LT(dimension_index, dimensionality());
   if (IsDense()) {
     if (dimensionality() == nonzero_entries()) {
@@ -53,6 +55,7 @@ T DatapointPtr<T>::GetElement(DimensionIndex dimension_index) const {
 
 template <typename T>
 void DatapointPtr<T>::ToGfvIndicesAndMetadata(GenericFeatureVector* gfv) const {
+  LOG(INFO) << "FA called";
   if (IsSparse()) {
     for (size_t i = 0; i < nonzero_entries(); ++i) {
       gfv->add_feature_index(indices()[i]);
@@ -64,6 +67,7 @@ void DatapointPtr<T>::ToGfvIndicesAndMetadata(GenericFeatureVector* gfv) const {
 
 template <typename T>
 GenericFeatureVector Datapoint<T>::ToGfv() const {
+  LOG(INFO) << "FA called";
   GenericFeatureVector result = ToPtr().ToGfv();
   result.set_norm_type(
       static_cast<GenericFeatureVector::FeatureNorm>(normalization()));
@@ -72,6 +76,7 @@ GenericFeatureVector Datapoint<T>::ToGfv() const {
 
 template <typename T>
 Status Datapoint<T>::FromGfv(const GenericFeatureVector& gfv) {
+  LOG(INFO) << "FA called";
   auto status = FromGfvImpl(gfv);
   if (!status.ok()) clear();
   return status;
@@ -79,6 +84,7 @@ Status Datapoint<T>::FromGfv(const GenericFeatureVector& gfv) {
 
 template <typename T>
 Status Datapoint<T>::FromGfvImpl(const GenericFeatureVector& gfv) {
+  LOG(INFO) << "FA called";
   clear();
   normalization_ = static_cast<Normalization>(gfv.norm_type());
   TF_ASSIGN_OR_RETURN(dimensionality_, GetGfvDimensionality(gfv));
@@ -141,6 +147,7 @@ Status Datapoint<T>::FromGfvImpl(const GenericFeatureVector& gfv) {
 
 template <typename T>
 void Datapoint<T>::MakeNotBinary() {
+  LOG(INFO) << "FA called";
   auto* mut_values = mutable_values();
   if (mut_values->empty()) {
     mut_values->resize(nonzero_entries(), T(1));
@@ -167,6 +174,7 @@ bool Datapoint<T>::IndicesSorted() const {
 
 template <typename T>
 void Datapoint<T>::SortIndices() {
+  LOG(INFO) << "FA called";
   if (indices().empty()) return;
   if (values().empty()) {
     ZipSortBranchOptimized(std::less<DimensionIndex>(), indices_.begin(),
@@ -182,6 +190,7 @@ void Datapoint<T>::SortIndices() {
 
 template <typename T>
 void Datapoint<T>::RemoveExplicitZeroesFromSparseVector() {
+  LOG(INFO) << "FA called";
   if (indices_.empty() || values_.empty()) {
     return;
   }

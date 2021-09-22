@@ -43,6 +43,8 @@ class ParallelPerpendicularDistance : public DistanceMeasure {
   template <typename T>
   SCANN_INLINE double GetDistanceDenseImpl(
       const DatapointPtr<T>& x_dptr, const DatapointPtr<T>& y_dptr) const {
+    LOG(INFO) << "FA called";
+
     DCHECK(x_dptr.IsDense());
     DCHECK(y_dptr.IsDense());
     auto x = x_dptr.values_slice();
@@ -88,6 +90,7 @@ namespace {
 double ComputeNormBiasCorrection(const DenseDataset<double>& db,
                                  DatapointPtr<double> center,
                                  ConstSpan<DatapointIndex> cluster_members) {
+  LOG(INFO) << "FA called";
   double mean_norm = 0.0;
   for (DatapointIndex idx : cluster_members) {
     mean_norm += std::sqrt(SquaredL2Norm(db[idx]));
@@ -103,6 +106,8 @@ template <typename T>
 StatusOr<vector<DenseDataset<double>>> AhImpl<T>::TrainAsymmetricHashing(
     const TypedDataset<T>& dataset, const TrainingOptionsT& opts,
     shared_ptr<ThreadPool> pool) {
+  LOG(INFO) << "FA called";
+  
   if (dataset.empty()) {
     return InvalidArgumentError("Cannot train AH on an empty dataset.");
   }
@@ -253,6 +258,8 @@ Status AhImpl<T>::IndexDatapoint(const DatapointPtr<T>& input,
                                  const DistanceMeasure& quantization_distance,
                                  ConstSpan<DenseDataset<FloatT>> centers,
                                  MutableSpan<uint8_t> result) {
+  LOG(INFO) << "FA called";
+  
   DCHECK(!centers.empty());
   ChunkedDatapoint<FloatT> projected;
   SCANN_RETURN_IF_ERROR(projection.ProjectInput(input, &projected));
@@ -299,6 +306,8 @@ Status AhImpl<T>::IndexDatapoint(const DatapointPtr<T>& input,
                                  const DistanceMeasure& quantization_distance,
                                  ConstSpan<DenseDataset<FloatT>> centers,
                                  Datapoint<uint8_t>* result) {
+  LOG(INFO) << "FA called";
+  
   DatapointIndex result_size = centers.size();
   DCHECK_EQ(result_size, projection.num_blocks());
   result->clear();
@@ -317,6 +326,7 @@ T Square(T x) {
 
 double ComputeParallelCostMultiplier(double t, double squared_l2_norm,
                                      DimensionIndex dims) {
+  LOG(INFO) << "FA ComputeParallelCostMultiplier";
   const double parallel_cost = Square(t) / squared_l2_norm;
   const double perpendicular_cost =
       (1.0 - Square(t) / squared_l2_norm) / (dims - 1.0);
@@ -333,6 +343,7 @@ template <typename T>
 SubspaceResidualStats ComputeResidualStatsForCluster(
     ConstSpan<T> maybe_residual_dptr, ConstSpan<T> original_dptr,
     double inv_norm, ConstSpan<FloatingTypeFor<T>> quantized) {
+  LOG(INFO) << "FA ComputeResidualStatsForCluster";
   DCHECK_EQ(maybe_residual_dptr.size(), quantized.size());
   const size_t dims = maybe_residual_dptr.size();
   SubspaceResidualStats result;
@@ -352,6 +363,7 @@ StatusOr<vector<std::vector<SubspaceResidualStats>>> ComputeResidualStats(
     DatapointPtr<T> maybe_residual_dptr, DatapointPtr<T> original_dptr,
     ConstSpan<DenseDataset<FloatingTypeFor<T>>> centers,
     const ChunkingProjection<T>& projection) {
+  LOG(INFO) << "FA ComputeResidualStats";
   const size_t num_subspaces = centers.size();
   DCHECK_GE(num_subspaces, 1);
   vector<std::vector<SubspaceResidualStats>> result(num_subspaces);
@@ -399,6 +411,7 @@ StatusOr<vector<std::vector<SubspaceResidualStats>>> ComputeResidualStats(
 void InitializeToMinResidualNorm(
     ConstSpan<std::vector<SubspaceResidualStats>> residual_stats,
     MutableSpan<uint8_t> result) {
+  LOG(INFO) << "FA InitializeToMinResidualNorm";
   DCHECK_EQ(result.size(), residual_stats.size());
   for (size_t subspace_idx : IndicesOf(residual_stats)) {
     auto it = std::min_element(
@@ -414,6 +427,7 @@ void InitializeToMinResidualNorm(
 double ComputeParallelResidualComponent(
     ConstSpan<uint8_t> quantized,
     ConstSpan<std::vector<SubspaceResidualStats>> residual_stats) {
+  LOG(INFO) << "FA ComputeParallelResidualComponent";
   double result = 0.0;
   for (size_t subspace_idx : IndicesOf(quantized)) {
     const uint8_t cluster_idx = quantized[subspace_idx];
@@ -433,6 +447,7 @@ CoordinateDescentResult OptimizeSingleSubspace(
     ConstSpan<SubspaceResidualStats> cur_subspace_residual_stats,
     const uint8_t cur_center_idx, const double parallel_residual_component,
     const double parallel_cost_multiplier) {
+  LOG(INFO) << "FA OptimizeSingleSubspace";
   CoordinateDescentResult result;
   result.new_center_idx = cur_center_idx;
   result.new_parallel_residual_component = parallel_residual_component;
@@ -472,6 +487,7 @@ Status CoordinateDescentAHQuantize(
     const ChunkingProjection<T>& projection, double threshold,
     MutableSpan<uint8_t> result, int* num_changes = nullptr,
     double* residual_ptr = nullptr, double* parallel_residual_ptr = nullptr) {
+  LOG(INFO) << "FA CoordinateDescentAHQuantize";
   SCANN_RET_CHECK_EQ(result.size(), centers.size());
   SCANN_RET_CHECK_EQ(maybe_residual_dptr.dimensionality(),
                      original_dptr.dimensionality());
@@ -546,6 +562,7 @@ Status AhImpl<T>::IndexDatapointNoiseShaped(
     const ChunkingProjection<T>& projection,
     ConstSpan<DenseDataset<FloatingTypeFor<T>>> centers, double threshold,
     MutableSpan<uint8_t> result) {
+  LOG(INFO) << "FA IndexDatapointNoiseShaped";
   return CoordinateDescentAHQuantize<T>(maybe_residual_dptr, original_dptr,
                                         centers, projection, threshold, result);
 }
@@ -555,6 +572,7 @@ StatusOr<vector<float>> AhImpl<T>::CreateRawFloatLookupTable(
     const DatapointPtr<T>& query, const ChunkingProjection<T>& projection,
     const DistanceMeasure& lookup_distance,
     ConstSpan<DenseDataset<FloatT>> centers, int32_t num_clusters_per_block) {
+  LOG(INFO) << "FA CreateRawFloatLookupTable";
   ChunkedDatapoint<FloatT> projected;
   SCANN_RETURN_IF_ERROR(projection.ProjectInput(query, &projected));
   SCANN_RET_CHECK_EQ(centers.size(), projected.size());
@@ -591,6 +609,7 @@ StatusOr<vector<float>> AhImpl<T>::CreateRawFloatLookupTable(
 namespace {
 float ComputeMultiplierByQuantile(ConstSpan<float> raw_lookup, float quantile,
                                   int32_t max_integer_value) {
+  LOG(INFO) << "FA ComputeMultiplierByQuantile";
   const size_t k = raw_lookup.size() * (1.0 - quantile) + 1;
   if (k == 1) {
     const float max_abs_lookup_element = std::max(

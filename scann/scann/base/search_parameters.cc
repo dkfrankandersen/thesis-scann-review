@@ -19,6 +19,7 @@
 namespace research_scann {
 
 Status SearchParameters::Validate(bool reordering_enabled) const {
+    LOG(INFO) << "FA SearchParameters::Validate";
   if (pre_reordering_num_neighbors() <= 0) {
     return InvalidArgumentError("pre_reordering_num_neighbors must be > 0.");
   }
@@ -57,6 +58,8 @@ Status SearchParameters::Validate(bool reordering_enabled) const {
 
 void SearchParameters::SetUnspecifiedParametersFrom(
     const SearchParameters& defaults) {
+  LOG(INFO) << "FA SearchParameters::SetUnspecifiedParametersFrom";
+  
   DCHECK(this);
   DCHECK(&defaults);
 

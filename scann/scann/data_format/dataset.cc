@@ -38,6 +38,7 @@ namespace research_scann {
 void Dataset::UnusedKeyMethod() {}
 
 shared_ptr<DocidCollectionInterface> Dataset::ReleaseDocids() {
+  LOG(INFO) << "FA called";
   auto result = std::move(docids_);
   docids_ = make_unique<VariableLengthDocidCollection>(
       VariableLengthDocidCollection::CreateWithEmptyDocids(result->size()));
@@ -45,6 +46,7 @@ shared_ptr<DocidCollectionInterface> Dataset::ReleaseDocids() {
 }
 
 Status Dataset::NormalizeByTag(Normalization tag) {
+  LOG(INFO) << "FA called";
   if (tag == normalization()) return OkStatus();
   switch (tag) {
     case NONE:
@@ -91,6 +93,7 @@ void TypedDataset<T>::AppendOrDie(const GenericFeatureVector& gfv,
 
 template <typename T>
 Status TypedDataset<T>::MeanByDimension(Datapoint<double>* result) const {
+  LOG(INFO) << "FA called";
   const size_t size = this->size();
   if (size <= 0) {
     return FailedPreconditionError(
@@ -138,6 +141,7 @@ Status TypedDataset<T>::MeanByDimension(Datapoint<double>* result) const {
 template <typename T>
 Status TypedDataset<T>::MeanByDimension(ConstSpan<DatapointIndex> subset,
                                         Datapoint<double>* result) const {
+  LOG(INFO) << "FA called";
   if (subset.empty()) {
     return InvalidArgumentError("Cannot compute the mean of an empty subset.");
   }
@@ -183,6 +187,7 @@ Status TypedDataset<T>::MeanByDimension(ConstSpan<DatapointIndex> subset,
 template <typename T>
 void TypedDataset<T>::MeanVarianceByDimension(
     Datapoint<double>* means, Datapoint<double>* variances) const {
+  LOG(INFO) << "FA called";
   CHECK(!this->is_binary()) << "Not implemented for binary datasets.";
   vector<DatapointIndex> subset;
   subset.reserve(dimensionality());
@@ -197,6 +202,7 @@ template <typename T>
 void TypedDataset<T>::MeanVarianceByDimension(
     ConstSpan<DatapointIndex> subset, Datapoint<double>* means,
     Datapoint<double>* variances) const {
+  LOG(INFO) << "FA called";
   DCHECK(variances);
   CHECK(!this->is_binary()) << "Not implemented for binary datasets.";
   CHECK_GT(subset.size(), 0)
@@ -242,6 +248,7 @@ void TypedDataset<T>::MeanVarianceByDimension(
 
 template <typename T>
 Status TypedDataset<T>::NormalizeUnitL2() {
+  LOG(INFO) << "FA called";
   if (this->is_binary() || IsIntegerType<T>()) {
     return FailedPreconditionError(
         "Unit L2 normalization is not supported for binary "
@@ -390,7 +397,7 @@ Status DenseDataset<T>::Append(const DatapointPtr<T>& dptr, string_view docid) {
   const bool dptr_is_binary = dptr.dimensionality() > dptr.nonzero_entries();
   if (dptr_is_binary && !std::is_same<T, uint8_t>::value) {
     return InvalidArgumentError(
-        "Binary DenseDatasets may only be built with uint8_t as a template "
+        "Binary DenseDatasets may only be built with uint8 as a template "
         "parameter.");
   }
 
@@ -599,7 +606,7 @@ Status SparseDataset<T>::AppendImpl(const GenericFeatureVector& gfv,
   const bool gfv_is_binary = gfv.feature_type() == GenericFeatureVector::BINARY;
   if (gfv_is_binary && !std::is_same<T, uint8_t>::value) {
     return InvalidArgumentError(
-        "Binary SparseDatasets may only be built with uint8_t as a template "
+        "Binary SparseDatasets may only be built with uint8 as a template "
         "parameter.");
   }
 
@@ -664,7 +671,7 @@ Status SparseDataset<T>::AppendImpl(const DatapointPtr<T>& dptr,
       dptr_may_be_binary && dptr.nonzero_entries() > 0;
   if (dptr_is_definitely_binary && !std::is_same<T, uint8_t>::value) {
     return InvalidArgumentError(
-        "Binary SparseDatasets may only be built with uint8_t as a template "
+        "Binary SparseDatasets may only be built with uint8 as a template "
         "parameter.");
   }
 

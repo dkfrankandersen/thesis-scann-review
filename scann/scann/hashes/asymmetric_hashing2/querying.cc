@@ -26,6 +26,8 @@ namespace asymmetric_hashing2 {
 
 PackedDataset CreatePackedDataset(
     const DenseDataset<uint8_t>& hashed_database) {
+  LOG(INFO) << "FA CreatePackedDataset";
+
   PackedDataset result;
   result.bit_packed_data =
       asymmetric_hashing_internal::CreatePackedDataset(hashed_database);
@@ -36,6 +38,8 @@ PackedDataset CreatePackedDataset(
 }
 
 DenseDataset<uint8_t> UnpackDataset(const PackedDataset& packed) {
+  LOG(INFO) << "FA called";
+
   const size_t num_dim = packed.num_blocks, num_dp = packed.num_datapoints;
 
   vector<uint8_t> unpacked(num_dim * num_dp);
@@ -81,6 +85,7 @@ StatusOr<LookupTable> AsymmetricQueryer<T>::CreateLookupTable(
     AsymmetricHasherConfig::LookupType lookup_type,
     AsymmetricHasherConfig::FixedPointLUTConversionOptions
         float_int_conversion_options) const {
+  LOG(INFO) << "FA called";
   switch (lookup_type) {
     case AsymmetricHasherConfig::FLOAT:
       return CreateLookupTable<float>(query, float_int_conversion_options);

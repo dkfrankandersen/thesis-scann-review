@@ -40,6 +40,8 @@ CreateRecommendedAsymmetricSearcher(
     int32_t num_neighbors, float epsilon = numeric_limits<float>::infinity(),
     bool with_exact_reordering = true, shared_ptr<ThreadPool> pool = nullptr,
     int num_clusters_per_block = 16, int num_dimension_per_block = 2) {
+  LOG(INFO) << "FA called";
+
   DCHECK(dataset);
 
   if (dataset->size() < num_clusters_per_block ||
