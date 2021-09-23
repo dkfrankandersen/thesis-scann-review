@@ -1,8 +1,15 @@
-sudo docker build -t scann-fa .
 
+// List all containers
 sudo docker container ls -a
 
+
+sudo docker build -t scann-fa .
+sudo docker start CONTAINER_NAME
+
 sudo docker run -it scann-fa:latest /bin/bash
+
+
+sudo docker run --name fa-scann -it scann-fa-base:latest /bin/bash 
 
 
 
