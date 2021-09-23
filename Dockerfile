@@ -17,7 +17,6 @@ RUN apt install -y nano
 
 RUN pip3 install --upgrade pip
 
-
 WORKDIR /home/
 COPY . .
 
