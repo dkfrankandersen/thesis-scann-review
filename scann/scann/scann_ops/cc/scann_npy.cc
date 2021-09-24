@@ -50,6 +50,7 @@ ScannNumpy::ScannNumpy(
     std::optional<const np_row_major_arr<float>> int8_multipliers,
     std::optional<const np_row_major_arr<float>> dp_norms,
     const std::string& artifacts_dir) {
+  LOG(INFO) << "FA ScannNumpy::ScannNumpy";
   DatapointIndex n_points = kInvalidDatapointIndex;
   ConstSpan<float> dataset;
   if (np_dataset) {

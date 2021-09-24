@@ -42,6 +42,7 @@ Status ParseTextProto(T* proto, const std::string& proto_str) {
 
 unique_ptr<DenseDataset<float>> InitDataset(ConstSpan<float> dataset,
                                             DatapointIndex n_points) {
+  LOG(INFO) << "FA InitDataset";
   if (dataset.empty()) return nullptr;
 
   vector<float> dataset_vec(dataset.data(), dataset.data() + dataset.size());
@@ -128,6 +129,8 @@ Status ScannInterface::Initialize(ConstSpan<float> dataset,
 
   opts.parallelization_pool =
       StartThreadPool("scann_threadpool", training_threads - 1);
+  LOG(INFO) << "FA exit(0)";
+  exit(0)
   return Initialize(InitDataset(dataset, n_points), opts);
 }
 
