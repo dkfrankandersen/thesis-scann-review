@@ -73,6 +73,7 @@ class ScannSearcher(object):
 
 
 def builder(db, num_neighbors, distance_measure):
+  print("FA builder")
   """pybind analogue of builder() in scann_ops.py; see docstring there."""
 
   def builder_lambda(db, config, training_threads, **kwargs):
@@ -83,11 +84,14 @@ def builder(db, num_neighbors, distance_measure):
 
 
 def create_searcher(db, scann_config, training_threads=0):
+  print("FA create_searcher")
+  exit(1)
   return ScannSearcher(
       scann_pybind.ScannNumpy(db, scann_config, training_threads))
 
 
 def load_searcher(artifacts_dir):
+  print("FA load_searcher")
   """Loads searcher assets from artifacts_dir and returns a ScaNN searcher."""
 
   def load_if_exists(filename):
