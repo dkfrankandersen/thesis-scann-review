@@ -25,3 +25,5 @@ RUN apt clean -y && apt remove -y
 
 RUN git clone git://github.com/dkfrankandersen/thesis-scann-review.git
 RUN cd thesis-scann-review/scann/ && python3 configure.py
+
+COPY scann/datasets thesis-scann-review/scann/datasets
