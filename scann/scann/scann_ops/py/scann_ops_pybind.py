@@ -85,8 +85,6 @@ def builder(db, num_neighbors, distance_measure):
 
 def create_searcher(db, scann_config, training_threads=0):
   print("FA create_searcher")
-  print(f"scann_config\n {scann_config}")
-  exit(1)
   return ScannSearcher(
       scann_pybind.ScannNumpy(db, scann_config, training_threads))
 
