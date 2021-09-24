@@ -90,6 +90,7 @@ ScannNumpy::ScannNumpy(
 
 ScannNumpy::ScannNumpy(const np_row_major_arr<float>& np_dataset,
                        const std::string& config, int training_threads) {
+  LOG(INFO) << "FA ScannNumpy::ScannNumpy";
   if (np_dataset.ndim() != 2)
     throw std::invalid_argument("Dataset input must be two-dimensional");
   ConstSpan<float> dataset(np_dataset.data(), np_dataset.size());
@@ -101,7 +102,7 @@ ScannNumpy::ScannNumpy(const np_row_major_arr<float>& np_dataset,
 std::pair<pybind11::array_t<DatapointIndex>, pybind11::array_t<float>>
 ScannNumpy::Search(const np_row_major_arr<float>& query, int final_nn,
                    int pre_reorder_nn, int leaves) {
-  LOG(INFO) << "ScannNumpy::Search";
+  LOG(INFO) << "FA ScannNumpy::Search";
   if (query.ndim() != 1)
     throw std::invalid_argument("Query must be one-dimensional");
 

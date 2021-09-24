@@ -42,7 +42,10 @@ def query(searcher, v, n):
     return searcher.search(v, n, reorder, leaves_to_search)[0]
 
 def main():
-    dataset, queries, neighbors = load_dataset("datasets/glove-100-angular.hdf5")
+    
+    dataset, queries, neighbors = load_dataset("datasets/random-xs-20-angular.hdf5")
+    #dataset, queries, neighbors = load_dataset("datasets/glove-50-angular.hdf5")
+    #dataset, queries, neighbors = load_dataset("datasets/glove-100-angular.hdf5")
 
     print("--- Create searcher ---")
     start = time.time()
