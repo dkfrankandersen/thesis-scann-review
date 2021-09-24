@@ -24,5 +24,3 @@ printf "\n"
 sleep 3
 
 sudo docker run --name fa-scann -it scann-fa-base:latest /bin/bash
-printf "\n"
-sleep 3
