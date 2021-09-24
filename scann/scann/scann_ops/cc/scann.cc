@@ -130,7 +130,7 @@ Status ScannInterface::Initialize(ConstSpan<float> dataset,
   opts.parallelization_pool =
       StartThreadPool("scann_threadpool", training_threads - 1);
   LOG(INFO) << "FA exit(0)";
-  exit(0)
+  exit(0);
   return Initialize(InitDataset(dataset, n_points), opts);
 }
 
