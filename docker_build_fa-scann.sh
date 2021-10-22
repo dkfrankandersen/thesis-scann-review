@@ -15,12 +15,16 @@ sudo docker image ls -a
 printf "\n"
 sleep 3
 
-sudo docker image rm scann-fa-base
+sudo docker image rm fa-scann-compiled
 printf "\n"
 sleep 3
 
-sudo docker build -t scann-fa-base .
+sudo docker builder prune -a -f
 printf "\n"
 sleep 3
 
-sudo docker run --name fa-scann -it scann-fa-base:latest /bin/bash
+sudo docker build --no-cache -t fa-scann-compiled .
+printf "\n"
+sleep 3
+
+sudo docker run --name fa-scann -it fa-scann-compiled:latest /bin/bash

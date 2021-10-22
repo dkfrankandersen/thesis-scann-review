@@ -256,6 +256,7 @@ StatusOr<LookupTable> AsymmetricQueryer<T>::CreateLookupTable(
     const DatapointPtr<T>& query, const DistanceMeasure& lookup_distance,
     AsymmetricHasherConfig::FixedPointLUTConversionOptions
         float_int_conversion_options) const {
+  LOG(INFO) << "FA AsymmetricQueryer<T>::CreateLookupTable";
   const DatapointPtr<T> query_no_bias = [&] {
     if (quantization_scheme() == AsymmetricHasherConfig::PRODUCT_AND_BIAS) {
       return MakeDatapointPtr(query.indices(), query.values(),
@@ -300,6 +301,7 @@ template <typename TopN, typename Functor, typename DatasetView>
 Status AsymmetricQueryer<T>::FindApproximateNeighbors(
     const LookupTable& lookup_table, const SearchParameters& params,
     QueryerOptions<Functor, DatasetView> querying_options, TopN* top_n) {
+  LOG(INFO) << "FA AsymmetricQueryer<T>::FindApproximateNeighbors";
   if (static_cast<int>(lookup_table.float_lookup_table.empty()) +
           static_cast<int>(lookup_table.int16_lookup_table.empty()) +
           static_cast<int>(lookup_table.int8_lookup_table.empty()) !=
@@ -334,6 +336,7 @@ Status FindApproxNeighborsFastTopNeighbors(
     array<const SearchParameters*, kNumQueries> params,
     const PackedDataset& packed_dataset,
     array<TopNeighbors<float>*, kNumQueries> top_ns) {
+  LOG(INFO) << "FA FindApproxNeighborsFastTopNeighbors";
   array<FastTopNeighbors<int16_t>, kNumQueries> ftns;
   array<FastTopNeighbors<int16_t>*, kNumQueries> ftn_ptrs;
   array<const uint8_t*, kNumQueries> raw_luts;
@@ -397,6 +400,7 @@ template <typename TopN, typename Functor, typename DatasetView>
 Status AsymmetricQueryer<T>::FindApproximateTopNeighborsTopNDispatch(
     const LookupTable& lookup_table, const SearchParameters& params,
     QueryerOptions<Functor, DatasetView> querying_options, TopN* top_n) {
+  LOG(INFO) << "FA AsymmetricQueryer<T>::FindApproximateTopNeighborsTopNDispatch";
   DCHECK(top_n);
   static_assert(
       std::is_same<float, decltype(top_n->approx_bottom().second)>::value,
@@ -444,6 +448,7 @@ Status AsymmetricQueryer<T>::FindApproximateTopNeighborsTopNDispatch(
     const LookupTable& lookup_table, const SearchParameters& params,
     QueryerOptions<Functor, DatasetView> querying_options,
     FastTopNeighbors<DistT>* top_n) {
+  LOG(INFO) << "FA AsymmetricQueryer<T>::FindApproximateTopNeighborsTopNDispatch";
   DCHECK(top_n);
 
   static_assert(std::is_same_v<float, DistT>,
@@ -503,6 +508,7 @@ Status AsymmetricQueryer<T>::FindApproximateNeighborsBatched(
     array<const SearchParameters*, kNumQueries> params,
     QueryerOptions<Functor, DatasetView> querying_options,
     array<TopN*, kNumQueries> top_ns) {
+  LOG(INFO) << "FA AsymmetricQueryer<T>::FindApproximateNeighborsBatched";
   static_assert(kNumQueries <= 9,
                 "Only batch sizes up to 9 are supported in "
                 "FindApproximateNeighborsBatched.");
@@ -648,6 +654,7 @@ template <typename LookupElement, typename TopN, typename Functor,
 Status AsymmetricQueryer<T>::FindApproximateNeighborsNoLUT16(
     const LookupTable& lookup_table, const SearchParameters& params,
     QueryerOptions<Functor, DatasetView> querying_options, TopN* top_n) {
+  LOG(INFO) << "FA AsymmetricQueryer<T>::FindApproximateNeighborsNoLUT16";
   const DatasetView* __restrict__ hashed_dataset =
       querying_options.hashed_dataset.get();
   const ConstSpan<LookupElement> lookup_raw =
@@ -728,6 +735,7 @@ Status AsymmetricQueryer<T>::FindApproximateNeighborsNoLUT16Impl(
     DimensionIndex num_clusters_per_block, ConstSpan<LookupElement> lookup_raw,
     MaxDist max_dist, const RestrictAllowlist* whitelist_or_null,
     Functor postprocess, TopN* top_n) {
+  LOG(INFO) << "FA AsymmetricQueryer<T>::FindApproximateNeighborsNoLUT16Impl";
   using TopNFunctor = ai::AddPostprocessedValueToTopN<TopN, MaxDist, Functor>;
   TopNFunctor top_n_functor(top_n, max_dist, postprocess);
   if (!whitelist_or_null) {
@@ -762,6 +770,7 @@ template <typename TopN, typename Functor, typename DatasetView>
 Status AsymmetricQueryer<T>::FindApproximateNeighborsForceLUT16(
     const LookupTable& lookup_table, const SearchParameters& params,
     QueryerOptions<Functor, DatasetView> querying_options, TopN* top_n) {
+  LOG(INFO) << "FA AsymmetricQueryer<T>::FindApproximateNeighborsForceLUT16";
   DCHECK(!lookup_table.int8_lookup_table.empty());
   DCHECK(querying_options.lut16_packed_dataset);
   const auto& packed_dataset = *querying_options.lut16_packed_dataset;
@@ -832,6 +841,7 @@ Status AsymmetricQueryer<T>::PopulateDistances(
     const LookupTable& lookup_table,
     QueryerOptions<Functor, DatasetView> querying_options,
     MutableSpan<pair<DatapointIndex, float>> results) {
+  LOG(INFO) << "FA AsymmetricQueryer<T>::PopulateDistances";
   if (static_cast<int>(lookup_table.float_lookup_table.empty()) +
           static_cast<int>(lookup_table.int16_lookup_table.empty()) +
           static_cast<int>(lookup_table.int8_lookup_table.empty()) !=
@@ -855,6 +865,7 @@ Status AsymmetricQueryer<T>::PopulateDistancesImpl(
     const LookupTable& lookup_table,
     QueryerOptions<Functor, DatasetView> querying_options,
     MutableSpan<pair<DatapointIndex, float>> results) {
+  LOG(INFO) << "FA AsymmetricQueryer<T>::PopulateDistancesImpl";
   const ConstSpan<LookupElement> lookup_raw =
       GetRawLookupTable<LookupElement>(lookup_table);
   const DatasetView* __restrict__ hashed_dataset =

@@ -131,6 +131,7 @@ inline Status GetAllDistances(const DistanceMeasure& dist,
                               ConstSpan<float> center_sq_l2_norms,
                               ConstSpan<float> inv_int8_multipliers,
                               std::vector<OutT>* distances) {
+  LOG(INFO) << "FA GetAllDistances";
   if (query.IsDense()) {
     DenseDistanceOneToMany<Real, OutT>(dist, query, centers,
                                        MakeMutableSpan(*distances));
@@ -150,6 +151,7 @@ inline Status GetAllDistances(const DistanceMeasure& dist,
                               ConstSpan<float> center_sq_l2_norms,
                               ConstSpan<float> inv_int8_multipliers,
                               std::vector<OutT>* distances) {
+  LOG(INFO) << "FA GetAllDistances";
   const bool is_sq_l2 =
       dist.specially_optimized_distance_tag() == DistanceMeasure::SQUARED_L2;
   if (dist.specially_optimized_distance_tag() != DistanceMeasure::DOT_PRODUCT &&
@@ -185,6 +187,7 @@ template <typename Real>
 inline StatusOr<Real> ComputeThreshold(
     const Real nearest_center_distance, const Real spilling_threshold,
     QuerySpillingConfig::SpillingType spilling_type) {
+  LOG(INFO) << "FA ComputeThreshold";
   Real max_dist_to_consider;
   if (std::isnan(spilling_threshold)) {
     spilling_type = QuerySpillingConfig::NO_SPILLING;
@@ -222,6 +225,7 @@ Status FindChildrenWithSpilling(
     const DenseDataset<DataType>& centers, ConstSpan<float> center_sq_l2_norms,
     ConstSpan<float> inv_int8_multipliers,
     std::vector<pair<DatapointIndex, float>>* child_centers) {
+  LOG(INFO) << "FA FindChildrenWithSpilling";
   DCHECK_GT(centers.size(), 0);
   DCHECK(child_centers);
   SCANN_RET_CHECK(query.IsFinite());

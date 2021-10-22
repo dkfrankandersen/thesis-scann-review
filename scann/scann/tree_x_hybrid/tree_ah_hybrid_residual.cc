@@ -132,6 +132,9 @@ StatusOr<DenseDataset<float>> ComputeResidualsImpl(
   LOG(INFO) << "FA ComputeResidualsImpl";
   const size_t dimensionality = dataset.dimensionality();
 
+  LOG(INFO) << "FA LOOP IN ComputeResidualsImpl";
+  LOG(INFO) << "FA OVER ---> KMeansTreePartitioner<T>::ResidualizeToFloat";
+  LOG(INFO) << "FA OVER ---> ResidualizeImpl";
   vector<uint32_t> tokens_by_datapoint(dataset.size());
   for (uint32_t token : Seq(datapoints_by_token.size())) {
     for (DatapointIndex dp_idx : datapoints_by_token[token]) {
@@ -187,6 +190,9 @@ StatusOr<DenseDataset<float>> TreeAHHybridResidual::ComputeResiduals(
     ConstSpan<std::vector<DatapointIndex>> datapoints_by_token,
     bool normalize_residual_by_cluster_stdev) {
   LOG(INFO) << "FA TreeAHHybridResidual::ComputeResiduals";
+  LOG(INFO) << "FA CALL -> ResidualizeToFloat";
+  LOG(INFO) << "FA CALL -> ComputeResidualsImpl";
+
   Datapoint<float> residual;
   auto get_residual =
       [&](const DatapointPtr<float>& dptr,
@@ -282,6 +288,9 @@ Status TreeAHHybridResidual::BuildLeafSearchers(
   const bool normalize_residual_by_cluster_stdev =
       config.use_normalized_residual_quantization();
 
+  LOG(INFO) << "FA config.use_normalized_residual_quantization" << normalize_residual_by_cluster_stdev << "";
+  
+
   if (hashed_dataset) {
     get_hashed_datapoint = [hashed_dataset](DatapointIndex i, int32_t token,
                                             Datapoint<uint8_t>* storage)
@@ -292,11 +301,13 @@ Status TreeAHHybridResidual::BuildLeafSearchers(
           "At least one of dataset/hashed_dataset must be non-null in "
           "TreeAHHybridResidual::BuildLeafSearchersPreTrained.");
     }
+    LOG(INFO) << "FA CALL -> ResidualizeToFloat";
     get_hashed_datapoint =
         [&](DatapointIndex i, int32_t token,
             Datapoint<uint8_t>* storage) -> StatusOr<DatapointPtr<uint8_t>> {
       DCHECK(dataset);
       DatapointPtr<float> original = (*dataset)[i];
+      LOG(INFO) << "FA CALL -> ResidualizeToFloat";
       TF_ASSIGN_OR_RETURN(
           Datapoint<float> residual,
           partitioner->ResidualizeToFloat(original, token,
@@ -304,6 +315,7 @@ Status TreeAHHybridResidual::BuildLeafSearchers(
       if (std::isnan(config.noise_shaping_threshold())) {
         SCANN_RETURN_IF_ERROR(indexer->Hash(residual.ToPtr(), storage));
       } else {
+        LOG(INFO) << "FA CALL -> HashWithNoiseShaping";
         SCANN_RETURN_IF_ERROR(
             indexer->HashWithNoiseShaping(residual.ToPtr(), original, storage,
                                           config.noise_shaping_threshold()));

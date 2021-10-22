@@ -34,7 +34,7 @@ namespace research_scann {
 
 Status CheckValidDistanceTag(
     AbsDotProductDistance::SpeciallyOptimizedDistanceTag distance_tag) {
-  LOG(INFO) << "FA called (not expected)";
+  LOG(INFO) << "FA CheckValidDistanceTag";
   if (distance_tag != DistanceMeasure::DOT_PRODUCT &&
       distance_tag != DistanceMeasure::COSINE &&
       distance_tag != DistanceMeasure::SQUARED_L2) {
@@ -56,7 +56,7 @@ ScalarQuantizedBruteForceSearcher::ScalarQuantizedBruteForceSearcher(
                                        default_pre_reordering_epsilon),
       distance_(distance),
       opts_(opts) {
-  LOG(INFO) << "FA called (not expected)";
+  LOG(INFO) << "FA ScalarQuantizedBruteForceSearcher::ScalarQuantizedBruteForceSearcher";
   ScalarQuantizationResults quantization_results = ScalarQuantizeFloatDataset(
       *dataset, opts.multiplier_quantile, opts.noise_shaping_threshold);
   quantized_dataset_ = std::move(quantization_results.quantized_dataset);
@@ -87,7 +87,7 @@ ScalarQuantizedBruteForceSearcher::ScalarQuantizedBruteForceSearcher(
       quantized_dataset_(std::move(quantized_dataset)),
       inverse_multiplier_by_dimension_(
           std::move(inverse_multiplier_by_dimension)) {
-  LOG(INFO) << "FA called (not expected)";
+  LOG(INFO) << "FA ScalarQuantizedBruteForceSearcher::ScalarQuantizedBruteForceSearcher";
   TF_CHECK_OK(this->set_docids(quantized_dataset_.ReleaseDocids()));
 }
 
@@ -95,7 +95,7 @@ StatusOr<vector<float>>
 ScalarQuantizedBruteForceSearcher::ComputeSquaredL2NormsFromQuantizedDataset(
     const DenseDataset<int8_t>& quantized,
     const vector<float>& inverse_multipliers) {
-  LOG(INFO) << "FA called (not expected)";
+  LOG(INFO) << "FA ScalarQuantizedBruteForceSearcher::ComputeSquaredL2NormsFromQuantizedDataset";
   if (quantized.dimensionality() != inverse_multipliers.size())
     return InvalidArgumentError(absl::StrCat(
         "The dimension of quantized dataset ", quantized.dimensionality(),
@@ -121,7 +121,7 @@ ScalarQuantizedBruteForceSearcher::
         DenseDataset<int8_t> quantized, vector<float> inverse_multipliers,
         vector<float> squared_l2_norms, int32_t default_num_neighbors,
         float default_epsilon) {
-  LOG(INFO) << "FA called (not expected)";
+  LOG(INFO) << "FA ScalarQuantizedBruteForceSearcher::CreateFromQuantizedDatasetAndInverseMultipliers";
   const auto distance_tag = distance->specially_optimized_distance_tag();
   SCANN_RETURN_IF_ERROR(CheckValidDistanceTag(distance_tag));
   if (distance_tag == DistanceMeasure::SQUARED_L2 && !quantized.empty() &&
@@ -144,7 +144,7 @@ ScalarQuantizedBruteForceSearcher::CreateWithFixedRange(
     shared_ptr<const DenseDataset<float>> dataset,
     ConstSpan<float> abs_thresholds_for_each_dimension,
     int32_t default_num_neighbors, float default_epsilon) {
-  LOG(INFO) << "FA called (not expected)";
+  LOG(INFO) << "FA ScalarQuantizedBruteForceSearcher::CreateWithFixedRange";
   const auto distance_tag = distance->specially_optimized_distance_tag();
   SCANN_RETURN_IF_ERROR(CheckValidDistanceTag(distance_tag));
 
@@ -181,7 +181,7 @@ ScalarQuantizedBruteForceSearcher::~ScalarQuantizedBruteForceSearcher() {}
 
 Status ScalarQuantizedBruteForceSearcher::EnableCrowdingImpl(
     ConstSpan<int64_t> datapoint_index_to_crowding_attribute) {
-  LOG(INFO) << "FA called (not expected)";
+  LOG(INFO) << "FA ScalarQuantizedBruteForceSearcher::EnableCrowdingImpl";
   if (datapoint_index_to_crowding_attribute.size() !=
       quantized_dataset_.size()) {
     return InvalidArgumentError(absl::StrCat(
@@ -196,7 +196,7 @@ Status ScalarQuantizedBruteForceSearcher::EnableCrowdingImpl(
 Status ScalarQuantizedBruteForceSearcher::FindNeighborsImpl(
     const DatapointPtr<float>& query, const SearchParameters& params,
     NNResultsVector* result) const {
-  LOG(INFO) << "FA called (not expected)";
+  LOG(INFO) << "FA ScalarQuantizedBruteForceSearcher::FindNeighborsImpl";
   DCHECK(result);
   if (!query.IsDense()) {
     return InvalidArgumentError(
@@ -245,7 +245,7 @@ template <typename ResultElem>
 Status ScalarQuantizedBruteForceSearcher::PostprocessDistances(
     const DatapointPtr<float>& query, const SearchParameters& params,
     ConstSpan<ResultElem> dot_products, NNResultsVector* result) const {
-  LOG(INFO) << "FA called (not expected)";
+  LOG(INFO) << "FA ScalarQuantizedBruteForceSearcher::PostprocessDistances";
   switch (distance_->specially_optimized_distance_tag()) {
     case DistanceMeasure::DOT_PRODUCT:
       return PostprocessDistancesImpl(
@@ -285,7 +285,7 @@ Status ScalarQuantizedBruteForceSearcher::PostprocessDistancesImpl(
     const DatapointPtr<float>& query, const SearchParameters& params,
     ConstSpan<ResultElem> dot_products, DistanceFunctor distance_functor,
     NNResultsVector* result) const {
-  LOG(INFO) << "FA called (not expected)";
+  LOG(INFO) << "FA ScalarQuantizedBruteForceSearcher::PostprocessDistancesImpl";
   if (params.pre_reordering_crowding_enabled()) {
     return FailedPreconditionError("Crowding is not supported.");
   } else {
@@ -302,7 +302,7 @@ Status ScalarQuantizedBruteForceSearcher::PostprocessTopNImpl(
     const DatapointPtr<float>& query, const SearchParameters& params,
     ConstSpan<float> dot_products, DistanceFunctor distance_functor,
     TopN* top_n_ptr) const {
-  LOG(INFO) << "FA called (not expected)";
+  LOG(INFO) << "FA ScalarQuantizedBruteForceSearcher::PostprocessTopNImpl";
   DCHECK(!params.restricts_enabled());
   TopN top_n = std::move(*top_n_ptr);
   const float epsilon = params.pre_reordering_epsilon();
@@ -325,7 +325,7 @@ Status ScalarQuantizedBruteForceSearcher::PostprocessTopNImpl(
     const DatapointPtr<float>& query, const SearchParameters& params,
     ConstSpan<pair<DatapointIndex, float>> dot_products,
     DistanceFunctor distance_functor, TopN* top_n_ptr) const {
-  LOG(INFO) << "FA called (not expected)";
+  LOG(INFO) << "FA ScalarQuantizedBruteForceSearcher::PostprocessTopNImpl";
   DCHECK(params.restricts_enabled());
   TopN top_n = std::move(*top_n_ptr);
   const float epsilon = params.pre_reordering_epsilon();
@@ -348,7 +348,7 @@ StatusOr<unique_ptr<SearcherSpecificOptionalParameters>>
 TreeScalarQuantizationPreprocessedQueryCreator::
     CreateLeafSearcherOptionalParameters(
         const DatapointPtr<float>& query) const {
-  LOG(INFO) << "FA called (not expected)";
+  LOG(INFO) << "FA TreeScalarQuantizationPreprocessedQueryCreator::CreateLeafSearcherOptionalParameters";
   auto preprocessed_query = PrepareForAsymmetricScalarQuantizedDotProduct(
       query, inverse_multipliers_);
   return unique_ptr<SearcherSpecificOptionalParameters>(
@@ -358,14 +358,14 @@ TreeScalarQuantizationPreprocessedQueryCreator::
 
 ConstSpan<float>
 TreeScalarQuantizationPreprocessedQueryCreator::inverse_multipliers() const {
-  LOG(INFO) << "FA called (not expected)";
+  LOG(INFO) << "FA TreeScalarQuantizationPreprocessedQueryCreator::inverse_multipliers";
   return MakeConstSpan(inverse_multipliers_.data(),
                        inverse_multipliers_.size());
 }
 
 StatusOr<SingleMachineFactoryOptions>
 ScalarQuantizedBruteForceSearcher::ExtractSingleMachineFactoryOptions() {
-  LOG(INFO) << "FA called (not expected)";
+  LOG(INFO) << "FA ScalarQuantizedBruteForceSearcher::ExtractSingleMachineFactoryOptions";
   TF_ASSIGN_OR_RETURN(
       auto opts,
       SingleMachineSearcherBase<float>::ExtractSingleMachineFactoryOptions());

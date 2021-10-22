@@ -43,7 +43,7 @@ class ParallelPerpendicularDistance : public DistanceMeasure {
   template <typename T>
   SCANN_INLINE double GetDistanceDenseImpl(
       const DatapointPtr<T>& x_dptr, const DatapointPtr<T>& y_dptr) const {
-    LOG(INFO) << "FA called";
+    LOG(INFO) << "FA GetDistanceDenseImpl";
 
     DCHECK(x_dptr.IsDense());
     DCHECK(y_dptr.IsDense());
@@ -90,7 +90,7 @@ namespace {
 double ComputeNormBiasCorrection(const DenseDataset<double>& db,
                                  DatapointPtr<double> center,
                                  ConstSpan<DatapointIndex> cluster_members) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA ComputeNormBiasCorrection";
   double mean_norm = 0.0;
   for (DatapointIndex idx : cluster_members) {
     mean_norm += std::sqrt(SquaredL2Norm(db[idx]));
@@ -106,14 +106,13 @@ template <typename T>
 StatusOr<vector<DenseDataset<double>>> AhImpl<T>::TrainAsymmetricHashing(
     const TypedDataset<T>& dataset, const TrainingOptionsT& opts,
     shared_ptr<ThreadPool> pool) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA AhImpl<T>::TrainAsymmetricHashing";
   
   if (dataset.empty()) {
     return InvalidArgumentError("Cannot train AH on an empty dataset.");
   }
 
   ChunkedDatapoint<double> chunked_vec;
-
   if (opts.preprocessing_function()) {
     TF_ASSIGN_OR_RETURN(Datapoint<T> preprocessed,
                         opts.preprocessing_function()(dataset[0]));
@@ -168,7 +167,9 @@ StatusOr<vector<DenseDataset<double>>> AhImpl<T>::TrainAsymmetricHashing(
       chunked_dataset[j].AppendOrDie(chunked_vec[j], "");
     }
   };
-
+  LOG(INFO) << "FA LOOP IN AhImpl<T>::TrainAsymmetricHashing";
+  LOG(INFO) << "FA OVER ---> ChunkingProjection<T>::ProjectInput";
+  LOG(INFO) << "FA OVER ---> ChunkingProjection<T>::ProjectInputImpl";
   if (opts.preprocessing_function()) {
     for (DatapointIndex i : sample) {
       TF_ASSIGN_OR_RETURN(Datapoint<T> preprocessed,
@@ -193,6 +194,7 @@ StatusOr<vector<DenseDataset<double>>> AhImpl<T>::TrainAsymmetricHashing(
   gmm_opts.parallelization_pool = std::move(pool);
   if (!std::isnan(opts.config().noise_shaping_threshold()) &&
       opts.config().use_noise_shaped_training()) {
+    LOG(INFO) << "FA CALL ComputeParallelCostMultiplier FROM ComputeResidualStatsForCluster";
     gmm_opts.parallel_cost_multiplier = ComputeParallelCostMultiplier(
         opts.config().noise_shaping_threshold(), 1.0, dataset.dimensionality());
     auto d = make_shared<ParallelPerpendicularDistance>();
@@ -202,6 +204,8 @@ StatusOr<vector<DenseDataset<double>>> AhImpl<T>::TrainAsymmetricHashing(
   GmmUtils gmm(quantization_distance, gmm_opts);
 
   vector<DenseDataset<double>> all_centers(num_blocks);
+  LOG(INFO) << "FA LOOP IN AhImpl<T>::TrainAsymmetricHashing";
+  LOG(INFO) << "FA OVER ---> GenericKmeans";
   for (size_t i : Seq(num_blocks)) {
     DenseDataset<double> centers;
     vector<vector<DatapointIndex>> subpartitions;
@@ -258,7 +262,7 @@ Status AhImpl<T>::IndexDatapoint(const DatapointPtr<T>& input,
                                  const DistanceMeasure& quantization_distance,
                                  ConstSpan<DenseDataset<FloatT>> centers,
                                  MutableSpan<uint8_t> result) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA AhImpl<T>::IndexDatapoint";
   
   DCHECK(!centers.empty());
   ChunkedDatapoint<FloatT> projected;
@@ -306,7 +310,7 @@ Status AhImpl<T>::IndexDatapoint(const DatapointPtr<T>& input,
                                  const DistanceMeasure& quantization_distance,
                                  ConstSpan<DenseDataset<FloatT>> centers,
                                  Datapoint<uint8_t>* result) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA AhImpl<T>::IndexDatapoint";
   
   DatapointIndex result_size = centers.size();
   DCHECK_EQ(result_size, projection.num_blocks());
@@ -335,7 +339,6 @@ double ComputeParallelCostMultiplier(double t, double squared_l2_norm,
 
 struct SubspaceResidualStats {
   double residual_norm = 0.0;
-
   double parallel_residual_component = 0.0;
 };
 
@@ -355,6 +358,8 @@ SubspaceResidualStats ComputeResidualStatsForCluster(
     result.parallel_residual_component +=
         residual_coordinate * original_dptr[i] * inv_norm;
   }
+  LOG(INFO) << "FA result.residual_norm " << result.residual_norm << "";
+  LOG(INFO) << "FA result.parallel_residual_component " << result.parallel_residual_component << "";
   return result;
 }
 
@@ -366,28 +371,40 @@ StatusOr<vector<std::vector<SubspaceResidualStats>>> ComputeResidualStats(
   LOG(INFO) << "FA ComputeResidualStats";
   const size_t num_subspaces = centers.size();
   DCHECK_GE(num_subspaces, 1);
-  vector<std::vector<SubspaceResidualStats>> result(num_subspaces);
+  // vector<std::vector<SubspaceResidualStats>> result(num_subspaces); not used...
   vector<std::vector<SubspaceResidualStats>> residual_stats(num_subspaces);
   const size_t num_clusters_per_block = centers[0].size();
+
+  LOG(INFO) << "FA num_subspaces " << num_subspaces + 0 << "";
+  LOG(INFO) << "FA num_clusters_per_block " << num_clusters_per_block + 0 << "";
 
   using FloatT = FloatingTypeFor<T>;
   ChunkedDatapoint<FloatT> maybe_residual_dptr_chunked;
   ChunkedDatapoint<FloatT> original_dptr_chunked;
+  LOG(INFO) << "FA FROM ComputeResidualStats CALL ProjectInput 1/2";
   SCANN_RETURN_IF_ERROR(projection.ProjectInput(maybe_residual_dptr,
                                                 &maybe_residual_dptr_chunked));
+  LOG(INFO) << "FA FROM ComputeResidualStats CALL ProjectInput 2/2";
   SCANN_RETURN_IF_ERROR(
       projection.ProjectInput(original_dptr, &original_dptr_chunked));
   SCANN_RET_CHECK_EQ(maybe_residual_dptr_chunked.size(), num_subspaces);
   SCANN_RET_CHECK_EQ(original_dptr_chunked.size(), num_subspaces);
   double chunked_norm = 0.0;
+  LOG(INFO) << "FA sum chunked_norm";
   for (size_t subspace_idx : Seq(num_subspaces)) {
     for (FloatT x : original_dptr_chunked[subspace_idx].values_slice()) {
       chunked_norm += Square<double>(x);
     }
   }
+  LOG(INFO) << "FA chunked_norm " << chunked_norm + 0.0 << "";
   chunked_norm = std::sqrt(chunked_norm);
-  double inverse_chunked_norm = 1.0 / chunked_norm;
+  LOG(INFO) << "FA chunked_norm sqrt " << chunked_norm + 0.0 << "";
 
+  double inverse_chunked_norm = 1.0 / chunked_norm;
+  LOG(INFO) << "FA inverse_chunked_norm " << inverse_chunked_norm + 0.0 << "";
+
+  LOG(INFO) << "FA LOOP IN ComputeResidualStats";
+  LOG(INFO) << "FA OVER ---> ComputeResidualStatsForCluster";
   for (size_t subspace_idx : Seq(num_subspaces)) {
     auto& cur_subspace_residual_stats = residual_stats[subspace_idx];
     cur_subspace_residual_stats.resize(num_clusters_per_block);
@@ -447,7 +464,7 @@ CoordinateDescentResult OptimizeSingleSubspace(
     ConstSpan<SubspaceResidualStats> cur_subspace_residual_stats,
     const uint8_t cur_center_idx, const double parallel_residual_component,
     const double parallel_cost_multiplier) {
-  LOG(INFO) << "FA OptimizeSingleSubspace";
+  // LOG(INFO) << "FA OptimizeSingleSubspace";
   CoordinateDescentResult result;
   result.new_center_idx = cur_center_idx;
   result.new_parallel_residual_component = parallel_residual_component;
@@ -484,20 +501,43 @@ template <typename T>
 Status CoordinateDescentAHQuantize(
     DatapointPtr<T> maybe_residual_dptr, DatapointPtr<T> original_dptr,
     ConstSpan<DenseDataset<FloatingTypeFor<T>>> centers,
-    const ChunkingProjection<T>& projection, double threshold,
-    MutableSpan<uint8_t> result, int* num_changes = nullptr,
-    double* residual_ptr = nullptr, double* parallel_residual_ptr = nullptr) {
+    const ChunkingProjection<T>& projection, double threshold, MutableSpan<uint8_t> result) {
+    //, int* num_changes = nullptr,
+    // double* residual_ptr = nullptr, double* parallel_residual_ptr = nullptr) {
   LOG(INFO) << "FA CoordinateDescentAHQuantize";
+  // LOG(INFO) << "FA maybe_residual_dptr " << maybe_residual_dptr << "";
+  // LOG(INFO) << "FA original_dptr " << original_dptr << "";
+  // LOG(INFO) << "FA centers " << centers << "";
+  // LOG(INFO) << "FA projection " << projection << "";
+  // LOG(INFO) << "FA threshold " << threshold << "";
+  // LOG(INFO) << "FA result " << result << "";
+  LOG(INFO) << "FA CoordinateDescentAHQuantize value of result at start:";
+  for (size_t i = 0; i < result.size(); ++i) {
+    LOG(INFO) << "FA result[" << i << "]" << result[i] + 0 << "";
+  }
+
+  LOG(INFO) << "FA FROM CoordinateDescentAHQuantize CALL ComputeResidualStats";
   SCANN_RET_CHECK_EQ(result.size(), centers.size());
+  LOG(INFO) << "FA result.size() " << result.size() << "";
+  LOG(INFO) << "FA centers.size() " << centers.size() << "";
+
+
   SCANN_RET_CHECK_EQ(maybe_residual_dptr.dimensionality(),
                      original_dptr.dimensionality());
   TF_ASSIGN_OR_RETURN(auto residual_stats,
                       ComputeResidualStats(maybe_residual_dptr, original_dptr,
                                            centers, projection));
+  // LOG(INFO) << "FA residual_stats " << residual_stats << "";
 
+  LOG(INFO) << "FA FROM CoordinateDescentAHQuantize CALL ComputeParallelCostMultiplier";
   const double parallel_cost_multiplier = ComputeParallelCostMultiplier(
       threshold, SquaredL2Norm(original_dptr), original_dptr.dimensionality());
   InitializeToMinResidualNorm(residual_stats, result);
+  LOG(INFO) << "FA CoordinateDescentAHQuantize value of result at InitializeToMinResidualNorm:";
+  for (size_t i = 0; i < result.size(); ++i) {
+    LOG(INFO) << "FA result[" << i << "]" << result[i] + 0 << "";
+  }
+  LOG(INFO) << "FA FROM CoordinateDescentAHQuantize CALL ComputeParallelResidualComponent";
   double parallel_residual_component =
       ComputeParallelResidualComponent(result, residual_stats);
 
@@ -510,14 +550,19 @@ Status CoordinateDescentAHQuantize(
         residual_stats[subspace_idx][cluster_idx].residual_norm;
   }
   std::vector<uint8_t> result_sorted(result.begin(), result.end());
+  
   ZipSortBranchOptimized(
       std::greater<double>(), subspace_residual_norms.begin(),
       subspace_residual_norms.end(), result_sorted.begin(), result_sorted.end(),
       subspace_idxs.begin(), subspace_idxs.end());
+  // LOG(INFO) << "FA result_sorted " << result_sorted << "";
 
   enum { kMaxRounds = 10 };
   bool cur_round_changes = true;
-  if (num_changes) *num_changes = 0;
+  // if (num_changes) *num_changes = 0;
+
+  LOG(INFO) << "FA LOOP IN CoordinateDescentAHQuantize";
+  LOG(INFO) << "FA OVER ---> OptimizeSingleSubspace";
   for (int round = 0; cur_round_changes && round < kMaxRounds; ++round) {
     cur_round_changes = false;
     for (size_t i : IndicesOf(subspace_idxs)) {
@@ -529,7 +574,7 @@ Status CoordinateDescentAHQuantize(
           cur_subspace_residual_stats, cur_center_idx,
           parallel_residual_component, parallel_cost_multiplier);
       if (subspace_result.new_center_idx != cur_center_idx) {
-        if (num_changes) ++*num_changes;
+        // if (num_changes) ++*num_changes;
         parallel_residual_component =
             subspace_result.new_parallel_residual_component;
         result_sorted[i] = subspace_result.new_center_idx;
@@ -537,7 +582,7 @@ Status CoordinateDescentAHQuantize(
       }
     }
   }
-
+  // LOG(INFO) << "FA result_sorted " << result_sorted << "";
   double final_residual_norm = 0.0;
   for (size_t i : IndicesOf(result_sorted)) {
     const size_t subspace_idx = subspace_idxs[i];
@@ -546,10 +591,18 @@ Status CoordinateDescentAHQuantize(
     final_residual_norm +=
         residual_stats[subspace_idx][center_idx].residual_norm;
   }
-  if (residual_ptr) *residual_ptr = final_residual_norm;
-  if (parallel_residual_ptr) {
-    *parallel_residual_ptr = Square(parallel_residual_component);
+  // if (residual_ptr) *residual_ptr = final_residual_norm;
+  // if (parallel_residual_ptr) {
+  //   *parallel_residual_ptr = Square(parallel_residual_component);
+  // }
+  // LOG(INFO) << "FA result " << result << "";
+  LOG(INFO) << "FA CoordinateDescentAHQuantize value of result at finish:";
+  for (size_t i = 0; i < result.size(); ++i) {
+    LOG(INFO) << "FA result[" << i << "]" << result[i] + 0 << "";
+
   }
+  LOG(INFO) << "FA exit() IN CoordinateDescentAHQuantize";
+  exit(EXIT_SUCCESS);
   return OkStatus();
 }
 
@@ -562,7 +615,8 @@ Status AhImpl<T>::IndexDatapointNoiseShaped(
     const ChunkingProjection<T>& projection,
     ConstSpan<DenseDataset<FloatingTypeFor<T>>> centers, double threshold,
     MutableSpan<uint8_t> result) {
-  LOG(INFO) << "FA IndexDatapointNoiseShaped";
+  // LOG(INFO) << "FA IndexDatapointNoiseShaped";
+  // LOG(INFO) << "FA CALL CoordinateDescentAHQuantize";
   return CoordinateDescentAHQuantize<T>(maybe_residual_dptr, original_dptr,
                                         centers, projection, threshold, result);
 }
@@ -629,6 +683,7 @@ template <typename T, typename Lambda>
 inline vector<T> ConvertLookupToFixedPointImpl(ConstSpan<float> raw_lookup,
                                                Lambda convert_to_int_lambda,
                                                float multiplier) {
+  LOG(INFO) << "FA ConvertLookupToFixedPointImpl";
   constexpr T kBias = FixedPointBias<T>();
   vector<T> result(raw_lookup.size());
   for (size_t i = 0; i < raw_lookup.size(); ++i) {
@@ -645,6 +700,7 @@ vector<T> ConvertLookupToFixedPoint(
     const AsymmetricHasherConfig::FixedPointLUTConversionOptions&
         conversion_options,
     float* multiplier) {
+  LOG(INFO) << "FA ConvertLookupToFixedPoint";
   DCHECK_GT(conversion_options.multiplier_quantile(), 0.0f);
   DCHECK_LE(conversion_options.multiplier_quantile(), 1.0f);
   using SignedT = make_signed_t<T>;

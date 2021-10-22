@@ -43,7 +43,7 @@ shared_ptr<DenseDataset<uint8_t>> PreprocessHashedDataset(
     shared_ptr<DenseDataset<uint8_t>> hashed_dataset,
     const AsymmetricHasherConfig::QuantizationScheme quantization_scheme,
     const size_t num_blocks) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA PreprocessHashedDataset";
   
   if (quantization_scheme == AsymmetricHasherConfig::PRODUCT_AND_BIAS) {
     auto dataset_no_bias = std::make_shared<DenseDataset<uint8_t>>();
@@ -185,7 +185,7 @@ template <typename T>
 Status Searcher<T>::FindNeighborsBatchedImpl(
     const TypedDataset<T>& queries, ConstSpan<SearchParameters> params,
     MutableSpan<NNResultsVector> results) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA Searcher<T>::FindNeighborsBatchedImpl";
   
   bool crowding_enabled_for_any_query = false;
   for (const auto& p : params) {
@@ -209,6 +209,7 @@ template <typename T>
 StatusOr<const LookupTable*> Searcher<T>::GetOrCreateLookupTable(
     const DatapointPtr<T>& query, const SearchParameters& params,
     LookupTable* created_lookup_table_storage) const {
+  LOG(INFO) << "FA Searcher<T>::GetOrCreateLookupTable";
   DCHECK(created_lookup_table_storage);
   auto per_query_opts =
       dynamic_cast<const AsymmetricHashingOptionalParameters*>(
@@ -230,7 +231,6 @@ Status Searcher<T>::FindNeighborsTopNDispatcher(
     const DatapointPtr<T>& query, const SearchParameters& params,
     PostprocessFunctor postprocessing_functor, NNResultsVector* result) const {
   LOG(INFO) << "FA Searcher<T>::FindNeighborsTopNDispatcher";
-  
   auto queryer_options = GetQueryerOptions(postprocessing_functor);
   LookupTable lookup_table_storage;
   TF_ASSIGN_OR_RETURN(
@@ -283,7 +283,7 @@ Status Searcher<T>::FindNeighborsBatchedInternal(
     ConstSpan<SearchParameters> params,
     PostprocessFunctor postprocessing_functor,
     MutableSpan<NNResultsVector> results) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA Searcher<T>::FindNeighborsBatchedInternal";
   using QueryerOptionsT = QueryerOptions<PostprocessFunctor>;
   QueryerOptionsT queryer_options;
 
@@ -371,7 +371,7 @@ Status Searcher<T>::FindOneLowLevelBatchOfNeighbors(
     ConstSpan<SearchParameters> params,
     const QueryerOptions<PostprocessFunctor>& queryer_options,
     MutableSpan<NNResultsVector> results) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA Searcher<T>::FindOneLowLevelBatchOfNeighbors";
   
   std::array<LookupTable, kNumQueries> lookup_storages;
   std::array<const LookupTable*, kNumQueries> lookup_ptrs;
@@ -403,7 +403,7 @@ template <typename T>
 StatusOr<unique_ptr<SearcherSpecificOptionalParameters>>
 PrecomputedAsymmetricLookupTableCreator<T>::
     CreateLeafSearcherOptionalParameters(const DatapointPtr<T>& query) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA PrecomputedAsymmetricLookupTableCreator<T>::CreateLeafSearcherOptionalParameters";
   
   TF_ASSIGN_OR_RETURN(auto lookup_table,
                       queryer_->CreateLookupTable(query, lookup_type_));
@@ -414,7 +414,7 @@ PrecomputedAsymmetricLookupTableCreator<T>::
 template <typename T>
 StatusOr<SingleMachineFactoryOptions>
 Searcher<T>::ExtractSingleMachineFactoryOptions() {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA Searcher<T>::ExtractSingleMachineFactoryOptions";
 
   TF_ASSIGN_OR_RETURN(
       auto opts,

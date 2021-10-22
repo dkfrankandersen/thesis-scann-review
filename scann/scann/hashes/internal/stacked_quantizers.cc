@@ -35,7 +35,7 @@ namespace {
 
 template <typename O, typename T>
 DenseDataset<O> CopyDenseDatasetIntoNewType(const DenseDataset<T>& input) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA CopyDenseDatasetIntoNewType";
 
   const auto input_size = input.size();
 
@@ -53,7 +53,7 @@ template <typename O, typename T>
 enable_if_t<std::is_same<O, T>::value, const DenseDataset<O>&>
 ConvertDenseDatasetIntoNewType(const DenseDataset<T>& input,
                                DenseDataset<O>* buffer) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA ConvertDenseDatasetIntoNewType";
   return input;
 }
 
@@ -61,7 +61,7 @@ template <typename O, typename T>
 enable_if_t<!std::is_same<O, T>::value, const DenseDataset<O>&>
 ConvertDenseDatasetIntoNewType(const DenseDataset<T>& input,
                                DenseDataset<O>* buffer) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA ConvertDenseDatasetIntoNewType";
   
   *buffer = CopyDenseDatasetIntoNewType<O>(input);
   return *buffer;
@@ -71,7 +71,7 @@ template <typename O, typename T>
 enable_if_t<std::is_same<O, T>::value, DenseDataset<O>*>
 ConvertMutableDenseDatasetIntoNewType(DenseDataset<T>* input,
                                       DenseDataset<O>* buffer) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA ConvertMutableDenseDatasetIntoNewType";
   
   return input;
 }
@@ -80,7 +80,7 @@ template <typename O, typename T>
 enable_if_t<!std::is_same<O, T>::value, DenseDataset<O>*>
 ConvertMutableDenseDatasetIntoNewType(DenseDataset<T>* input,
                                       DenseDataset<O>* buffer) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA ConvertMutableDenseDatasetIntoNewType";
   
   *buffer = CopyDenseDatasetIntoNewType<O>(*input);
   return buffer;
@@ -88,7 +88,7 @@ ConvertMutableDenseDatasetIntoNewType(DenseDataset<T>* input,
 
 template <typename BinaryOp, typename T, typename O>
 void UpdateSpanByScalar(BinaryOp op, T arg, MutableSpan<O> result) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA UpdateSpanByScalar";
 
   const auto d = result.size();
   for (DimensionIndex i = 0; i < d; ++i) result[i] = op(result[i], arg);
@@ -97,7 +97,7 @@ void UpdateSpanByScalar(BinaryOp op, T arg, MutableSpan<O> result) {
 template <typename BinaryOp, typename T, typename O>
 void UpdateSpanByVec(BinaryOp op, const DatapointPtr<T>& arg,
                      MutableSpan<O> result) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA UpdateSpanByVec";
   
   const auto d = arg.dimensionality();
   DCHECK_EQ(d, result.size());
@@ -119,7 +119,7 @@ void InplaceUpdateDenseDatapoint(BinaryOp op, const DatapointPtr<T>& arg,
 
 template <typename T>
 double AverageSquaredL2Norm(const DenseDataset<T>& matrix) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA AverageSquaredL2Norm";
 
   const auto num_rows = matrix.size();
   if (!num_rows) return 0.0;
@@ -141,14 +141,14 @@ class CodesList {
 
   ConstSpan<uint8_t> GetCodes(DatapointIndex i) const {
     DCHECK_LT(i, num_datapoints_);
-    LOG(INFO) << "FA called";
+    LOG(INFO) << "FA GetCodes";
 
     return ConstSpan<uint8_t>(codes_.get() + i * num_codebooks_,
                               num_codebooks_);
   }
 
   MutableSpan<uint8_t> GetMutableCodes(DatapointIndex i) {
-    LOG(INFO) << "FA called";
+    LOG(INFO) << "FA GetMutableCodes";
 
     DCHECK_LT(i, num_datapoints_);
     return MutableSpan<uint8_t>(codes_.get() + i * num_codebooks_,
@@ -171,7 +171,7 @@ Status StackedQuantizers<T>::Hash(const DatapointPtr<T>& input,
                                   const DistanceMeasure& quantization_distance,
                                   CodebookListView<FloatT> codebook_list,
                                   MutableSpan<uint8_t> output) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA StackedQuantizers<T>::Hash";
   
   std::fill(output.begin(), output.end(), 0);
   ChunkedDatapoint<FloatT> projected;
@@ -188,7 +188,7 @@ Status StackedQuantizers<T>::Hash(const DatapointPtr<T>& input,
                                   const DistanceMeasure& quantization_distance,
                                   CodebookListView<FloatT> codebook_list,
                                   Datapoint<uint8_t>* output) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA StackedQuantizers<T>::Hash";
   
   DCHECK(output);
   const auto num_codebooks = codebook_list.size();
@@ -203,7 +203,7 @@ template <typename T>
 Datapoint<FloatingTypeFor<T>> StackedQuantizers<T>::Reconstruct(
     const DatapointPtr<uint8_t>& input,
     CodebookListView<FloatT> codebook_list) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA StackedQuantizers<T>::Reconstruct";
   
   const auto num_codebooks = codebook_list.size();
   DCHECK(num_codebooks);
@@ -223,7 +223,7 @@ template <typename T>
 void StackedQuantizers<T>::Reconstruct(ConstSpan<uint8_t> input,
                                        CodebookListView<FloatT> codebook_list,
                                        MutableSpan<FloatingTypeFor<T>> output) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA StackedQuantizers<T>::Reconstruct";
   
   const auto num_codebooks = codebook_list.size();
   DCHECK_EQ(num_codebooks, input.size());
@@ -239,7 +239,7 @@ StatusOr<
 StackedQuantizers<T>::Train(const DenseDataset<T>& dataset,
                             const TrainingOptions& opts,
                             shared_ptr<ThreadPool> pool) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA StackedQuantizers<T>::Train";
   
   const auto num_datapoints = dataset.size();
   const auto num_codebooks = opts.projector()->num_blocks();
@@ -263,6 +263,12 @@ StackedQuantizers<T>::Train(const DenseDataset<T>& dataset,
 
   auto mse = AverageSquaredL2Norm(residual);
   VLOG(1) << "SQ training, initial mse = " << mse;
+  
+  LOG(INFO) << "FA LOOP IN StackedQuantizers<T>::Train";
+  LOG(INFO) << "FA OVER ---> ComputeUpdatesToCodebook";
+  LOG(INFO) << "FA OVER ---> UpdateDatapoint";
+  LOG(INFO) << "FA OVER ---> DenseDistanceManyToManyTop1";
+  LOG(INFO) << "FA OVER ---> UpdateDatapoint";
 
   for (int iter = 0; iter < sq_config.max_num_iterations(); ++iter) {
     for (int codebook_i = 0; codebook_i < num_codebooks; ++codebook_i) {
@@ -331,7 +337,7 @@ template <typename T>
 StatusOr<const DenseDataset<double>*> StackedQuantizers<T>::SampledDataset(
     const DenseDataset<T>& dataset, const TrainingOptions& opts,
     DenseDataset<double>* buffer) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA StackedQuantizers<T>::SampledDataset";
 
   const auto dataset_size = dataset.size();
   if (opts.config().sampling_fraction() == 1.0 &&
@@ -362,7 +368,7 @@ StackedQuantizers<T>::HierarchicalKMeans(const DenseDataset<double>& dataset,
                                          const TrainingOptions& opts,
                                          int num_codebooks,
                                          shared_ptr<ThreadPool> pool) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA StackedQuantizers<T>::HierarchicalKMeans";
   
   const auto num_centers = opts.config().num_clusters_per_block();
 
@@ -377,7 +383,8 @@ StackedQuantizers<T>::HierarchicalKMeans(const DenseDataset<double>& dataset,
   codebook_list.reserve(num_codebooks);
   auto residual = CopyDenseDatasetIntoNewType<double>(dataset);
   TF_ASSIGN_OR_RETURN(auto* residual_mutator, residual.GetMutator());
-
+  LOG(INFO) << "FA LOOP IN StackedQuantizers<T>::HierarchicalKMeans";
+  LOG(INFO) << "FA OVER ---> GenericKmeans";
   for (auto _ : Seq(num_codebooks)) {
     DenseDataset<double> centers;
     vector<vector<DatapointIndex>> labels;
@@ -408,7 +415,7 @@ void StackedQuantizers<T>::GreedilyAssignCodes(
     const DatapointPtr<U>& input, const DistanceMeasure& quantization_distance,
     CodebookListView<U> codebook_list, MutableSpan<uint8_t> mutable_codes,
     Datapoint<U>* output_residual) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA StackedQuantizers<T>::GreedilyAssignCodes";
   
   const auto num_codebooks = codebook_list.size();
   DCHECK_EQ(num_codebooks, mutable_codes.size());
@@ -439,7 +446,7 @@ vector<Datapoint<double>> StackedQuantizers<T>::ComputeUpdatesToCodebook(
     int codebook_i, DimensionIndex dim, int num_centers,
     const DistanceMeasure& quantization_distance, const CodesList& codes_list,
     const DenseDataset<double>& residual) {
-  LOG(INFO) << "FA called";
+  // LOG(INFO) << "FA StackedQuantizers<T>::ComputeUpdatesToCodebook";
   
   const auto dataset_size = codes_list.NumDatapoints();
   const auto num_codebooks = codes_list.NumCodebooks();
@@ -470,7 +477,7 @@ Status StackedQuantizers<T>::InitializeCodes(
     const DistanceMeasure& quantization_distance,
     CodebookListView<double> codebook_list, CodesList* codes_list,
     DenseDataset<double>* residual, ThreadPool* pool) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA StackedQuantizers<T>::InitializeCodes";
   
   DCHECK(codes_list && residual);
   const auto dataset_size = dataset.size();
@@ -480,6 +487,8 @@ Status StackedQuantizers<T>::InitializeCodes(
       CopyDenseDatasetIntoNewType<double>(dataset);
   DenseDataset<double> updated_residuals;
   Datapoint<double> tmp;
+  LOG(INFO) << "FA LOOP IN StackedQuantizers<T>::InitializeCodes";
+  LOG(INFO) << "FA OVER ---> DenseDistanceManyToManyTop1";
   for (size_t codebook_idx : Seq(num_codebooks)) {
     const auto& codebook = codebook_list[codebook_idx];
     auto neighbors = DenseDistanceManyToManyTop1(

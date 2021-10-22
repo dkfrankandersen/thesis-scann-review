@@ -52,7 +52,7 @@ FP8SimdBlockTransposedDatabase::FP8SimdBlockTransposedDatabase(
       size_(db.size()),
       dimensionality_(db.dimensionality()),
       simd_block_size_(simd_block_size) {
-  LOG(INFO) << "FA Called";
+  LOG(INFO) << "FA FP8SimdBlockTransposedDatabase::FP8SimdBlockTransposedDatabas";
   if (!inverse_fp8_multipliers.empty()) {
     CHECK_EQ(dimensionality_, inverse_fp8_multipliers.size());
   }
@@ -72,7 +72,7 @@ FP8SimdBlockTransposedDatabase::FP8SimdBlockTransposedDatabase(
 void FP8SimdBlockTransposedDatabase::TransposeOneBlock(const int8_t* src,
                                                        size_t block_size,
                                                        int8_t* dest) {
-  LOG(INFO) << "FA Called";
+  LOG(INFO) << "FA FP8SimdBlockTransposedDatabase::TransposeOneBlock";
   for (DatapointIndex dp_idx : Seq(block_size)) {
     const int8_t* dp_start = src + dimensionality_ * dp_idx;
     for (DimensionIndex dim_idx : Seq(dimensionality_)) {

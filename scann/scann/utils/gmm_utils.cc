@@ -122,6 +122,7 @@ class GmmUtilsImplInterface : public VirtualDestructor {
 
   void DistancesFromPoint(DatapointPtr<double> center,
                           MutableSpan<double> distances) const {
+    // LOG(INFO) << "FA DistancesFromPoint";
     this->IterateDataset(
         parallelization_pool_,
         [&](size_t offset,
@@ -157,6 +158,10 @@ class GmmUtilsImplInterface : public VirtualDestructor {
 
   Status CheckAllFinite() const {
     Status finite_check_status = OkStatus();
+    // LOG(INFO) << "FA CheckAllFinite";
+    // LOG(INFO) << "FA LOOP IN CheckAllFinite";
+    // LOG(INFO) << "FA USING IterateDataset";
+    // LOG(INFO) << "FA OVER ---> VerifyAllFinite";
     IterateDataset(
         nullptr, [&finite_check_status](
                      size_t offset, const DenseDataset<double>& dataset_batch) {
@@ -249,6 +254,7 @@ class DenseDatasetWrapper : public GmmUtilsImplInterface {
 
   void IterateDataset(ThreadPool* parallelization_pool,
                       const IterateDatasetCallback& callback) const final {
+    // LOG(INFO) << "FA IterateDataset";
     if (IsSame<T, double>()) {
       callback(0, reinterpret_cast<const DenseDataset<double>&>(dataset_));
       return;
@@ -280,6 +286,7 @@ template <typename T>
 unique_ptr<GmmUtilsImplInterface> GmmUtilsImplInterface::CreateTyped(
     const DistanceMeasure& distance, const Dataset& dataset,
     ConstSpan<DatapointIndex> subset, ThreadPool* parallelization_pool) {
+  // LOG(INFO) << "FA GmmUtilsImplInterface::CreateTyped";
   DCHECK(subset.empty());
   auto* dense_dataset = dynamic_cast<const DenseDataset<T>*>(&dataset);
   CHECK(dense_dataset);
@@ -289,6 +296,7 @@ unique_ptr<GmmUtilsImplInterface> GmmUtilsImplInterface::CreateTyped(
 unique_ptr<GmmUtilsImplInterface> GmmUtilsImplInterface::Create(
     const DistanceMeasure& distance, const Dataset& dataset,
     ConstSpan<DatapointIndex> subset, ThreadPool* parallelization_pool) {
+  // LOG(INFO) << "FA GmmUtilsImplInterface::Create";
   unique_ptr<GmmUtilsImplInterface> impl;
   if (dataset.IsDense() && subset.empty()) {
     impl = SCANN_CALL_FUNCTION_BY_TAG(
@@ -307,9 +315,11 @@ namespace {
 vector<pair<DatapointIndex, double>> UnbalancedPartitionAssignment(
     GmmUtilsImplInterface* impl, const DistanceMeasure& distance,
     const DenseDataset<double>& centers, ThreadPool* pool) {
-  LOG(INFO) << "FA UnbalancedPartitionAssignment";
   vector<pair<DatapointIndex, double>> top1_results(impl->size());
-
+  // LOG(INFO) << "FA UnbalancedPartitionAssignment";
+  // LOG(INFO) << "FA LOOP IN UnbalancedPartitionAssignment";
+  // LOG(INFO) << "FA OVER ---> VerifyAllFinite";
+  // LOG(INFO) << "FA OVER ---> DenseDistanceManyToManyTop1";
   impl->IterateDataset(
       pool, [&](size_t offset,
                 const DenseDataset<double>& dataset_batch) SCANN_INLINE_LAMBDA {
@@ -345,9 +355,13 @@ vector<pair<DatapointIndex, double>> GreedyBalancedPartitionAssignment(
 
 GmmUtils::PartitionAssignmentFn GetPartitionAssignmentFn(
     GmmUtils::Options::PartitionAssignmentType type) {
-  LOG(INFO) << "FA GetPartitionAssignmentFn";
+  // LOG(INFO) << "FA GetPartitionAssignmentFn";
   switch (type) {
     case GmmUtils::Options::UNBALANCED:
+      // LOG(INFO) << "FA FROM GetPartitionAssignmentFn CALL UnbalancedPartitionAssignment";
+      // LOG(INFO) << "FA LOOP IN UnbalancedPartitionAssignment";
+      // LOG(INFO) << "FA OVER ---> VerifyAllFinite";
+      // LOG(INFO) << "FA OVER ---> DenseDistanceManyToManyTop1";
       return &UnbalancedPartitionAssignment;
     case GmmUtils::Options::GREEDY_BALANCED:
       return &GreedyBalancedPartitionAssignment;
@@ -369,6 +383,7 @@ Status GmmUtils::GenericKmeans(
                     GetPartitionAssignmentFn(opts_.partition_assignment_type),
                     final_centers, final_partitions);
 }
+
 Status GmmUtils::GenericKmeans(
     const Dataset& dataset, ConstSpan<DatapointIndex> subset,
     const int32_t num_clusters, DenseDataset<double>* final_centers,
@@ -402,7 +417,7 @@ Status GmmUtils::InitializeCenters(const Dataset& dataset,
                                    ConstSpan<DatapointIndex> subset,
                                    int32_t num_clusters,
                                    DenseDataset<double>* initial_centers) {
-  LOG(INFO) << "FA GmmUtils::InitializeCenters";
+  // LOG(INFO) << "FA GmmUtils::InitializeCenters";
   switch (opts_.center_initialization_type) {
     case Options::KMEANS_PLUS_PLUS:
       return KMeansPPInitializeCenters(dataset, subset, num_clusters,
@@ -445,7 +460,8 @@ Status GmmUtils::MeanDistanceInitializeCenters(
 
   vector<DatapointIndex> sample_ids;
   vector<double> distances(dataset_size, 0.0);
-
+  
+  LOG(INFO) << "FA CALL -> DistancesFromPoint";
   impl->DistancesFromPoint(last_center, MakeMutableSpan(distances));
   SCANN_RETURN_IF_ERROR(VerifyAllFinite(last_center.values_slice()))
       << "(Center Number = " << centers.size() << ")";
@@ -517,6 +533,9 @@ Status GmmUtils::KMeansPPInitializeCenters(
   vector<DatapointIndex> sample_ids;
   vector<double> distances(dataset_size, 0.0);
   vector<double> temp(dataset_size);
+  LOG(INFO) << "FA LOOP IN GmmUtils::KMeansPPInitializeCenters";
+  LOG(INFO) << "FA OVER ---> VerifyAllFinite";
+  LOG(INFO) << "FA OVER ---> DistancesFromPoint";
   while (centers.size() < num_clusters) {
     SCANN_RETURN_IF_ERROR(VerifyAllFinite(last_center.values_slice()))
         << "(Center Number = " << centers.size() << ")";
@@ -618,6 +637,8 @@ SCANN_OUTLINE Status GmmUtils::KMeansImpl(
     DenseDataset<double>* final_centers,
     vector<vector<DatapointIndex>>* final_partitions) {
   LOG(INFO) << "FA GmmUtils::KMeansImpl";
+  LOG(INFO) << "FA CALL GmmUtils::InitializeCenters";
+
   DCHECK(final_centers);
   if (dataset.IsDense() && subset.size() == dataset.size() &&
       IsStdIota(subset)) {
@@ -676,6 +697,15 @@ SCANN_OUTLINE Status GmmUtils::KMeansImpl(
 
   ThreadPool* pool = opts_.parallelization_pool.get();
   const absl::Time deadline = absl::Now() + opts_.max_iteration_duration;
+
+  LOG(INFO) << "FA LOOP IN GmmUtils::KMeansImpl";
+  LOG(INFO) << "FA OVER ---> FROM GetPartitionAssignmentFn CALL UnbalancedPartitionAssignment";
+  LOG(INFO) << "FA OVER ---> LOOP IN UnbalancedPartitionAssignment";
+  LOG(INFO) << "FA OVER ---> OVER ---> VerifyAllFinite";
+  LOG(INFO) << "FA OVER ---> OVER ---> DenseDistanceManyToManyTop1";
+  LOG(INFO) << "FA OVER ---> RecomputeCentroidsSimple";
+  LOG(INFO) << "FA OVER ---> RandomReinitializeCenters";
+
   for (size_t iteration : Seq(opts_.max_iterations + 1)) {
     top1_results =
         partition_assignment_fn(impl.get(), *distance_, centers, pool);
@@ -867,7 +897,7 @@ Status GmmUtils::RecomputeCentroidsSimple(
     ConstSpan<pair<uint32_t, double>> top1_results, GmmUtilsImplInterface* impl,
     ConstSpan<uint32_t> partition_sizes, bool spherical,
     DenseDataset<double>* centroids) const {
-  LOG(INFO) << "FA GmmUtils::RecomputeCentroidsSimple";
+  // LOG(INFO) << "FA GmmUtils::RecomputeCentroidsSimple";
   const size_t dataset_size = impl->size();
   const size_t dimensionality = impl->dimensionality();
   std::fill(centroids->mutable_data().begin(), centroids->mutable_data().end(),
@@ -905,7 +935,7 @@ Status GmmUtils::RandomReinitializeCenters(
     ConstSpan<pair<uint32_t, double>> top1_results, GmmUtilsImplInterface* impl,
     ConstSpan<uint32_t> partition_sizes, bool spherical,
     DenseDataset<double>* centroids, std::vector<double>* convergence_means) {
-  LOG(INFO) << "FA GmmUtils::RandomReinitializeCenters";
+  // LOG(INFO) << "FA GmmUtils::RandomReinitializeCenters";
   Datapoint<double> storage;
   int num_reinit_this_iter = 0;
   const uint32_t dimensionality = centroids->dimensionality();
@@ -1179,6 +1209,7 @@ Status GmmUtils::RecomputeCentroidsWithParallelCostMultiplier(
 
   vector<double> mean_vec(centroids->data().size());
   DenseDataset<double> means(std::move(mean_vec), centroids->size());
+  LOG(INFO) << "FA USING -> scann/utils/gmm_utils.cc:880] FA GmmUtils::RecomputeCentroidsSimple";
   SCANN_RETURN_IF_ERROR(RecomputeCentroidsSimple(
       top1_results, impl, partition_sizes, false, &means));
 

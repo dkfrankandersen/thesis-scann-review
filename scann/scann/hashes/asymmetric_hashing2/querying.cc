@@ -38,7 +38,7 @@ PackedDataset CreatePackedDataset(
 }
 
 DenseDataset<uint8_t> UnpackDataset(const PackedDataset& packed) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA UnpackDataset";
 
   const size_t num_dim = packed.num_blocks, num_dp = packed.num_datapoints;
 
@@ -85,7 +85,7 @@ StatusOr<LookupTable> AsymmetricQueryer<T>::CreateLookupTable(
     AsymmetricHasherConfig::LookupType lookup_type,
     AsymmetricHasherConfig::FixedPointLUTConversionOptions
         float_int_conversion_options) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA AsymmetricQueryer<T>::CreateLookupTable";
   switch (lookup_type) {
     case AsymmetricHasherConfig::FLOAT:
       return CreateLookupTable<float>(query, float_int_conversion_options);

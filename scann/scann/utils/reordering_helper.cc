@@ -62,6 +62,7 @@ template <typename ResultElemT, typename CallbackFunctor>
 SCANN_INLINE void DenseDotProductDistanceOneToManyInt8FloatDispatch(
     const DatapointPtr<float>& query, const DenseDataset<int8_t>& database,
     MutableSpan<ResultElemT> result, CallbackFunctor* __restrict__ callback) {
+  LOG(INFO) << "FA DenseDotProductDistanceOneToManyInt8FloatDispatch";
   size_t j = 0;
 
 #ifdef __x86_64__
@@ -298,7 +299,7 @@ template <typename T>
 Status ExactReorderingHelper<T>::ComputeDistancesForReordering(
     const DatapointPtr<T>& query, NNResultsVector* result) const {
   DCHECK(exact_reordering_dataset_);
-
+  LOG(INFO) << "FA ExactReorderingHelper<T>::ComputeDistancesForReordering";
   if (query.IsDense() && exact_reordering_dataset_->IsDense()) {
     const auto& dense_dataset =
         *down_cast<const DenseDataset<T>*>(exact_reordering_dataset_.get());
@@ -326,6 +327,7 @@ template <typename T>
 StatusOr<std::pair<DatapointIndex, float>>
 ExactReorderingHelper<T>::ComputeTop1ReorderingDistance(
     const DatapointPtr<T>& query, NNResultsVector* result) const {
+  LOG(INFO) << "FA ExactReorderingHelper<T>::ComputeTop1ReorderingDistance";
   if (query.IsDense() && exact_reordering_dataset_->IsDense()) {
     const auto& dense_dataset =
         *down_cast<const DenseDataset<T>*>(exact_reordering_dataset_.get());
@@ -361,6 +363,8 @@ FixedPointFloatDenseDotProductReorderingHelper::
     FixedPointFloatDenseDotProductReorderingHelper(
         const DenseDataset<float>& exact_reordering_dataset,
         float fixed_point_multiplier_quantile) {
+  LOG(INFO) << "FA FixedPointFloatDenseDotProductReorderingHelper::FixedPointFloatDenseDotProductReorderingHelper";
+  
   ScalarQuantizationResults quantization_results = ScalarQuantizeFloatDataset(
       exact_reordering_dataset, fixed_point_multiplier_quantile);
   fixed_point_dataset_ = std::move(quantization_results.quantized_dataset);
@@ -373,6 +377,7 @@ FixedPointFloatDenseDotProductReorderingHelper::
         DenseDataset<int8_t> fixed_point_dataset,
         const shared_ptr<const vector<float>>& multiplier_by_dimension)
     : fixed_point_dataset_(std::move(fixed_point_dataset)) {
+  LOG(INFO) << "FA FixedPointFloatDenseDotProductReorderingHelper::FixedPointFloatDenseDotProductReorderingHelper";
   DCHECK_EQ(multiplier_by_dimension->size(),
             fixed_point_dataset_.dimensionality());
   inverse_multipliers_.resize(multiplier_by_dimension->size());
@@ -387,6 +392,7 @@ FixedPointFloatDenseDotProductReorderingHelper::
 Status
 FixedPointFloatDenseDotProductReorderingHelper::ComputeDistancesForReordering(
     const DatapointPtr<float>& query, NNResultsVector* result) const {
+  LOG(INFO) << "FA FixedPointFloatDenseDotProductReorderingHelper::ComputeDistancesForReordering";
   auto preprocessed = PrepareForAsymmetricScalarQuantizedDotProduct(
       query, inverse_multipliers_);
   DenseDotProductDistanceOneToManyInt8Float(
@@ -401,6 +407,7 @@ Status
 FixedPointFloatDenseDotProductReorderingHelper::ComputeDistancesForReordering(
     const DatapointPtr<float>& query, NNResultsVector* result,
     CallbackFunctor* __restrict__ callback) const {
+  LOG(INFO) << "FA FixedPointFloatDenseDotProductReorderingHelper::ComputeDistancesForReordering";
   auto preprocessed = PrepareForAsymmetricScalarQuantizedDotProduct(
       query, inverse_multipliers_);
   one_to_many_low_level::DenseDotProductDistanceOneToManyInt8FloatDispatch(
@@ -412,6 +419,7 @@ FixedPointFloatDenseDotProductReorderingHelper::ComputeDistancesForReordering(
 StatusOr<std::pair<DatapointIndex, float>>
 FixedPointFloatDenseDotProductReorderingHelper::ComputeTop1ReorderingDistance(
     const DatapointPtr<float>& query, NNResultsVector* result) const {
+  LOG(INFO) << "FA FixedPointFloatDenseDotProductReorderingHelper::ComputeTop1ReorderingDistance";
   one_to_many_low_level::SetTop1Functor<std::pair<DatapointIndex, float>, float>
       set_top1_functor;
   SCANN_RETURN_IF_ERROR(
@@ -421,6 +429,7 @@ FixedPointFloatDenseDotProductReorderingHelper::ComputeTop1ReorderingDistance(
 
 Status FixedPointFloatDenseDotProductReorderingHelper::Reconstruct(
     DatapointIndex i, MutableSpan<float> output) const {
+  LOG(INFO) << "FA FixedPointFloatDenseDotProductReorderingHelper::Reconstruct";
   if (i >= fixed_point_dataset_.size())
     return InvalidArgumentError(
         "The datapoint index %d is >= the dataset size %d", i,
@@ -455,6 +464,7 @@ FixedPointFloatDenseCosineReorderingHelper::
 Status
 FixedPointFloatDenseCosineReorderingHelper::ComputeDistancesForReordering(
     const DatapointPtr<float>& query, NNResultsVector* result) const {
+  LOG(INFO) << "FA FixedPointFloatDenseCosineReorderingHelper::ComputeDistancesForReordering";
   one_to_many_low_level::SetCosineDistanceFunctor set_cosine_dist_functor(
       MakeMutableSpan(*result));
   return dot_product_helper_.ComputeDistancesForReordering(
@@ -464,6 +474,7 @@ FixedPointFloatDenseCosineReorderingHelper::ComputeDistancesForReordering(
 StatusOr<std::pair<DatapointIndex, float>>
 FixedPointFloatDenseCosineReorderingHelper::ComputeTop1ReorderingDistance(
     const DatapointPtr<float>& query, NNResultsVector* result) const {
+  LOG(INFO) << "FA FixedPointFloatDenseCosineReorderingHelper::ComputeTop1ReorderingDistance";
   one_to_many_low_level::SetCosineTop1Functor set_cosine_top1_functor;
   SCANN_RETURN_IF_ERROR(dot_product_helper_.ComputeDistancesForReordering(
       query, result, &set_cosine_top1_functor));
@@ -476,6 +487,7 @@ FixedPointFloatDenseSquaredL2ReorderingHelper::
         float fixed_point_multiplier_quantile)
     : dot_product_helper_(exact_reordering_dataset,
                           fixed_point_multiplier_quantile) {
+  LOG(INFO) << "FA FixedPointFloatDenseSquaredL2ReorderingHelper::FixedPointFloatDenseSquaredL2ReorderingHelper";
   vector<float> database_squared_l2_norms;
   database_squared_l2_norms.reserve(exact_reordering_dataset.size());
   for (DatapointIndex i = 0; i < exact_reordering_dataset.size(); ++i) {
@@ -501,6 +513,7 @@ FixedPointFloatDenseSquaredL2ReorderingHelper::
 Status
 FixedPointFloatDenseSquaredL2ReorderingHelper::ComputeDistancesForReordering(
     const DatapointPtr<float>& query, NNResultsVector* result) const {
+  LOG(INFO) << "FA FixedPointFloatDenseSquaredL2ReorderingHelper::ComputeDistancesForReordering";
   const float query_norm = SquaredL2Norm(query);
   one_to_many_low_level::SetSquaredL2DistanceFunctor set_sql2_dist(
       MakeMutableSpan(*result), *database_squared_l2_norms_, query_norm);
@@ -511,6 +524,7 @@ FixedPointFloatDenseSquaredL2ReorderingHelper::ComputeDistancesForReordering(
 StatusOr<std::pair<DatapointIndex, float>>
 FixedPointFloatDenseSquaredL2ReorderingHelper::ComputeTop1ReorderingDistance(
     const DatapointPtr<float>& query, NNResultsVector* result) const {
+  LOG(INFO) << "FA FixedPointFloatDenseSquaredL2ReorderingHelper::ComputeTop1ReorderingDistance";
   const float query_norm = SquaredL2Norm(query);
   one_to_many_low_level::SetSquaredL2Top1Functor set_sql2_top1(
       *result, *database_squared_l2_norms_, query_norm);
@@ -525,6 +539,7 @@ FixedPointFloatDenseLimitedInnerReorderingHelper::
         float fixed_point_multiplier_quantile)
     : dot_product_helper_(exact_reordering_dataset,
                           fixed_point_multiplier_quantile) {
+  LOG(INFO) << "FA FixedPointFloatDenseLimitedInnerReorderingHelper::FixedPointFloatDenseLimitedInnerReorderingHelper";
   vector<float> inverse_database_l2_norms;
   inverse_database_l2_norms.reserve(exact_reordering_dataset.size());
   for (DatapointIndex i = 0; i < exact_reordering_dataset.size(); ++i) {
@@ -537,6 +552,7 @@ FixedPointFloatDenseLimitedInnerReorderingHelper::
 Status
 FixedPointFloatDenseLimitedInnerReorderingHelper::ComputeDistancesForReordering(
     const DatapointPtr<float>& query, NNResultsVector* result) const {
+  LOG(INFO) << "FA FixedPointFloatDenseLimitedInnerReorderingHelper::ComputeDistancesForReordering";
   const float inverse_query_norm = 1.0 / std::sqrt(SquaredL2Norm(query));
   one_to_many_low_level::SetLimitedInnerDistanceFunctor set_limited_dist(
       MakeMutableSpan(*result), inverse_database_l2_norms_, inverse_query_norm);
@@ -547,6 +563,7 @@ FixedPointFloatDenseLimitedInnerReorderingHelper::ComputeDistancesForReordering(
 StatusOr<std::pair<DatapointIndex, float>>
 FixedPointFloatDenseLimitedInnerReorderingHelper::ComputeTop1ReorderingDistance(
     const DatapointPtr<float>& query, NNResultsVector* result) const {
+  LOG(INFO) << "FA FixedPointFloatDenseLimitedInnerReorderingHelper::ComputeTop1ReorderingDistance";
   const float inverse_query_norm = 1.0 / std::sqrt(SquaredL2Norm(query));
   one_to_many_low_level::SetLimitedInnerTop1Functor top1_functor(
       *result, inverse_database_l2_norms_, inverse_query_norm);

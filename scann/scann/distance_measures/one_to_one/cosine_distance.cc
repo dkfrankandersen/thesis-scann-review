@@ -48,6 +48,7 @@ double BinaryCosineDistance::GetDistanceSparse(
 
 double BinaryCosineDistance::GetDistanceHybrid(
     const DatapointPtr<uint8_t>& a, const DatapointPtr<uint8_t>& b) const {
+  LOG(INFO) << "FA BinaryCosineDistance::GetDistanceHybrid";
   DCHECK_EQ(a.dimensionality(), b.dimensionality());
   DimensionIndex num_intersect = 0;
   const DatapointPtr<uint8_t>& dense = (a.IsDense()) ? a : b;

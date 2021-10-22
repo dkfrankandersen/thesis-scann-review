@@ -21,7 +21,7 @@
 namespace research_scann {
 
 Status UntypedMetadataGetter::AppendMetadata(const GenericFeatureVector& gfv) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA UntypedMetadataGetter::AppendMetadata";
 
   return OkStatus();
 }

@@ -42,7 +42,7 @@ class BinaryDistanceMeasureBase : public DistanceMeasure {
   double GetDistanceDense(const DatapointPtr<uint8_t>& a,
                           const DatapointPtr<uint8_t>& b,
                           double threshold) const final {
-    LOG(INFO) << "FA called (not expected)";
+    LOG(INFO) << "FA GetDistanceDense";
     return GetDistanceDense(a, b);
   }
 };
@@ -51,7 +51,7 @@ template <typename Merge>
 inline DimensionIndex DenseBinaryMergeAndPopcnt(const DatapointPtr<uint8_t>& v1,
                                                 const DatapointPtr<uint8_t>& v2,
                                                 Merge merge) {
-  LOG(INFO) << "FA called (not expected)";
+  LOG(INFO) << "FA DenseBinaryMergeAndPopcnt";
   DCHECK_EQ(v1.nonzero_entries(), v2.nonzero_entries());
 
   DimensionIndex result = 0;

@@ -85,6 +85,7 @@ StatusOr<SampledIndexList<Index>> CreateSampledIndexList(
     Index population_size, uint32_t seed, float fraction,
     Index min_number_samples, Index max_number_samples,
     SubsamplingStrategy strategy) {
+  LOG(INFO) << "FA CreateSampledIndexList";
   if (population_size <= 0)
     return InvalidArgumentError(absl::StrCat(
         "Sampling population size must be >= 1, but it is given as ",
@@ -137,6 +138,7 @@ StatusOr<shared_ptr<OutputDataset<T>>> SubsampleDatasetImpl(
     const TypedDataset<T>& dataset, uint32_t seed, float fraction,
     DatapointIndex min_number_samples, DatapointIndex max_number_samples,
     SubsamplingStrategy strategy) {
+  LOG(INFO) << "FA SubsampleDatasetImpl";
   TF_ASSIGN_OR_RETURN(auto sampled,
                       internal::CreateSampledIndexList<DatapointIndex>(
                           dataset.size(), seed, fraction, min_number_samples,
@@ -155,6 +157,7 @@ StatusOr<shared_ptr<TypedDataset<T>>> SubsampleDataset(
     const TypedDataset<T>& dataset, uint32_t seed, float fraction,
     DatapointIndex min_number_samples, DatapointIndex max_number_samples,
     SubsamplingStrategy strategy = SubsamplingStrategy::kWithoutReplacement) {
+  LOG(INFO) << "FA SubsampleDataset";
   if (dataset.IsDense())
     return internal::SubsampleDatasetImpl<T, DenseDataset>(
         dataset, seed, fraction, min_number_samples, max_number_samples,

@@ -123,6 +123,7 @@ ScannNumpy::Search(const np_row_major_arr<float>& query, int final_nn,
 std::pair<pybind11::array_t<DatapointIndex>, pybind11::array_t<float>>
 ScannNumpy::SearchBatched(const np_row_major_arr<float>& queries, int final_nn,
                           int pre_reorder_nn, int leaves, bool parallel) {
+  LOG(INFO) << "FA ScannNumpy::SearchBatched";
   if (queries.ndim() != 2)
     throw std::invalid_argument("Queries must be in two-dimensional array");
 

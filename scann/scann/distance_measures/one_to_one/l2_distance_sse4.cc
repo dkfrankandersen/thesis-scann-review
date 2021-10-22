@@ -26,7 +26,7 @@ template <typename Byte, typename SseFuncs>
 SCANN_SSE4_INLINE double DenseSquaredL2DistanceByteImpl(const Byte* aptr,
                                                         const Byte* bptr,
                                                         size_t length) {
-  LOG(INFO) << "FA Called";
+  LOG(INFO) << "FA DenseSquaredL2DistanceByteImpl";
   const Byte* aend = aptr + length;
 
   auto as_m128i = [](const Byte* x) SCANN_SSE4_INLINE_LAMBDA -> __m128i* {
@@ -103,26 +103,27 @@ SCANN_SSE4_INLINE double DenseSquaredL2DistanceByteImpl(const Byte* aptr,
 class SseFunctionsSse4 {
  public:
   SCANN_SSE4_INLINE static __m128i ZeroExtendLower8To16(__m128i v) {
-  LOG(INFO) << "FA Called";
+  LOG(INFO) << "FA ZeroExtendLower8To16";
     return _mm_cvtepu8_epi16(v);
   }
 
   SCANN_SSE4_INLINE static __m128i ZeroExtendLower16To32(__m128i v) {
-    LOG(INFO) << "FA Called";
+    LOG(INFO) << "FA ZeroExtendLower16To32";
     return _mm_cvtepu16_epi32(v);
   }
 
   SCANN_SSE4_INLINE static __m128i ZeroExtendUpper8To16(__m128i v) {
-    LOG(INFO) << "FA Called";
+    LOG(INFO) << "FA ZeroExtendUpper8To16";
     return _mm_unpackhi_epi8(v, _mm_setzero_si128());
   }
 
   SCANN_SSE4_INLINE static __m128i ZeroExtendUpper16To32(__m128i v) {
+    LOG(INFO) << "FA ZeroExtendUpper16To32";
     return _mm_unpackhi_epi16(v, _mm_setzero_si128());
   }
 
   SCANN_SSE4_INLINE static uint32_t HorizontalSum32(__m128i v) {
-    LOG(INFO) << "FA Called";
+    LOG(INFO) << "FA HorizontalSum32";
     v = _mm_add_epi32(v, _mm_srli_si128(v, 8));
     v = _mm_add_epi32(v, _mm_srli_si128(v, 4));
     return _mm_cvtsi128_si32(v);
@@ -145,7 +146,7 @@ class UnsignedSquaredL2SseFunctionsSse4 : public SseFunctionsSse4 {
 
 SCANN_SSE4_OUTLINE double DenseSquaredL2DistanceSse4(
     const DatapointPtr<uint8_t>& a, const DatapointPtr<uint8_t>& b) {
-  LOG(INFO) << "FA Called";
+  LOG(INFO) << "FA DenseSquaredL2DistanceSse4";
     
   DCHECK_EQ(a.nonzero_entries(), b.nonzero_entries());
   DCHECK(a.IsDense());
@@ -157,7 +158,7 @@ SCANN_SSE4_OUTLINE double DenseSquaredL2DistanceSse4(
 
 SCANN_SSE4_OUTLINE double DenseSquaredL2DistanceSse4(
     const DatapointPtr<int8_t>& a, const DatapointPtr<int8_t>& b) {
-  LOG(INFO) << "FA Called";
+  LOG(INFO) << "FA DenseSquaredL2DistanceSse4";
 
   DCHECK_EQ(a.nonzero_entries(), b.nonzero_entries());
   DCHECK(a.IsDense());
@@ -169,7 +170,7 @@ SCANN_SSE4_OUTLINE double DenseSquaredL2DistanceSse4(
 
 SCANN_SSE4_OUTLINE double DenseSquaredL2DistanceSse4(
     const DatapointPtr<float>& a, const DatapointPtr<float>& b) {
-  LOG(INFO) << "FA Called";
+  LOG(INFO) << "FA DenseSquaredL2DistanceSse4";
 
   DCHECK_EQ(a.nonzero_entries(), b.nonzero_entries());
   DCHECK(a.IsDense());
@@ -229,7 +230,7 @@ SCANN_SSE4_OUTLINE double DenseSquaredL2DistanceSse4(
 
 SCANN_SSE4_OUTLINE double DenseSquaredL2DistanceSse4(
     const DatapointPtr<double>& a, const DatapointPtr<double>& b) {
-  LOG(INFO) << "FA Called";
+  LOG(INFO) << "FA DenseSquaredL2DistanceSse4";
 
   DCHECK_EQ(a.nonzero_entries(), b.nonzero_entries());
   DCHECK(a.IsDense());

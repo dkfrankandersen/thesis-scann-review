@@ -60,7 +60,7 @@ template <typename T>
 Status Hashing<T>::GetNeighborsViaSymmetricDistance(
     const DatapointPtr<T>& query, const DenseDataset<uint8_t>& hashed_database,
     int32_t num_neighbors, double max_distance, NNResultsVector* top_items) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA Hashing<T>::GetNeighborsViaSymmetricDistance";
   
   return UnimplementedError("Not implemented here.");
 }

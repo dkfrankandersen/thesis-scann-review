@@ -55,7 +55,7 @@ BruteForceSearcher<T>::~BruteForceSearcher() {}
 template <typename T>
 Status BruteForceSearcher<T>::EnableCrowdingImpl(
     ConstSpan<int64_t> datapoint_index_to_crowding_attribute) {
-  LOG(INFO) << "FA called (not expected)";
+  LOG(INFO) << "FA BruteForceSearcher<T>::EnableCrowdingImpl";
   if (datapoint_index_to_crowding_attribute.size() != this->dataset()->size()) {
     return InvalidArgumentError(absl::StrCat(
         "datapoint_index_to_crowding_attribute must have size equal to "
@@ -84,7 +84,7 @@ class TopNWrapper final : public TopNWrapperInterface<ResultType> {
       : base_(std::move(base)), epsilon_(epsilon) {}
 
   void PushBatch(ConstSpan<ResultType> result_block, size_t base_dp_idx) final {
-  LOG(INFO) << "FA called (not expected)";
+  LOG(INFO) << "FA PushBatch";
     for (size_t i : IndicesOf(result_block)) {
       if (result_block[i] <= epsilon_) {
         base_.push(std::make_pair(base_dp_idx + i, result_block[i]));
@@ -107,7 +107,7 @@ class TopNWrapperThreadSafe final : public TopNWrapperInterface<ResultType> {
       : base_(std::move(base)), epsilon_(epsilon) {}
 
   void PushBatch(ConstSpan<ResultType> result_block, size_t base_dp_idx) final {
-    LOG(INFO) << "FA called (not expected)";
+    LOG(INFO) << "FA PushBatch";
     constexpr size_t kBufferSize = 16;
     pair<DatapointIndex, ResultType> buf[kBufferSize];
     auto eps = epsilon_.load(std::memory_order_relaxed);
@@ -146,7 +146,7 @@ template <typename ResultType, typename TopNBase>
 unique_ptr<TopNWrapperInterface<ResultType>> MakeTopNWrapper(TopNBase base,
                                                              ResultType epsilon,
                                                              bool thread_safe) {
-  LOG(INFO) << "FA called (not expected)";
+  LOG(INFO) << "FA MakeTopNWrapper";
   if (thread_safe) {
     return unique_ptr<TopNWrapperInterface<ResultType>>(
         new TopNWrapperThreadSafe<TopNBase, ResultType>(std::move(base),
@@ -163,12 +163,12 @@ class FastTopNeighborsWrapper : public TopNWrapperInterface<float> {
       : fast_top_neighbors_(num_neighbors, epsilon) {}
 
   void PushBatch(ConstSpan<float> result_block, size_t base_dp_idx) final {
-    LOG(INFO) << "FA called (not expected)";
+    LOG(INFO) << "FA PushBatch";
     return fast_top_neighbors_.PushBlock(result_block, base_dp_idx);
   }
 
   NNResultsVector TakeUnsorted() final {
-    LOG(INFO) << "FA called (not expected)";
+    LOG(INFO) << "FA TakeUnsorted";
     NNResultsVector result;
     fast_top_neighbors_.FinishUnsorted(&result);
     return result;
@@ -185,7 +185,7 @@ class FastTopNeighborsWrapperThreadSafe final
       : fast_top_neighbors_(num_neighbors, epsilon), epsilon_(epsilon) {}
 
   void PushBatch(ConstSpan<float> result_block, size_t base_dp_idx) final {
-    LOG(INFO) << "FA called (not expected)";
+    LOG(INFO) << "FA PushBatch";
     constexpr size_t kBufferSize = 16;
     pair<DatapointIndex, float> buf[kBufferSize];
     float eps = epsilon_.load(std::memory_order_relaxed);
@@ -220,7 +220,7 @@ class FastTopNeighborsWrapperThreadSafe final
   }
 
   NNResultsVector TakeUnsorted() final {
-    LOG(INFO) << "FA called (not expected)";
+    LOG(INFO) << "FA TakeUnsorted";
     NNResultsVector result;
     fast_top_neighbors_.FinishUnsorted(&result);
     return result;
@@ -235,7 +235,7 @@ class FastTopNeighborsWrapperThreadSafe final
 template <typename ResultType>
 unique_ptr<TopNWrapperInterface<ResultType>> MakeNonCrowdingTopN(
     const SearchParameters& params, bool thread_safe) {
-  LOG(INFO) << "FA called (not expected)";
+  LOG(INFO) << "FA MakeNonCrowdingTopN";
   if constexpr (IsSame<ResultType, float>()) {
     if (thread_safe) {
       return make_unique<FastTopNeighborsWrapperThreadSafe>(
@@ -273,7 +273,7 @@ BruteForceSearcher<T>::FinishBatchedSearch(
     const DenseDataset<Float>& db, const DenseDataset<Float>& queries,
     ConstSpan<SearchParameters> params,
     MutableSpan<NNResultsVector> results) const {
-  LOG(INFO) << "FA called (not expected)";
+  LOG(INFO) << "FA BruteForceSearcher<T>::FinishBatchedSearch";
   if constexpr (std::is_same_v<Float, float>) {
     if (std::all_of(params.begin(), params.end(),
                     [](const SearchParameters& params) {
@@ -310,7 +310,7 @@ void BruteForceSearcher<T>::FinishBatchedSearchSimple(
     const DenseDataset<float>& db, const DenseDataset<float>& queries,
     ConstSpan<SearchParameters> params,
     MutableSpan<NNResultsVector> results) const {
-  LOG(INFO) << "FA called (not expected)";
+  LOG(INFO) << "FA BruteForceSearcher<T>::FinishBatchedSearchSimple";
   vector<FastTopNeighbors<float>> top_ns(queries.size());
   for (size_t i : IndicesOf(params)) {
     top_ns[i].Init(params[i].pre_reordering_num_neighbors(),
@@ -327,7 +327,7 @@ template <typename T>
 Status BruteForceSearcher<T>::FindNeighborsBatchedImpl(
     const TypedDataset<T>& queries, ConstSpan<SearchParameters> params,
     MutableSpan<NNResultsVector> results) const {
-  LOG(INFO) << "FA called (not expected)";
+  LOG(INFO) << "FA BruteForceSearcher<T>::FindNeighborsBatchedImpl";
   if (!supports_low_level_batching_ || !queries.IsDense()) {
     return SingleMachineSearcherBase<T>::FindNeighborsBatchedImpl(
         queries, params, results);
@@ -351,7 +351,7 @@ template <typename T>
 Status BruteForceSearcher<T>::FindNeighborsImpl(const DatapointPtr<T>& query,
                                                 const SearchParameters& params,
                                                 NNResultsVector* result) const {
-  LOG(INFO) << "FA called (not expected)";
+  LOG(INFO) << "FA BruteForceSearcher<T>::FindNeighborsImpl";
   DCHECK(result);
   if (params.pre_reordering_crowding_enabled()) {
     return FailedPreconditionError("Crowding is not supported.");
@@ -368,7 +368,7 @@ template <typename TopN>
 void BruteForceSearcher<T>::FindNeighborsInternal(
     const DatapointPtr<T>& query, const SearchParameters& params,
     TopN* top_n_ptr) const {
-  LOG(INFO) << "FA called (not expected)";
+  LOG(INFO) << "FA BruteForceSearcher<T>::FindNeighborsInternal";
   DCHECK(top_n_ptr);
 
   if (query.IsDense() && this->dataset()->IsDense()) {
@@ -408,7 +408,7 @@ template <typename AllowlistIterator, typename TopN>
 void BruteForceSearcher<T>::FindNeighborsOneToOneInternal(
     const DatapointPtr<T>& query, const SearchParameters& params,
     AllowlistIterator* allowlist_iterator, TopN* top_n_ptr) const {
-  LOG(INFO) << "FA called (not expected)";
+  LOG(INFO) << "FA BruteForceSearcher<T>::FindNeighborsOneToOneInternal";
   DCHECK(top_n_ptr);
 
   TopN top_n = std::move(*top_n_ptr);

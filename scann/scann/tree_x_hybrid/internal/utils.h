@@ -36,6 +36,7 @@ StatusOr<SingleMachineFactoryOptions> MergeAHLeafOptions(
     const vector<unique_ptr<V<T>>>& leaf_searchers,
     ConstSpan<std::vector<DatapointIndex>> datapoints_by_token,
     const int expected_size) {
+  LOG(INFO) << "FA StatusOr<SingleMachineFactoryOptions> MergeAHLeafOptions";
   const int n_leaves = leaf_searchers.size();
   auto leaf_opts = std::vector<SingleMachineFactoryOptions>(n_leaves);
 

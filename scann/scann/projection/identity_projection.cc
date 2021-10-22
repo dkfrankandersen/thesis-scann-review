@@ -22,6 +22,7 @@ template <typename T>
 template <typename FloatT>
 Status IdentityProjection<T>::ProjectInputImpl(
     const DatapointPtr<T>& input, Datapoint<FloatT>* projected) const {
+  LOG(INFO) << "FA IdentityProjection<T>::ProjectInputImpl";
   CHECK(projected != nullptr);
   projected->clear();
 

@@ -44,6 +44,7 @@ class ReorderingInterface {
   virtual StatusOr<std::pair<DatapointIndex, float>>
   ComputeTop1ReorderingDistance(const DatapointPtr<T>& query,
                                 NNResultsVector* result) const {
+    LOG(INFO) << "FA ComputeTop1ReorderingDistance";
     SCANN_RETURN_IF_ERROR(ComputeDistancesForReordering(query, result));
     std::pair<DatapointIndex, float> best = {kInvalidDatapointIndex,
                                              std::numeric_limits<float>::max()};

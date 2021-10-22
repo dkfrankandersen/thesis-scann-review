@@ -38,7 +38,7 @@ namespace research_scann {
 void Dataset::UnusedKeyMethod() {}
 
 shared_ptr<DocidCollectionInterface> Dataset::ReleaseDocids() {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA Dataset::ReleaseDocids";
   auto result = std::move(docids_);
   docids_ = make_unique<VariableLengthDocidCollection>(
       VariableLengthDocidCollection::CreateWithEmptyDocids(result->size()));
@@ -46,7 +46,7 @@ shared_ptr<DocidCollectionInterface> Dataset::ReleaseDocids() {
 }
 
 Status Dataset::NormalizeByTag(Normalization tag) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA Dataset::NormalizeByTag";
   if (tag == normalization()) return OkStatus();
   switch (tag) {
     case NONE:
@@ -93,7 +93,7 @@ void TypedDataset<T>::AppendOrDie(const GenericFeatureVector& gfv,
 
 template <typename T>
 Status TypedDataset<T>::MeanByDimension(Datapoint<double>* result) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA TypedDataset<T>::MeanByDimension";
   const size_t size = this->size();
   if (size <= 0) {
     return FailedPreconditionError(
@@ -141,7 +141,7 @@ Status TypedDataset<T>::MeanByDimension(Datapoint<double>* result) const {
 template <typename T>
 Status TypedDataset<T>::MeanByDimension(ConstSpan<DatapointIndex> subset,
                                         Datapoint<double>* result) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA TypedDataset<T>::MeanByDimension";
   if (subset.empty()) {
     return InvalidArgumentError("Cannot compute the mean of an empty subset.");
   }
@@ -187,7 +187,7 @@ Status TypedDataset<T>::MeanByDimension(ConstSpan<DatapointIndex> subset,
 template <typename T>
 void TypedDataset<T>::MeanVarianceByDimension(
     Datapoint<double>* means, Datapoint<double>* variances) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA TypedDataset<T>::MeanVarianceByDimension";
   CHECK(!this->is_binary()) << "Not implemented for binary datasets.";
   vector<DatapointIndex> subset;
   subset.reserve(dimensionality());
@@ -202,7 +202,7 @@ template <typename T>
 void TypedDataset<T>::MeanVarianceByDimension(
     ConstSpan<DatapointIndex> subset, Datapoint<double>* means,
     Datapoint<double>* variances) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA TypedDataset<T>::MeanVarianceByDimension";
   DCHECK(variances);
   CHECK(!this->is_binary()) << "Not implemented for binary datasets.";
   CHECK_GT(subset.size(), 0)
@@ -248,7 +248,7 @@ void TypedDataset<T>::MeanVarianceByDimension(
 
 template <typename T>
 Status TypedDataset<T>::NormalizeUnitL2() {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA TypedDataset<T>::NormalizeUnitL2";
   if (this->is_binary() || IsIntegerType<T>()) {
     return FailedPreconditionError(
         "Unit L2 normalization is not supported for binary "
@@ -273,6 +273,8 @@ Status TypedDataset<T>::NormalizeUnitL2() {
 
 template <typename T>
 Status TypedDataset<T>::NormalizeZeroMeanUnitVariance() {
+  LOG(INFO) << "FA TypedDataset<T>::NormalizeZeroMeanUnitVariance";
+  
   if (this->is_binary() || IsIntegerType<T>()) {
     return FailedPreconditionError(
         "Zero mean/unit variance normalization is not "

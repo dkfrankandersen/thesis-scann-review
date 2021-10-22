@@ -40,7 +40,7 @@ StatusOrHelper<T> BuildFixedPointReorderingHelper(
     const shared_ptr<const DistanceMeasure>& reordering_dist,
     const shared_ptr<TypedDataset<T>>& dataset,
     SingleMachineFactoryOptions* opts) {
-  LOG(INFO) << "FA Called";
+  LOG(INFO) << "FA BuildFixedPointReorderingHelper";
   
   return InvalidArgumentError(
       "Fixed-point reordering is only supported for float types.");
@@ -52,7 +52,7 @@ StatusOrHelper<float> BuildFixedPointReorderingHelper<float>(
     const shared_ptr<const DistanceMeasure>& reordering_dist,
     const shared_ptr<TypedDataset<float>>& dataset,
     SingleMachineFactoryOptions* opts) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA BuildFixedPointReorderingHelper";
   if (dataset && !dataset->IsDense()) return {nullptr};
   const auto& distance_type = typeid(*reordering_dist);
 

@@ -68,6 +68,8 @@ template <typename T>
 template <typename FloatT>
 Status RandomOrthogonalProjection<T>::ProjectInputImpl(
     const DatapointPtr<T>& input, Datapoint<FloatT>* projected) const {
+  LOG(INFO) << "FA RandomOrthogonalProjection<T>::ProjectInputImpl";
+
   CHECK(projected != nullptr);
   projected->clear();
   projected->mutable_values()->resize(projected_dims_);

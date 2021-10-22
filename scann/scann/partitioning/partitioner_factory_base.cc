@@ -30,6 +30,7 @@ namespace {
 
 float ComputeSamplingFraction(const PartitioningConfig& config,
                               const Dataset* dataset) {
+  LOG(INFO) << "FA ComputeSamplingFraction";
   return (config.has_expected_sample_size())
              ? std::min(1.0,
                         static_cast<double>(config.expected_sample_size()) /
@@ -41,6 +42,8 @@ template <typename T>
 StatusOr<unique_ptr<Partitioner<T>>> PartitionerFactoryNoProjection(
     const TypedDataset<T>* dataset, const PartitioningConfig& config,
     shared_ptr<ThreadPool> pool) {
+  LOG(INFO) << "FA PartitionerFactoryNoProjection";
+  
   const TypedDataset<T>* sampled;
   unique_ptr<TypedDataset<T>> sampled_mutable;
 
@@ -78,6 +81,7 @@ template <typename T>
 StatusOr<unique_ptr<Partitioner<T>>> PartitionerFactoryWithProjection(
     const TypedDataset<T>* dataset, const PartitioningConfig& config,
     shared_ptr<ThreadPool> pool) {
+  LOG(INFO) << "FA PartitionerFactoryWithProjection";
   const TypedDataset<float>* sampled;
   unique_ptr<TypedDataset<float>> sampled_mutable;
   MTRandom rng(kDeterministicSeed + 1);
@@ -133,6 +137,7 @@ template <typename T>
 StatusOr<unique_ptr<Partitioner<T>>> PartitionerFactoryPreSampledAndProjected(
     const TypedDataset<T>* dataset, const PartitioningConfig& config,
     shared_ptr<ThreadPool> training_parallelization_pool) {
+  LOG(INFO) << "FA PartitionerFactoryPreSampledAndProjected";
   if (config.tree_type() == PartitioningConfig::KMEANS_TREE) {
     return KMeansTreePartitionerFactoryPreSampledAndProjected(
         dataset, config, training_parallelization_pool);

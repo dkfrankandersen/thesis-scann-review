@@ -48,7 +48,7 @@ template <bool kHasIndices = false, typename ResultElemT>
 SCANN_INLINE void DenseDotProductDistanceOneToManyInt8FloatDispatch(
     const DatapointPtr<float>& query, const DenseDataset<int8_t>& database,
     const DatapointIndex* indices, MutableSpan<ResultElemT> result) {
-  LOG(INFO) << "FA called (not expected)";
+  LOG(INFO) << "FA DenseDotProductDistanceOneToManyInt8FloatDispatch";
   size_t j = 0;
 
   SetDistanceFunctor<ResultElemT> callback(result);
@@ -80,7 +80,7 @@ SCANN_INLINE void DenseDotProductDistanceOneToManyInt8FloatDispatch(
 void DenseDotProductDistanceOneToManyInt8Float(
     const DatapointPtr<float>& query, const DenseDataset<int8_t>& database,
     MutableSpan<float> result) {
-  LOG(INFO) << "FA Called";
+  LOG(INFO) << "FA DenseDotProductDistanceOneToManyInt8Float";
 
   one_to_many_low_level::DenseDotProductDistanceOneToManyInt8FloatDispatch(
       query, database, static_cast<uint32_t*>(nullptr), result);
@@ -89,7 +89,7 @@ void DenseDotProductDistanceOneToManyInt8Float(
 void DenseDotProductDistanceOneToManyInt8Float(
     const DatapointPtr<float>& query, const DenseDataset<int8_t>& database,
     MutableSpan<double> result) {
-  LOG(INFO) << "FA Called";
+  LOG(INFO) << "FA DenseDotProductDistanceOneToManyInt8Float";
 
   one_to_many_low_level::DenseDotProductDistanceOneToManyInt8FloatDispatch(
       query, database, static_cast<uint32_t*>(nullptr), result);
@@ -98,7 +98,7 @@ void DenseDotProductDistanceOneToManyInt8Float(
 void DenseDotProductDistanceOneToManyInt8Float(
     const DatapointPtr<float>& query, const DenseDataset<int8_t>& database,
     MutableSpan<pair<uint32_t, float>> result) {
-  LOG(INFO) << "FA Called";
+  LOG(INFO) << "FA DenseDotProductDistanceOneToManyInt8Float";
       
   one_to_many_low_level::DenseDotProductDistanceOneToManyInt8FloatDispatch(
       query, database, static_cast<uint32_t*>(nullptr), result);
@@ -107,7 +107,7 @@ void DenseDotProductDistanceOneToManyInt8Float(
 void DenseDotProductDistanceOneToManyInt8Float(
     const DatapointPtr<float>& query, const DenseDataset<int8_t>& database,
     MutableSpan<pair<uint64_t, float>> result) {
-  LOG(INFO) << "FA Called";
+  LOG(INFO) << "FA DenseDotProductDistanceOneToManyInt8Float";
 
   one_to_many_low_level::DenseDotProductDistanceOneToManyInt8FloatDispatch(
       query, database, static_cast<uint32_t*>(nullptr), result);
@@ -116,7 +116,7 @@ void DenseDotProductDistanceOneToManyInt8Float(
 void DenseDotProductDistanceOneToManyInt8Float(
     const DatapointPtr<float>& query, const DenseDataset<int8_t>& database,
     MutableSpan<pair<uint32_t, double>> result) {
-  LOG(INFO) << "FA Called";
+  LOG(INFO) << "FA DenseDotProductDistanceOneToManyInt8Float";
 
   one_to_many_low_level::DenseDotProductDistanceOneToManyInt8FloatDispatch(
       query, database, static_cast<uint32_t*>(nullptr), result);
@@ -125,7 +125,7 @@ void DenseDotProductDistanceOneToManyInt8Float(
 void DenseDotProductDistanceOneToManyInt8Float(
     const DatapointPtr<float>& query, const DenseDataset<int8_t>& database,
     ConstSpan<uint32_t> indices, MutableSpan<float> result) {
-  LOG(INFO) << "FA Called";
+  LOG(INFO) << "FA DenseDotProductDistanceOneToManyInt8Float";
 
   QCHECK_EQ(indices.size(), result.size());
   one_to_many_low_level::DenseDotProductDistanceOneToManyInt8FloatDispatch<

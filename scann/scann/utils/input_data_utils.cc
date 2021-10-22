@@ -24,6 +24,7 @@ StatusOr<DatapointIndex> ComputeConsistentNumPointsFromIndex(
     const Dataset* dataset, const DenseDataset<uint8_t>* hashed_dataset,
     const PreQuantizedFixedPoint* pre_quantized_fixed_point,
     const vector<int64_t>* crowding_attributes) {
+  LOG(INFO) << "FA ComputeConsistentNumPointsFromIndex";
   if (!dataset && !hashed_dataset && !pre_quantized_fixed_point) {
     return InvalidArgumentError(
         "dataset, hashed_dataset and pre_quantized_fixed_point are all null.");
@@ -69,6 +70,7 @@ StatusOr<DimensionIndex> ComputeConsistentDimensionalityFromIndex(
     const HashConfig& config, const Dataset* dataset,
     const DenseDataset<uint8_t>* hashed_dataset,
     const PreQuantizedFixedPoint* pre_quantized_fixed_point) {
+  LOG(INFO) << "FA ComputeConsistentDimensionalityFromIndex";
   if (!dataset && !hashed_dataset && !pre_quantized_fixed_point) {
     return InvalidArgumentError(
         "dataset, hashed_dataset and pre_quantized_fixed_point are all null.");

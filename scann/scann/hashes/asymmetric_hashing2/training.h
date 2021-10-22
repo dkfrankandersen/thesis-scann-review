@@ -34,7 +34,8 @@ namespace asymmetric_hashing2 {
 template <typename T>
 StatusOr<unique_ptr<Model<T>>> TrainSingleMachine(
     const TypedDataset<T>& dataset, const TrainingOptions<T>& params,
-    shared_ptr<ThreadPool> pool = nullptr) {
+    shared_ptr<ThreadPool> pool = nullptr) { 
+  LOG(INFO) << "FA TrainSingleMachine";
   if (params.config().quantization_scheme() ==
       AsymmetricHasherConfig::STACKED) {
     if (!dataset.IsDense())

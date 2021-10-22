@@ -43,7 +43,7 @@ Indexer<T>::Indexer(shared_ptr<const ChunkingProjection<T>> projector,
     : projector_(std::move(projector)),
       quantization_distance_(std::move(quantization_distance)),
       model_(std::move(model)) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA Indexer<T>::Indexer";
   auto quantization_scheme = model_->quantization_scheme();
   if (quantization_scheme == AsymmetricHasherConfig::PRODUCT ||
       quantization_scheme == AsymmetricHasherConfig::PRODUCT_AND_BIAS ||
@@ -70,7 +70,7 @@ Indexer<T>::Indexer(shared_ptr<const ChunkingProjection<T>> projector,
 template <typename T>
 Status Indexer<T>::Hash(const DatapointPtr<T>& input,
                         MutableSpan<uint8_t> hashed) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA Indexer<T>::Hash";
   if (model_->quantization_scheme() == AsymmetricHasherConfig::PRODUCT) {
     DCHECK_EQ(hashed.size(), hash_space_dimension());
     return asymmetric_hashing_internal::IndexDatapoint<T>(
@@ -111,14 +111,14 @@ Status Indexer<T>::Hash(const DatapointPtr<T>& input,
 
 template <typename T>
 Status Indexer<T>::Hash(ConstSpan<T> input, MutableSpan<uint8_t> hashed) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA Indexer<T>::Hash";
   return Hash(MakeDatapointPtr(input), hashed);
 }
 
 template <typename T>
 Status Indexer<T>::Hash(const DatapointPtr<T>& input,
                         Datapoint<uint8_t>* hashed) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA Indexer<T>::Hash";
   hashed->clear();
   if (model_->quantization_scheme() ==
       AsymmetricHasherConfig::PRODUCT_AND_PACK) {
@@ -132,7 +132,7 @@ template <typename T>
 Status Indexer<T>::HashWithNoiseShaping(const DatapointPtr<T>& input,
                                         Datapoint<uint8_t>* hashed,
                                         double threshold) const {
-  LOG(INFO) << "FA called";
+  // LOG(INFO) << "FA Indexer<T>::HashWithNoiseShaping";
   return HashWithNoiseShaping(input, input, hashed, threshold);
 }
 
@@ -140,7 +140,7 @@ template <typename T>
 Status Indexer<T>::HashWithNoiseShaping(const DatapointPtr<T>& input,
                                         MutableSpan<uint8_t> hashed,
                                         double threshold) const {
-  LOG(INFO) << "FA called";
+  // LOG(INFO) << "FA Indexer<T>::HashWithNoiseShaping";
   return HashWithNoiseShaping(input, input, hashed, threshold);
 }
 
@@ -148,7 +148,7 @@ template <typename T>
 Status Indexer<T>::HashWithNoiseShaping(ConstSpan<T> input,
                                         MutableSpan<uint8_t> hashed,
                                         double threshold) const {
-  LOG(INFO) << "FA called";
+  // LOG(INFO) << "FA Indexer<T>::HashWithNoiseShaping";
   return HashWithNoiseShaping(input, input, hashed, threshold);
 }
 
@@ -157,7 +157,7 @@ Status Indexer<T>::HashWithNoiseShaping(const DatapointPtr<T>& maybe_residual,
                                         const DatapointPtr<T>& original,
                                         Datapoint<uint8_t>* hashed,
                                         double threshold) const {
-  LOG(INFO) << "FA Indexer<T>::HashWithNoiseShaping";
+  // LOG(INFO) << "FA Indexer<T>::HashWithNoiseShaping";
   hashed->mutable_values()->resize(hash_space_dimension());
   return HashWithNoiseShaping(maybe_residual, original,
                               hashed->mutable_values_slice(), threshold);
@@ -183,6 +183,8 @@ Status Indexer<T>::HashWithNoiseShaping(const DatapointPtr<T>& maybe_residual,
     return UnimplementedError(
         "Noise-shaped hashing only works with product quantization for now.");
   }
+  LOG(INFO) << "FA CALL IndexDatapointNoiseShaped";
+  LOG(INFO) << "FA FROM IndexDatapointNoiseShaped CALL CoordinateDescentAHQuantize";
   return asymmetric_hashing_internal::IndexDatapointNoiseShaped(
       maybe_residual, original, *projector_, model_->centers(), threshold,
       hashed);
@@ -193,7 +195,7 @@ Status Indexer<T>::HashWithNoiseShaping(ConstSpan<T> maybe_residual,
                                         ConstSpan<T> original,
                                         MutableSpan<uint8_t> hashed,
                                         double threshold) const {
-  LOG(INFO) << "FA called";
+  // LOG(INFO) << "FA Indexer<T>::HashWithNoiseShaping";
   return HashWithNoiseShaping(MakeDatapointPtr(maybe_residual),
                               MakeDatapointPtr(original), hashed, threshold);
 }
@@ -201,7 +203,7 @@ Status Indexer<T>::HashWithNoiseShaping(ConstSpan<T> maybe_residual,
 template <typename T>
 Status Indexer<T>::Hash(const DatapointPtr<T>& input,
                         std::string* hashed) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA Indexer<T>::Hash";
 
   hashed->resize(hash_space_dimension());
   auto mutable_span = MakeMutableSpan(
@@ -218,7 +220,7 @@ SCANN_INLINE void ReconstructProductQuantized(
     const std::vector<FloatT>& flattend_model,
     const std::vector<std::pair<uint32_t, uint32_t>>& subspace_sizes,
     ConstSpan<uint8_t> input, MutableSpan<FloatT> reconstructed) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA ReconstructProductQuantized";
   DCHECK_LE(subspace_sizes.size(), input.size());
 
   FloatT* __restrict result_ptr = reconstructed.data();
@@ -242,7 +244,7 @@ SCANN_INLINE FloatT ComputeDistance(
     const std::vector<FloatT>& flattend_model,
     const std::vector<std::pair<uint32_t, uint32_t>>& subspace_sizes,
     Reduce reduce) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA ComputeDistance";
   
   const FloatT* codebook_ptr = flattend_model.data();
   const FloatT* original_ptr = original.data();
@@ -282,7 +284,7 @@ SCANN_INLINE FloatT ComputeDistance(
 template <typename T>
 StatusOr<DenseDataset<uint8_t>> Indexer<T>::HashDataset(
     const TypedDataset<T>& dataset) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA Indexer<T>::HashDataset";
   
   DenseDataset<uint8_t> hashed_dataset;
   Datapoint<uint8_t> hashed_dp;
@@ -297,7 +299,7 @@ template <typename T>
 StatusOr<FloatingTypeFor<T>> Indexer<T>::DistanceBetweenOriginalAndHashed(
     ConstSpan<FloatT> original, ConstSpan<uint8_t> hashed,
     shared_ptr<const DistanceMeasure> distance_override) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA Indexer<T>::DistanceBetweenOriginalAndHashed";
   
   shared_ptr<const DistanceMeasure> distance =
       distance_override == nullptr ? quantization_distance_ : distance_override;
@@ -337,7 +339,7 @@ fallback:
 template <typename T>
 Status Indexer<T>::Reconstruct(ConstSpan<uint8_t> input,
                                MutableSpan<FloatT> reconstructed) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA Indexer<T>::Reconstruct";
   
   if (model_->quantization_scheme() == AsymmetricHasherConfig::PRODUCT) {
     DCHECK_EQ(input.size(), model_->centers().size());
@@ -375,7 +377,7 @@ Status Indexer<T>::Reconstruct(ConstSpan<uint8_t> input,
 template <typename T>
 Status Indexer<T>::Reconstruct(const DatapointPtr<uint8_t>& input,
                                Datapoint<FloatT>* reconstructed) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA Indexer<T>::Reconstruct";
   reconstructed->mutable_values()->clear();
   reconstructed->mutable_values()->resize(original_space_dimension());
   return Reconstruct(input.values_slice(),
@@ -385,7 +387,7 @@ Status Indexer<T>::Reconstruct(const DatapointPtr<uint8_t>& input,
 template <typename T>
 Status Indexer<T>::Reconstruct(absl::string_view input,
                                Datapoint<FloatT>* reconstructed) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA Indexer<T>::Reconstruct";
 
   DimensionIndex dimensionality =
       model_->quantization_scheme() == AsymmetricHasherConfig::PRODUCT_AND_PACK
@@ -400,7 +402,7 @@ Status Indexer<T>::Reconstruct(absl::string_view input,
 
 template <typename T>
 DimensionIndex Indexer<T>::hash_space_dimension() const {
-  LOG(INFO) << "FA Indexer<T>::hash_space_dimension";
+  // LOG(INFO) << "FA Indexer<T>::hash_space_dimension";
 
   DCHECK_EQ(model_->centers().size(), projector_->num_blocks());
   switch (model_->quantization_scheme()) {
@@ -433,7 +435,7 @@ template <typename T>
 Status Indexer<T>::ComputeResidual(const DatapointPtr<T>& original,
                                    const DatapointPtr<uint8_t>& hashed,
                                    Datapoint<FloatT>* result) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA Indexer<T>::ComputeResidual";
 
   SCANN_RETURN_IF_ERROR(Reconstruct(hashed, result));
 

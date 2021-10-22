@@ -90,6 +90,7 @@ template <typename T>
 StatusOr<unique_ptr<Partitioner<T>>> PartitionerFromKMeansTree(
     shared_ptr<const KMeansTree> kmeans_tree,
     const PartitioningConfig& config) {
+  LOG(INFO) << "FA PartitionerFromKMeansTree";
   TF_ASSIGN_OR_RETURN(auto training_dist,
                       GetDistanceMeasure(config.partitioning_distance()));
 

@@ -61,7 +61,7 @@ KMeansTreePartitioner<T>::KMeansTreePartitioner(
     : kmeans_tree_(std::move(pretrained_tree)),
       database_tokenization_dist_(database_tokenization_dist),
       query_tokenization_dist_(query_tokenization_dist) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA KMeansTreePartitioner<T>::KMeansTreePartitioner";
   
   CHECK(kmeans_tree_->is_trained())
       << "The pre-trained tree overload of KMeansTreePartitioner can only be "
@@ -71,7 +71,7 @@ KMeansTreePartitioner<T>::KMeansTreePartitioner(
 
 template <typename T>
 unique_ptr<Partitioner<T>> KMeansTreePartitioner<T>::Clone() const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA KMeansTreePartitioner<T>::Clone";
 
   auto result = make_unique<KMeansTreePartitioner<T>>(
       database_tokenization_dist_, query_tokenization_dist_, kmeans_tree_);
@@ -95,7 +95,7 @@ template <typename T>
 Status KMeansTreePartitioner<T>::CreatePartitioning(
     const Dataset& training_dataset, const DistanceMeasure& training_dist,
     int32_t k_per_level, KMeansTreeTrainingOptions* opts) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA KMeansTreePartitioner<T>::CreatePartitioning";
   
   if (kmeans_tree_) {
     return FailedPreconditionError(
@@ -122,7 +122,7 @@ constexpr int kAhMultiplierNoSpilling = 100;
 template <typename T>
 Status KMeansTreePartitioner<T>::TokenForDatapoint(
     const DatapointPtr<T>& dptr, KMeansTreeSearchResult* result) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA KMeansTreePartitioner<T>::TokenForDatapoint";
   
   DCHECK(result);
   if (!kmeans_tree_) {
@@ -158,7 +158,7 @@ template <typename T>
 Status KMeansTreePartitioner<T>::TokenForDatapointBatched(
     const TypedDataset<T>& queries, vector<int32_t>* results,
     ThreadPool* pool) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA KMeansTreePartitioner<T>::TokenForDatapointBatched";
   
   if (cur_tokenization_type() != FLOAT || queries.IsSparse() ||
       !is_one_level_tree_) {
@@ -179,7 +179,7 @@ Status KMeansTreePartitioner<T>::TokenForDatapointBatched(
   const auto& dist = (this->tokenization_mode() == UntypedPartitioner::QUERY)
                          ? *query_tokenization_dist_
                          : *database_tokenization_dist_;
-
+  LOG(INFO) << "FA CALL -> DenseDistanceManyToManyTop1";
   vector<pair<uint32_t, float>> top1_results =
       DenseDistanceManyToManyTop1<float>(dist, *float_queries, centers, pool);
 
@@ -274,7 +274,7 @@ template <typename T>
 Status KMeansTreePartitioner<T>::TokenForDatapointUseSearcher(
     const DatapointPtr<T>& dptr, KMeansTreeSearchResult* result,
     int32_t pre_reordering_num_neighbors) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA KMeansTreePartitioner<T>::TokenForDatapointUseSearche";
   
   if (!TokenizationSearcher()) {
     return FailedPreconditionError(
@@ -311,7 +311,7 @@ Status KMeansTreePartitioner<T>::TokenForDatapointUseSearcher(
 template <typename T>
 Status KMeansTreePartitioner<T>::TokenForDatapoint(const DatapointPtr<T>& dptr,
                                                    int32_t* result) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA KMeansTreePartitioner<T>::TokenForDatapoint";
   
   KMeansTreeSearchResult tree_res;
   SCANN_RETURN_IF_ERROR(TokenForDatapoint(dptr, &tree_res));
@@ -323,7 +323,7 @@ template <typename T>
 Status KMeansTreePartitioner<T>::TokensForDatapointWithSpillingAndOverride(
     const DatapointPtr<T>& dptr, int32_t max_centers_override,
     vector<int32_t>* result) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA KMeansTreePartitioner<T>::TokensForDatapointWithSpillingAndOverride";
   
   vector<KMeansTreeSearchResult> result_raw;
   SCANN_RETURN_IF_ERROR(
@@ -340,7 +340,7 @@ template <typename T>
 Status KMeansTreePartitioner<T>::TokensForDatapointWithSpillingUseSearcher(
     const DatapointPtr<T>& dptr, vector<KMeansTreeSearchResult>* result,
     int32_t num_neighbors, int32_t pre_reordering_num_neighbors) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA KMeansTreePartitioner<T>::TokensForDatapointWithSpillingUseSearcher";
   
   if (!TokenizationSearcher()) {
     return FailedPreconditionError(
@@ -385,7 +385,7 @@ template <typename FloatT, typename T>
 Datapoint<FloatT> ResidualizeImpl(const DatapointPtr<T>& dptr,
                                   const DatapointPtr<float>& center,
                                   float multiplier = 1.0) {
-  LOG(INFO) << "FA ResidualizeImpl";
+  // LOG(INFO) << "FA ResidualizeImpl";
   
   Datapoint<FloatT> residual;
   auto& values = *residual.mutable_values();
@@ -403,7 +403,7 @@ template <typename T>
 StatusOr<Datapoint<float>> KMeansTreePartitioner<T>::ResidualizeToFloat(
     const DatapointPtr<T>& dptr, int32_t token,
     bool normalize_residual_by_cluster_stdev) const {
-  LOG(INFO) << "FA KMeansTreePartitioner<T>::ResidualizeToFloat";
+  // LOG(INFO) << "FA KMeansTreePartitioner<T>::ResidualizeToFloat";
   
   DatapointPtr<float> center = kmeans_tree()->CenterForToken(token);
   if (normalize_residual_by_cluster_stdev) {
@@ -422,7 +422,7 @@ StatusOr<Datapoint<float>> KMeansTreePartitioner<T>::ResidualizeToFloat(
 
 template <typename T>
 const DenseDataset<float>& KMeansTreePartitioner<T>::LeafCenters() const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA KMeansTreePartitioner<T>::LeafCenters";
 
   {
     absl::ReaderMutexLock lock(&leaf_centers_mutex_);
@@ -454,7 +454,7 @@ const DenseDataset<float>& KMeansTreePartitioner<T>::LeafCenters() const {
 template <typename T>
 void KMeansTreePartitioner<T>::CopyToProto(
     SerializedPartitioner* result) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA KMeansTreePartitioner<T>::CopyToProto";
 
   DCHECK(result);
   DCHECK(kmeans_tree_)
@@ -472,7 +472,7 @@ namespace {
 template <typename ResultType, typename T>
 DenseDataset<ResultType> GetBatchSubmatrix(const DenseDataset<T>& database,
                                            size_t start, size_t end) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA GetBatchSubmatrix";
   
   DCHECK(!database.is_binary());
   DCHECK_GT(end, start);
@@ -491,7 +491,7 @@ template <typename T>
 StatusOr<vector<std::vector<DatapointIndex>>>
 KMeansTreePartitioner<T>::TokenizeDatabase(const TypedDataset<T>& database,
                                            ThreadPool* pool_or_null) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA KMeansTreePartitioner<T>::TokenizeDatabase";
   
   if (this->tokenization_mode() != UntypedPartitioner::DATABASE) {
     return FailedPreconditionError(
@@ -528,7 +528,7 @@ template <typename T>
 StatusOr<vector<KMeansTreeSearchResult>>
 KMeansTreePartitioner<T>::TokenizeDatabaseImplFastPath(
     const DenseDataset<T>& database, ThreadPool* pool_or_null) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA KMeansTreePartitioner<T>::TokenizeDatabaseImplFastPath";
   
   vector<KMeansTreeSearchResult> datapoint_index_to_result;
   if (kmeans_tree_->root()->IsLeaf()) {
@@ -553,8 +553,8 @@ enable_if_t<IsSame<T, CenterType>(), StatusOr<vector<KMeansTreeSearchResult>>>
 KMeansTreePartitioner<T>::TokenizeDatabaseImplFastPath(
     const DenseDataset<T>& database, const DenseDataset<CenterType>& centers,
     ThreadPool* pool_or_null) const {
-  LOG(INFO) << "FA called";
-  
+  LOG(INFO) << "FA KMeansTreePartitioner<T>::TokenizeDatabaseImplFastPath";
+  LOG(INFO) << "FA CALL -> DenseDistanceManyToManyTop1";
   SquaredL2Distance dist;
   auto nearest_centers =
       DenseDistanceManyToManyTop1<T>(dist, database, centers, pool_or_null);
@@ -567,12 +567,14 @@ enable_if_t<!IsSame<T, CenterType>(), StatusOr<vector<KMeansTreeSearchResult>>>
 KMeansTreePartitioner<T>::TokenizeDatabaseImplFastPath(
     const DenseDataset<T>& database, const DenseDataset<CenterType>& centers,
     ThreadPool* pool_or_null) const {
-  LOG(INFO) << "FA called";
-  
+  LOG(INFO) << "FA KMeansTreePartitioner<T>::TokenizeDatabaseImplFastPath";
   constexpr size_t kBatchSize = 128;
   vector<pair<DatapointIndex, CenterType>> nearest_centers(database.size());
   SquaredL2Distance dist;
-
+  
+  LOG(INFO) << "FA LOOP IN KMeansTreePartitioner<T>::TokenizeDatabaseImplFastPath";
+  LOG(INFO) << "FA OVER ---> GetBatchSubmatrix";
+  LOG(INFO) << "FA OVER ---> DenseDistanceManyToManyTop1";
   ParallelFor<1>(
       SeqWithStride<kBatchSize>(0, database.size()), pool_or_null,
       [&](size_t batch_begin) {
@@ -594,7 +596,7 @@ template <typename FloatT>
 vector<KMeansTreeSearchResult>
 KMeansTreePartitioner<T>::PostprocessNearestCenters(
     ConstSpan<pair<DatapointIndex, FloatT>> nearest_centers) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA KMeansTreePartitioner<T>::PostprocessNearestCenters";
   
   vector<KMeansTreeSearchResult> datapoint_index_to_result(
       nearest_centers.size());
@@ -619,7 +621,7 @@ Status
 KMeansTreePartitioner<T>::TokensForDatapointWithSpillingBatchedAndOverride(
     const TypedDataset<T>& queries, ConstSpan<int32_t> max_centers_override,
     MutableSpan<vector<int32_t>> results) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA KMeansTreePartitioner<T>::TokensForDatapointWithSpillingBatchedAndOverride";
   
   vector<vector<KMeansTreeSearchResult>> raw_results(queries.size());
   SCANN_RETURN_IF_ERROR(TokensForDatapointWithSpillingBatched(
@@ -640,7 +642,7 @@ template <typename T>
 Status KMeansTreePartitioner<T>::TokensForDatapointWithSpillingBatched(
     const TypedDataset<T>& queries, ConstSpan<int32_t> max_centers_override,
     MutableSpan<vector<KMeansTreeSearchResult>> results) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA Status KMeansTreePartitioner<T>::TokensForDatapointWithSpillingBatched";
   
   if (!max_centers_override.empty() &&
       queries.size() != max_centers_override.size())

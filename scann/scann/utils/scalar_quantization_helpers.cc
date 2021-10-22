@@ -35,6 +35,7 @@ namespace research_scann {
 
 std::vector<float> ComputeMaxQuantizationMultipliers(
     const DenseDataset<float>& dataset) {
+  LOG(INFO) << "FA ComputeMaxQuantizationMultipliers";
   const size_t dimensionality = dataset.dimensionality();
   vector<float> multipliers(dimensionality, 0.0f);
   for (auto dptr : dataset) {
@@ -55,6 +56,7 @@ std::vector<float> ComputeMaxQuantizationMultipliers(
 
 std::vector<float> ComputeQuantiledQuantizationMultipliers(
     const DenseDataset<float>& dataset, float multiplier_quantile) {
+  LOG(INFO) << "FA ComputeQuantiledQuantizationMultipliers";
   const size_t dimensionality = dataset.dimensionality();
   const size_t k = dataset.size() * (1.0 - multiplier_quantile) + 1;
   if (k == 1) return ComputeMaxQuantizationMultipliers(dataset);
@@ -78,6 +80,7 @@ std::vector<float> ComputeQuantiledQuantizationMultipliers(
 ScalarQuantizationResults ScalarQuantizeFloatDataset(
     const DenseDataset<float>& dataset, float multiplier_quantile,
     double noise_shaping_threshold) {
+  LOG(INFO) << "FA ScalarQuantizeFloatDataset";
   DCHECK_LE(multiplier_quantile, 1.0f);
   DCHECK_GT(multiplier_quantile, 0.0f);
 
@@ -94,6 +97,7 @@ ScalarQuantizationResults ScalarQuantizeFloatDataset(
 ScalarQuantizationResults ScalarQuantizeFloatDatasetWithMultipliers(
     const DenseDataset<float>& dataset, vector<float> multipliers,
     double noise_shaping_threshold) {
+  LOG(INFO) << "FA ScalarQuantizeFloatDatapointWithNoiseShaping";
   const size_t dimensionality = dataset.dimensionality();
   DCHECK_EQ(multipliers.size(), dimensionality);
 
@@ -132,6 +136,7 @@ ScalarQuantizationResults ScalarQuantizeFloatDatasetWithMultipliers(
 DatapointPtr<int8_t> ScalarQuantizeFloatDatapoint(
     const DatapointPtr<float>& dptr, absl::Span<const float> multipliers,
     std::vector<int8_t>* quantized_storage) {
+  LOG(INFO) << "FA ScalarQuantizeFloatDatapoint";
   const size_t dimensionality = dptr.dimensionality();
   DCHECK_EQ(multipliers.size(), dimensionality);
   DCHECK_EQ(quantized_storage->size(), dimensionality);
@@ -144,6 +149,7 @@ DatapointPtr<int8_t> ScalarQuantizeFloatDatapoint(
 DatapointPtr<int8_t> ScalarQuantizeFloatDatapoint(
     const DatapointPtr<float>& dptr, float multiplier,
     std::vector<int8_t>* quantized_storage) {
+  LOG(INFO) << "FA ScalarQuantizeFloatDatapoint";
   const size_t dimensionality = dptr.dimensionality();
   DCHECK_EQ(quantized_storage->size(), dimensionality);
   for (size_t i : Seq(dimensionality)) {
@@ -157,6 +163,7 @@ DatapointPtr<int8_t> ScalarQuantizeFloatDatapointWithNoiseShaping(
     const double noise_shaping_threshold,
     std::vector<int8_t>* quantized_storage, int* num_changes,
     double* residual_ptr, double* parallel_residual_ptr) {
+  LOG(INFO) << "FA ScalarQuantizeFloatDatapointWithNoiseShaping";
   quantized_storage->resize(dptr.dimensionality());
   MutableSpan<int8_t> quantized(quantized_storage->data(),
                                 quantized_storage->size());
@@ -169,6 +176,7 @@ DatapointPtr<int8_t> ScalarQuantizeFloatDatapointWithNoiseShaping(
     const DatapointPtr<float>& dptr, absl::Span<const float> multipliers,
     const double noise_shaping_threshold, MutableSpan<int8_t> quantized,
     int* num_changes, double* residual_ptr, double* parallel_residual_ptr) {
+  LOG(INFO) << "FA ScalarQuantizeFloatDatapointWithNoiseShaping";
   DCHECK_EQ(quantized.size(), dptr.dimensionality());
   for (size_t i : IndicesOf(quantized)) {
     quantized[i] = Int8Quantize(dptr.values()[i] * multipliers[i]);
@@ -247,6 +255,7 @@ DatapointPtr<int8_t> ScalarQuantizeFloatDatapointWithNoiseShaping(
 unique_ptr<float[]> PrepareForAsymmetricScalarQuantizedDotProduct(
     const DatapointPtr<float>& query,
     ConstSpan<float> inverse_multiplier_by_dimension) {
+  LOG(INFO) << "FA PrepareForAsymmetricScalarQuantizedDotProduct";
   const size_t dimensionality = query.nonzero_entries();
   const float* query_ptr = query.values();
   unique_ptr<float[]> result(new float[dimensionality]);

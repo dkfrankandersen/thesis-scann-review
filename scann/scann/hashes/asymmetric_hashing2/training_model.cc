@@ -27,7 +27,7 @@ template <typename T>
 StatusOrPtr<Model<T>> Model<T>::FromCenters(
     vector<DenseDataset<FloatT>> centers,
     QuantizationScheme quantization_scheme) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA Model<T>::FromCenters";
   
   if (centers.empty()) {
     return InvalidArgumentError("Cannot construct a Model from empty centers.");
@@ -54,7 +54,7 @@ StatusOrPtr<Model<T>> Model<T>::FromCenters(
 template <typename T>
 StatusOr<unique_ptr<Model<T>>> Model<T>::FromProto(
     const CentersForAllSubspaces& proto) {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA Model<T>::FromProto";
   
   const size_t num_blocks = proto.subspace_centers_size();
   if (num_blocks == 0) {
@@ -81,7 +81,7 @@ StatusOr<unique_ptr<Model<T>>> Model<T>::FromProto(
 
 template <typename T>
 CentersForAllSubspaces Model<T>::ToProto() const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA Model<T>::ToProto()";
 
   CentersForAllSubspaces result;
   for (size_t i = 0; i < centers_.size(); ++i) {
@@ -107,7 +107,7 @@ Model<T>::Model(vector<DenseDataset<FloatT>> centers,
 
 template <typename T>
 bool Model<T>::CentersEqual(const Model& rhs) const {
-  LOG(INFO) << "FA called";
+  LOG(INFO) << "FA Model<T>::CentersEqual";
 
   if (centers_.size() != rhs.centers_.size()) return false;
   for (size_t i : IndicesOf(centers_)) {

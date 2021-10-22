@@ -31,39 +31,41 @@ def fit(dataset):
     normalized_dataset = dataset / np.linalg.norm(dataset, axis=1)[:, np.newaxis]
 
     searcher = scann.scann_ops_pybind.builder(normalized_dataset, 10, "dot_product").tree(
-        num_leaves=2000, num_leaves_to_search=100, training_sample_size=250000).score_ah(
-        2, anisotropic_quantization_threshold=0.2).reorder(1).build()
+        num_leaves=2000, num_leaves_to_search=1, training_sample_size=len(dataset), spherical=True, quantize_centroids=True).score_ah(
+        dimensions_per_block=2, anisotropic_quantization_threshold=0.2).reorder(reordering_num_neighbors=1).build()
     return searcher
 
 
 def query(searcher, v, n):
-    reorder = 100
-    leaves_to_search = 100
+    reorder = 30
+    leaves_to_search = 1
     return searcher.search(v, n, reorder, leaves_to_search)[0]
 
 def main():
     
-    dataset, queries, neighbors = load_dataset("datasets/random-xs-20-angular.hdf5")
-    #dataset, queries, neighbors = load_dataset("datasets/glove-50-angular.hdf5")
-    #dataset, queries, neighbors = load_dataset("datasets/glove-100-angular.hdf5")
+    # dataset, queries, neighbors = load_dataset("datasets/random-xs-20-angular.hdf5")
+    # dataset, queries, neighbors = load_dataset("datasets/glove-50-angular.hdf5")
+    dataset, queries, neighbors = load_dataset("datasets/glove-100-angular.hdf5")
 
-    print("--- Create searcher ---")
+    print("--- --- Create searcher --- ---")
     start = time.time()
     searcher = fit(dataset)
     end = time.time()
     print("Time:", end - start)
 
 
-    # print("")
-    # print("--- Use searcher ---")
-    # results_to_return = 10
-    # i = 1
-    # start = time.time()
-    # results = [query(searcher, queries[i], results_to_return)]
+    print("")
+    print("")
+    print("")
+    print("--- --- Use searcher --- ---")
+    results_to_return = 10
+    i = 0
+    start = time.time()
+    results = [query(searcher, queries[i], results_to_return)]
     # # results = [query(searcher, x, results_to_return) for x in queries]
-    # end = time.time()
-    # #print("results")
-    # #print(results)
+    end = time.time()
+    print("Results:")
+    print(results)
 
     # print("Recall:", compute_recall(results, neighbors[:, :10]))
     # print("Time:", end - start)

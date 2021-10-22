@@ -28,6 +28,7 @@ ProjectingDecoratorBase<Base, T, ProjectionType>::ProjectingDecoratorBase(
     shared_ptr<const Projection<T>> projection,
     unique_ptr<Partitioner<ProjectionType>> partitioner)
     : projection_(std::move(projection)), partitioner_(std::move(partitioner)) {
+  LOG(INFO) << "FA ProjectingDecoratorBase<Base, T, ProjectionType>::ProjectingDecoratorBase";
   DCHECK(projection_);
   DCHECK(partitioner_);
   this->set_tokenization_mode_no_hook(partitioner_->tokenization_mode());
@@ -36,6 +37,7 @@ ProjectingDecoratorBase<Base, T, ProjectionType>::ProjectingDecoratorBase(
 template <typename Base, typename T, typename ProjectionType>
 void ProjectingDecoratorBase<Base, T, ProjectionType>::CopyToProto(
     SerializedPartitioner* result) const {
+  LOG(INFO) << "FA ProjectingDecoratorBase<Base, T, ProjectionType>::CopyToProto";
   partitioner_->CopyToProto(result);
   result->set_uses_projection(true);
 }
@@ -49,6 +51,7 @@ Normalization ProjectingDecoratorBase<
 template <typename Base, typename T, typename ProjectionType>
 Status ProjectingDecoratorBase<Base, T, ProjectionType>::TokenForDatapoint(
     const DatapointPtr<T>& dptr, int32_t* result) const {
+  LOG(INFO) << "FA ProjectingDecoratorBase<Base, T, ProjectionType>::TokenForDatapoint";
   TF_ASSIGN_OR_RETURN(Datapoint<ProjectionType> projected,
                       ProjectAndNormalize(dptr));
   return partitioner_->TokenForDatapoint(projected.ToPtr(), result);
@@ -58,6 +61,7 @@ template <typename Base, typename T, typename ProjectionType>
 Status ProjectingDecoratorBase<Base, T, ProjectionType>::
     TokensForDatapointWithSpilling(const DatapointPtr<T>& dptr,
                                    vector<int32_t>* result) const {
+  LOG(INFO) << "FA ProjectingDecoratorBase<Base, T, ProjectionType>::TokensForDatapointWithSpilling";
   TF_ASSIGN_OR_RETURN(Datapoint<ProjectionType> projected,
                       ProjectAndNormalize(dptr));
   return partitioner_->TokensForDatapointWithSpilling(projected.ToPtr(),
@@ -74,6 +78,7 @@ Status KMeansTreeProjectingDecorator<T, ProjectionType>::
     TokensForDatapointWithSpilling(
         const DatapointPtr<T>& dptr, int32_t max_centers_override,
         vector<KMeansTreeSearchResult>* result) const {
+  LOG(INFO) << "FA KMeansTreeProjectingDecorator<T, ProjectionType>::TokensForDatapointWithSpilling";
   TF_ASSIGN_OR_RETURN(Datapoint<ProjectionType> projected,
                       this->ProjectAndNormalize(dptr));
   return base_kmeans_tree_partitioner()->TokensForDatapointWithSpilling(
@@ -85,6 +90,7 @@ Status KMeansTreeProjectingDecorator<T, ProjectionType>::
     TokensForDatapointWithSpillingBatched(
         const TypedDataset<T>& queries, ConstSpan<int32_t> max_centers_override,
         MutableSpan<std::vector<KMeansTreeSearchResult>> results) const {
+  LOG(INFO) << "FA KMeansTreeProjectingDecorator<T, ProjectionType>::TokensForDatapointWithSpillingBatched";
   if (queries.empty()) return OkStatus();
   unique_ptr<TypedDataset<ProjectionType>> projected_ds;
   for (size_t i : IndicesOf(queries)) {
@@ -107,6 +113,7 @@ Status KMeansTreeProjectingDecorator<T, ProjectionType>::
 template <typename T, typename ProjectionType>
 Status KMeansTreeProjectingDecorator<T, ProjectionType>::TokenForDatapoint(
     const DatapointPtr<T>& dptr, KMeansTreeSearchResult* result) const {
+  LOG(INFO) << "FA KMeansTreeProjectingDecorator<T, ProjectionType>::TokenForDatapoint";
   TF_ASSIGN_OR_RETURN(Datapoint<ProjectionType> projected,
                       this->ProjectAndNormalize(dptr));
   return base_kmeans_tree_partitioner()->TokenForDatapoint(projected.ToPtr(),
@@ -118,6 +125,7 @@ StatusOr<Datapoint<float>>
 KMeansTreeProjectingDecorator<T, ProjectionType>::ResidualizeToFloat(
     const DatapointPtr<T>& dptr, int32_t token,
     bool normalize_residual_by_cluster_stdev) const {
+  LOG(INFO) << "FA KMeansTreeProjectingDecorator<T, ProjectionType>::ResidualizeToFloat";
   TF_ASSIGN_OR_RETURN(Datapoint<ProjectionType> projected,
                       this->ProjectAndNormalize(dptr));
   return base_kmeans_tree_partitioner()->ResidualizeToFloat(

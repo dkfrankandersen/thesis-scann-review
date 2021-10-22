@@ -26,6 +26,7 @@ StatusOr<unique_ptr<Partitioner<T>>>
 KMeansTreePartitionerFactoryPreSampledAndProjected(
     const TypedDataset<T>* dataset, const PartitioningConfig& config,
     shared_ptr<ThreadPool> training_parallelization_pool) {
+  LOG(INFO) << "FA PartitionerFactoryPreSampledAndProjected";
   DCHECK(dataset);
   const absl::Time start = absl::Now();
 
@@ -100,6 +101,7 @@ KMeansTreePartitionerFactoryPreSampledAndProjected(
 
   const absl::Time stop = absl::Now();
   LOG(INFO) << "PartitionerFactory ran in " << stop - start << ".";
+  LOG(INFO) << "";
   return StatusOr<unique_ptr<Partitioner<T>>>(std::move(result));
 }
 

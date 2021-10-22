@@ -94,6 +94,7 @@ Status TreeXHybridSMMD<T>::BuildLeafSearchers(
         int32_t token)>
         leaf_searcher_builder,
     shared_ptr<ThreadPool> thread_pool) {
+  LOG(INFO) << "FA TreeXHybridSMMD<T>::BuildLeafSearchers";
   if (!leaf_searchers_.empty()) {
     return FailedPreconditionError(
         "BuildLeafSearchers must not be called more than once per instance.");
@@ -121,6 +122,7 @@ namespace {
 Status ValidateDatapointsByToken(
     const vector<std::vector<DatapointIndex>>& datapoints_by_token,
     DatapointIndex num_datapoints, bool* is_disjoint) {
+  LOG(INFO) << "FA ValidateDatapointsByToken";
   DCHECK(is_disjoint);
   *is_disjoint = true;
 
@@ -179,6 +181,7 @@ Status TreeXHybridSMMD<T>::BuildLeafSearchers(
         shared_ptr<DenseDataset<uint8_t>> hashed_dataset_partition,
         int32_t token)>
         leaf_searcher_builder) {
+  LOG(INFO) << "FA TreeXHybridSMMD<T>::BuildLeafSearchers";
   for (std::vector<DatapointIndex>& dp_list : datapoints_by_token) {
     std::sort(dp_list.begin(), dp_list.end());
     if (!dp_list.empty()) {
@@ -251,6 +254,7 @@ Status TreeXHybridSMMD<T>::BuildPretrainedScalarQuantizationLeafSearchers(
         StatusOrSearcher(DenseDataset<int8_t> scalar_quantized_partition,
                          vector<float> squared_l2_norms)>
         leaf_searcher_builder) {
+  LOG(INFO) << "FA TreeXHybridSMMD<T>::BuildPretrainedScalarQuantizationLeafSearchers";
   for (auto& dp_list : datapoints_by_token) {
     std::sort(dp_list.begin(), dp_list.end());
     if (!dp_list.empty()) {
@@ -298,6 +302,7 @@ void RemapToGlobalDatapointIndices(
 template <typename TopN>
 void MergeLeafResultsWithDuplicates(ConstSpan<NNResultsVector> to_merge,
                                     TopN top_n, NNResultsVector* result) {
+  LOG(INFO) << "FA MergeLeafResultsWithDuplicates";
   DCHECK(result);
   DCHECK(top_n.empty());
 
@@ -362,6 +367,7 @@ template <typename T>
 Status TreeXHybridSMMD<T>::FindNeighborsImpl(const DatapointPtr<T>& query,
                                              const SearchParameters& params,
                                              NNResultsVector* result) const {
+  LOG(INFO) << "FA TreeXHybridSMMD<T>::FindNeighborsImpl";
   SCANN_RETURN_IF_ERROR(CheckReadyToQuery(params));
   auto tree_x_params =
       params.searcher_specific_optional_parameters<TreeXOptionalParameters>();
@@ -417,6 +423,7 @@ template <typename T>
 Status TreeXHybridSMMD<T>::FindNeighborsBatchedImpl(
     const TypedDataset<T>& queries, ConstSpan<SearchParameters> params,
     MutableSpan<NNResultsVector> results) const {
+  LOG(INFO) << "FA TreeXHybridSMMD<T>::FindNeighborsBatchedImpl";
   if (params.empty()) {
     DCHECK_EQ(queries.size(), 0);
     DCHECK_EQ(results.size(), 0);
@@ -519,6 +526,7 @@ Status TreeXHybridSMMD<T>::FindNeighborsPreTokenizedBatchedGenericImpl(
     const TypedDataset<T>& queries, ConstSpan<SearchParameters> params,
     ConstSpan<ConstSpan<int32_t>> query_tokens,
     MutableSpan<NNResultsVector> results) const {
+  LOG(INFO) << "FA TreeXHybridSMMD<T>::FindNeighborsPreTokenizedBatchedGenericImpl";
   DCHECK_EQ(queries.size(), params.size());
   DCHECK_EQ(queries.size(), query_tokens.size());
   DCHECK_EQ(queries.size(), results.size());
@@ -565,6 +573,7 @@ Status TreeXHybridSMMD<T>::FindNeighborsPreTokenizedBatchedOptimizedImpl(
     const TypedDataset<T>& queries, ConstSpan<SearchParameters> params,
     ConstSpan<ConstSpan<int32_t>> query_tokens,
     MutableSpan<NNResultsVector> results) const {
+  LOG(INFO) << "FA TreeXHybridSMMD<T>::FindNeighborsPreTokenizedBatchedOptimizedImpl";
   DCHECK(disjoint_leaf_partitions_);
   DCHECK(queries.IsDense());
 
@@ -716,6 +725,7 @@ Status TreeXHybridSMMD<T>::FindNeighborsPreTokenizedImpl(
     const DatapointPtr<T>& query, const SearchParameters& params,
     ConstSpan<int32_t> query_tokens, TopN top_n,
     NNResultsVector* result) const {
+  LOG(INFO) << "FA TreeXHybridSMMD<T>::FindNeighborsPreTokenizedImpl";
   DCHECK(result);
   DCHECK(top_n.empty());
 
@@ -836,6 +846,7 @@ template <typename T>
 StatusOr<pair<int32_t, DatapointPtr<T>>>
 TreeXHybridSMMD<T>::TokenizeAndMaybeResidualize(const DatapointPtr<T>& dptr,
                                                 Datapoint<T>*) {
+  LOG(INFO) << "FA TreeXHybridSMMD<T>::TokenizeAndMaybeResidualize";
   DCHECK(database_tokenizer_);
   vector<int32_t> tokens_storage;
   SCANN_RETURN_IF_ERROR(database_tokenizer_->TokensForDatapointWithSpilling(
@@ -863,6 +874,7 @@ TreeXHybridSMMD<T>::TokenizeAndMaybeResidualize(const TypedDataset<T>& dps,
 template <typename T>
 StatusOr<SingleMachineFactoryOptions>
 TreeXHybridSMMD<T>::ExtractSingleMachineFactoryOptions() {
+  LOG(INFO) << "FA TreeXHybridSMMD<T>::ExtractSingleMachineFactoryOptions";
   TF_ASSIGN_OR_RETURN(const int dataset_size,
                       UntypedSingleMachineSearcherBase::DatasetSize());
   auto int8_query_processor = std::dynamic_pointer_cast<
@@ -904,6 +916,7 @@ TreeXHybridSMMD<T>::ExtractSingleMachineFactoryOptions() {
 template <typename T>
 Status TreeXHybridSMMD<T>::PreprocessQueryIntoParamsUnlocked(
     const DatapointPtr<T>& query, SearchParameters& search_params) const {
+  LOG(INFO) << "FA TreeXHybridSMMD<T>::PreprocessQueryIntoParamsUnlocked";
   const auto& params =
       search_params
           .searcher_specific_optional_parameters<TreeXOptionalParameters>();

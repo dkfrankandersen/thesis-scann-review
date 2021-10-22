@@ -136,6 +136,7 @@ template <typename T>
 template <typename FloatT>
 StatusOr<ChunkedDatapoint<FloatT>> ChunkingProjection<T>::ProjectInputImpl(
     const DatapointPtr<T>& input) const {
+  // LOG(INFO) << "FA ChunkingProjection<T>::ProjectInputImpl";
   if (input.dimensionality() != input.nonzero_entries() && input.IsDense()) {
     return InvalidArgumentError(
         "ChunkingProjection does not work with binary data.");
@@ -199,6 +200,7 @@ StatusOr<ChunkedDatapoint<FloatT>> ChunkingProjection<T>::ProjectInputImpl(
 
 template <typename T>
 void ChunkingProjection<T>::ComputeCumulativeDims() {
+  LOG(INFO) << "FA ChunkingProjection<T>::ComputeCumulativeDims";
   cum_dims_per_block_.reset(new uint32_t[num_blocks_ + 1],
                             [](uint32_t* p) { delete[] p; });
   cum_dims_per_block_.get()[0] = 0;
@@ -211,12 +213,14 @@ void ChunkingProjection<T>::ComputeCumulativeDims() {
 template <typename T>
 Status ChunkingProjection<T>::ProjectInput(
     const DatapointPtr<T>& input, ChunkedDatapoint<float>* chunked) const {
+  // LOG(INFO) << "FA ChunkingProjection<T>::ProjectInput";
   TF_ASSIGN_OR_RETURN(*chunked, ProjectInputImpl<float>(input));
   return OkStatus();
 }
 template <typename T>
 Status ChunkingProjection<T>::ProjectInput(
     const DatapointPtr<T>& input, ChunkedDatapoint<double>* chunked) const {
+  // LOG(INFO) << "FA ChunkingProjection<T>::ProjectInput";
   TF_ASSIGN_OR_RETURN(*chunked, ProjectInputImpl<double>(input));
   return OkStatus();
 }

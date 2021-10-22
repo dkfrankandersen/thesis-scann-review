@@ -94,6 +94,7 @@ inline Status DenseDistanceManyToManyFP8Pretransposed(
     const DistanceMeasure& dist, const DenseDataset<float>& queries,
     const FP8SimdBlockTransposedDatabase& database,
     ManyToManyResultsCallback<float> callback) {
+  LOG(INFO) << "FA DenseDistanceManyToManyFP8Pretransposed";
   return mm_internal::DenseDistanceManyToManyFP8PretransposedImpl(
       dist, queries, database, nullptr, std::move(callback));
 }
@@ -101,6 +102,7 @@ inline Status DenseDistanceManyToManyFP8Pretransposed(
     const DistanceMeasure& dist, const DenseDataset<float>& queries,
     const FP8SimdBlockTransposedDatabase& database, ThreadPool* pool,
     ManyToManyResultsCallback<float> callback) {
+  LOG(INFO) << "FA DenseDistanceManyToManyFP8Pretransposed";
   return mm_internal::DenseDistanceManyToManyFP8PretransposedImpl(
       dist, queries, database, pool, std::move(callback));
 }
@@ -108,6 +110,7 @@ inline Status DenseDistanceManyToManyFP8Pretransposed(
     const DistanceMeasure& dist, const DenseDataset<float>& queries,
     const FP8SimdBlockTransposedDatabase& database,
     EpsilonFilteringOffsetWrapper<float> callback) {
+  LOG(INFO) << "FA DenseDistanceManyToManyFP8Pretransposed";
   return mm_internal::DenseDistanceManyToManyFP8PretransposedImpl(
       dist, queries, database, nullptr, std::move(callback));
 }
@@ -115,6 +118,7 @@ inline Status DenseDistanceManyToManyFP8Pretransposed(
     const DistanceMeasure& dist, const DenseDataset<float>& queries,
     const FP8SimdBlockTransposedDatabase& database, ThreadPool* pool,
     EpsilonFilteringOffsetWrapper<float> callback) {
+  LOG(INFO) << "FA DenseDistanceManyToManyFP8Pretransposed";
   return mm_internal::DenseDistanceManyToManyFP8PretransposedImpl(
       dist, queries, database, pool, std::move(callback));
 }
@@ -123,6 +127,7 @@ template <typename FloatT>
 vector<pair<uint32_t, FloatT>> DenseDistanceManyToManyTop1(
     const DistanceMeasure& dist, const DenseDataset<FloatT>& queries,
     const DenseDataset<FloatT>& database, ThreadPool* pool = nullptr) {
+  // LOG(INFO) << "FA DenseDistanceManyToManyTop1";
   static_assert(IsSameAny<FloatT, float, double>(),
                 "DenseDistanceManyToMany only works with float/double.");
   vector<pair<DatapointIndex, FloatT>> result(
@@ -140,6 +145,7 @@ inline void DenseDistanceManyToManyTopK(
     const DistanceMeasure& dist, const DenseDataset<float>& queries,
     const DenseDataset<float>& database,
     MutableSpan<FastTopNeighbors<float>> topns, ThreadPool* pool = nullptr) {
+  LOG(INFO) << "FA DenseDistanceManyToManyTopK";
   DCHECK_EQ(queries.size(), topns.size());
   ManyToManyTopKCallback topk_callback(topns);
   EpsilonFilteringCallback<float> eps_callback(topk_callback.epsilons(),
