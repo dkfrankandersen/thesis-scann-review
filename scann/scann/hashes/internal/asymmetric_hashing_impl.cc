@@ -375,8 +375,8 @@ StatusOr<vector<std::vector<SubspaceResidualStats>>> ComputeResidualStats(
   vector<std::vector<SubspaceResidualStats>> residual_stats(num_subspaces);
   const size_t num_clusters_per_block = centers[0].size();
 
-  LOG(INFO) << "FA num_subspaces " << num_subspaces + 0 << "";
-  LOG(INFO) << "FA num_clusters_per_block " << num_clusters_per_block + 0 << "";
+  LOG(INFO) << "FA num_subspaces (expect M=50) " << num_subspaces + 0 << "";
+  LOG(INFO) << "FA num_clusters_per_block (expect K=16) " << num_clusters_per_block + 0 << "";
 
   using FloatT = FloatingTypeFor<T>;
   ChunkedDatapoint<FloatT> maybe_residual_dptr_chunked;
@@ -389,11 +389,22 @@ StatusOr<vector<std::vector<SubspaceResidualStats>>> ComputeResidualStats(
       projection.ProjectInput(original_dptr, &original_dptr_chunked));
   SCANN_RET_CHECK_EQ(maybe_residual_dptr_chunked.size(), num_subspaces);
   SCANN_RET_CHECK_EQ(original_dptr_chunked.size(), num_subspaces);
+  LOG(INFO) << "FA original_dptr_chunked.size() (expect M=50) " << original_dptr_chunked.size() + 0 << "";
+  // LOG(INFO) << "FA original_dptr_chunked[0].size() (expect D/M=100/50=2)" << original_dptr_chunked[0].size() + 0 << "";
+
+  LOG(INFO) << "FA original_dptr.values_slice()[0] value " << original_dptr.values_slice()[0] + 0 << "";
+  LOG(INFO) << "FA original_dptr_chunked[0].values_slice()[0] value " << original_dptr_chunked[0].values_slice()[0] + 0 << "";
+  
+  LOG(INFO) << "FA original_dptr.values_slice()[99] value " << original_dptr.values_slice()[99] + 0 << "";
+  LOG(INFO) << "FA original_dptr_chunked[49].values_slice()[1] value " << original_dptr_chunked[49].values_slice()[1] + 0 << "";
+
   double chunked_norm = 0.0;
   LOG(INFO) << "FA sum chunked_norm";
   for (size_t subspace_idx : Seq(num_subspaces)) {
     for (FloatT x : original_dptr_chunked[subspace_idx].values_slice()) {
       chunked_norm += Square<double>(x);
+    LOG(INFO) << "FA chunked_norm original_dptr_chunked["<< subspace_idx << "] " << x + 0 << "";
+
     }
   }
   LOG(INFO) << "FA chunked_norm " << chunked_norm + 0.0 << "";
@@ -520,14 +531,20 @@ Status CoordinateDescentAHQuantize(
   SCANN_RET_CHECK_EQ(result.size(), centers.size());
   LOG(INFO) << "FA result.size() " << result.size() << "";
   LOG(INFO) << "FA centers.size() " << centers.size() << "";
+  LOG(INFO) << "FA centers[0].size() " << centers[0].size() << "";
 
+
+  LOG(INFO) << "FA maybe_residual_dptr.dimensionality() (expect 100) " << maybe_residual_dptr.dimensionality() + 0 << "";
+  LOG(INFO) << "FA original_dptr.dimensionality() (expect 100) " << original_dptr.dimensionality() + 0 << "";
 
   SCANN_RET_CHECK_EQ(maybe_residual_dptr.dimensionality(),
                      original_dptr.dimensionality());
   TF_ASSIGN_OR_RETURN(auto residual_stats,
                       ComputeResidualStats(maybe_residual_dptr, original_dptr,
                                            centers, projection));
-  // LOG(INFO) << "FA residual_stats " << residual_stats << "";
+  LOG(INFO) << "FA residual_stats.size (expect 50) " << residual_stats.size() << "";
+  LOG(INFO) << "FA residual_stats[0].size (expect 16) " << residual_stats[0].size() << "";
+
 
   LOG(INFO) << "FA FROM CoordinateDescentAHQuantize CALL ComputeParallelCostMultiplier";
   const double parallel_cost_multiplier = ComputeParallelCostMultiplier(
@@ -535,7 +552,7 @@ Status CoordinateDescentAHQuantize(
   InitializeToMinResidualNorm(residual_stats, result);
   LOG(INFO) << "FA CoordinateDescentAHQuantize value of result at InitializeToMinResidualNorm:";
   for (size_t i = 0; i < result.size(); ++i) {
-    LOG(INFO) << "FA result[" << i << "]" << result[i] + 0 << "";
+    LOG(INFO) << "FA result[" << i << "] " << result[i] + 0 << "";
   }
   LOG(INFO) << "FA FROM CoordinateDescentAHQuantize CALL ComputeParallelResidualComponent";
   double parallel_residual_component =
@@ -598,7 +615,7 @@ Status CoordinateDescentAHQuantize(
   // LOG(INFO) << "FA result " << result << "";
   LOG(INFO) << "FA CoordinateDescentAHQuantize value of result at finish:";
   for (size_t i = 0; i < result.size(); ++i) {
-    LOG(INFO) << "FA result[" << i << "]" << result[i] + 0 << "";
+    LOG(INFO) << "FA result[" << i << "] " << result[i] + 0 << "";
 
   }
   LOG(INFO) << "FA exit() IN CoordinateDescentAHQuantize";
