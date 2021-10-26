@@ -35,7 +35,7 @@ namespace research_scann {
 
 std::vector<float> ComputeMaxQuantizationMultipliers(
     const DenseDataset<float>& dataset) {
-  LOG(INFO) << "FA ComputeMaxQuantizationMultipliers";
+  // LOG(INFO) << "FA ComputeMaxQuantizationMultipliers";
   const size_t dimensionality = dataset.dimensionality();
   vector<float> multipliers(dimensionality, 0.0f);
   for (auto dptr : dataset) {
@@ -80,7 +80,7 @@ std::vector<float> ComputeQuantiledQuantizationMultipliers(
 ScalarQuantizationResults ScalarQuantizeFloatDataset(
     const DenseDataset<float>& dataset, float multiplier_quantile,
     double noise_shaping_threshold) {
-  LOG(INFO) << "FA ScalarQuantizeFloatDataset";
+  // LOG(INFO) << "FA ScalarQuantizeFloatDataset";
   DCHECK_LE(multiplier_quantile, 1.0f);
   DCHECK_GT(multiplier_quantile, 0.0f);
 
@@ -97,7 +97,7 @@ ScalarQuantizationResults ScalarQuantizeFloatDataset(
 ScalarQuantizationResults ScalarQuantizeFloatDatasetWithMultipliers(
     const DenseDataset<float>& dataset, vector<float> multipliers,
     double noise_shaping_threshold) {
-  LOG(INFO) << "FA ScalarQuantizeFloatDatapointWithNoiseShaping";
+  // LOG(INFO) << "FA ScalarQuantizeFloatDatasetWithMultipliers";
   const size_t dimensionality = dataset.dimensionality();
   DCHECK_EQ(multipliers.size(), dimensionality);
 

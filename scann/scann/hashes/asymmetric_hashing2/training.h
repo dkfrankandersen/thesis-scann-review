@@ -38,6 +38,7 @@ StatusOr<unique_ptr<Model<T>>> TrainSingleMachine(
   LOG(INFO) << "FA TrainSingleMachine";
   if (params.config().quantization_scheme() ==
       AsymmetricHasherConfig::STACKED) {
+    LOG(INFO) << "FA TrainSingleMachine quantization_scheme() = STACKED";
     if (!dataset.IsDense())
       return InvalidArgumentError(
           "Stacked quantizers can only process dense datasets.");
@@ -51,6 +52,7 @@ StatusOr<unique_ptr<Model<T>>> TrainSingleMachine(
   }
   if (params.config().quantization_scheme() ==
       AsymmetricHasherConfig::PRODUCT_AND_BIAS) {
+    LOG(INFO) << "FA TrainSingleMachine quantization_scheme() = PRODUCT_AND_BIAS";
     const auto& dense = down_cast<const DenseDataset<T>&>(dataset);
     DenseDataset<T> dataset_no_bias;
     dataset_no_bias.set_dimensionality(dense.dimensionality() - 1);
@@ -69,6 +71,7 @@ StatusOr<unique_ptr<Model<T>>> TrainSingleMachine(
     return Model<T>::FromCenters(std::move(converted),
                                  params.config().quantization_scheme());
   } else {
+    LOG(INFO) << "FA TrainSingleMachine quantization_scheme() = else";
     TF_ASSIGN_OR_RETURN(
         auto centers,
         ::research_scann::asymmetric_hashing_internal::TrainAsymmetricHashing(

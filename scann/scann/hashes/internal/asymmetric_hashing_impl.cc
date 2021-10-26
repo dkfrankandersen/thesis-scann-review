@@ -206,6 +206,27 @@ StatusOr<vector<DenseDataset<double>>> AhImpl<T>::TrainAsymmetricHashing(
   vector<DenseDataset<double>> all_centers(num_blocks);
   LOG(INFO) << "FA LOOP IN AhImpl<T>::TrainAsymmetricHashing";
   LOG(INFO) << "FA OVER ---> GenericKmeans";
+  LOG(INFO) << "FA OVER ---> num_blocks " << num_blocks << "";
+  LOG(INFO) << "FA OVER ---> opts.config().use_norm_biasing_correction() " << opts.config().use_norm_biasing_correction() << "";
+
+  LOG(INFO) << "\nFA LOOP OVER GenericKMeans M times " << num_blocks << " BEGIN ----------------------";
+  LOG(INFO) << "scann/utils/gmm_utils.cc:381] FA GmmUtils::GenericKmeans";
+  LOG(INFO) << "scann/utils/gmm_utils.cc:639] FA GmmUtils::KMeansImpl";
+  LOG(INFO) << "scann/utils/gmm_utils.cc:640] FA CALL GmmUtils::InitializeCenters";
+  LOG(INFO) << "scann/utils/gmm_utils.cc:509] FA GmmUtils::KMeansPPInitializeCenters";
+  LOG(INFO) << "scann/data_format/dataset.cc:96] FA TypedDataset<T>::MeanByDimension";
+  LOG(INFO) << "scann/utils/gmm_utils.cc:536] FA LOOP IN GmmUtils::KMeansPPInitializeCenters";
+  LOG(INFO) << "scann/utils/gmm_utils.cc:537] FA OVER ---> VerifyAllFinite";
+  LOG(INFO) << "scann/utils/gmm_utils.cc:538] FA OVER ---> DistancesFromPoint";
+  LOG(INFO) << "scann/data_format/dataset.cc:96] FA TypedDataset<T>::MeanByDimension";
+  LOG(INFO) << "scann/utils/gmm_utils.cc:701] FA LOOP IN GmmUtils::KMeansImpl";
+  LOG(INFO) << "scann/utils/gmm_utils.cc:702] FA OVER ---> FROM GetPartitionAssignmentFn CALL UnbalancedPartitionAssignment";
+  LOG(INFO) << "scann/utils/gmm_utils.cc:703] FA OVER ---> LOOP IN UnbalancedPartitionAssignment";
+  LOG(INFO) << "scann/utils/gmm_utils.cc:704] FA OVER ---> OVER ---> VerifyAllFinite";
+  LOG(INFO) << "scann/utils/gmm_utils.cc:705] FA OVER ---> OVER ---> DenseDistanceManyToManyTop1";
+  LOG(INFO) << "scann/utils/gmm_utils.cc:706] FA OVER ---> RecomputeCentroidsSimple";
+  LOG(INFO) << "scann/utils/gmm_utils.cc:707] FA OVER ---> RandomReinitializeCenters";
+
   for (size_t i : Seq(num_blocks)) {
     DenseDataset<double> centers;
     vector<vector<DatapointIndex>> subpartitions;
@@ -247,12 +268,12 @@ StatusOr<vector<DenseDataset<double>>> AhImpl<T>::TrainAsymmetricHashing(
     if (i & 1) {
       std::reverse(centers_permutation.begin(), centers_permutation.end());
     }
-
+    
     for (uint32_t j : centers_permutation) {
       all_centers[i].AppendOrDie(centers[j], "");
     }
   }
-
+  LOG(INFO) << "FA LOOP OVER GenericKMeans M times " << num_blocks << " FINISHED ----------------------\n\n";
   return std::move(all_centers);
 }
 
@@ -346,7 +367,7 @@ template <typename T>
 SubspaceResidualStats ComputeResidualStatsForCluster(
     ConstSpan<T> maybe_residual_dptr, ConstSpan<T> original_dptr,
     double inv_norm, ConstSpan<FloatingTypeFor<T>> quantized) {
-  LOG(INFO) << "FA ComputeResidualStatsForCluster";
+  // LOG(INFO) << "FA ComputeResidualStatsForCluster";
   DCHECK_EQ(maybe_residual_dptr.size(), quantized.size());
   const size_t dims = maybe_residual_dptr.size();
   SubspaceResidualStats result;
@@ -358,8 +379,8 @@ SubspaceResidualStats ComputeResidualStatsForCluster(
     result.parallel_residual_component +=
         residual_coordinate * original_dptr[i] * inv_norm;
   }
-  LOG(INFO) << "FA result.residual_norm " << result.residual_norm << "";
-  LOG(INFO) << "FA result.parallel_residual_component " << result.parallel_residual_component << "";
+  // LOG(INFO) << "FA result.residual_norm " << result.residual_norm << "";
+  // LOG(INFO) << "FA result.parallel_residual_component " << result.parallel_residual_component << "";
   return result;
 }
 
@@ -368,54 +389,52 @@ StatusOr<vector<std::vector<SubspaceResidualStats>>> ComputeResidualStats(
     DatapointPtr<T> maybe_residual_dptr, DatapointPtr<T> original_dptr,
     ConstSpan<DenseDataset<FloatingTypeFor<T>>> centers,
     const ChunkingProjection<T>& projection) {
-  LOG(INFO) << "FA ComputeResidualStats";
+  // LOG(INFO) << "FA ComputeResidualStats";
   const size_t num_subspaces = centers.size();
   DCHECK_GE(num_subspaces, 1);
   // vector<std::vector<SubspaceResidualStats>> result(num_subspaces); not used...
   vector<std::vector<SubspaceResidualStats>> residual_stats(num_subspaces);
   const size_t num_clusters_per_block = centers[0].size();
 
-  LOG(INFO) << "FA num_subspaces (expect M=50) " << num_subspaces + 0 << "";
-  LOG(INFO) << "FA num_clusters_per_block (expect K=16) " << num_clusters_per_block + 0 << "";
+  // LOG(INFO) << "FA num_subspaces (expect M=50) " << num_subspaces + 0 << "";
+  // LOG(INFO) << "FA num_clusters_per_block (expect K=16) " << num_clusters_per_block + 0 << "";
 
   using FloatT = FloatingTypeFor<T>;
   ChunkedDatapoint<FloatT> maybe_residual_dptr_chunked;
   ChunkedDatapoint<FloatT> original_dptr_chunked;
-  LOG(INFO) << "FA FROM ComputeResidualStats CALL ProjectInput 1/2";
+  // LOG(INFO) << "FA FROM ComputeResidualStats CALL ProjectInput 1/2";
   SCANN_RETURN_IF_ERROR(projection.ProjectInput(maybe_residual_dptr,
                                                 &maybe_residual_dptr_chunked));
-  LOG(INFO) << "FA FROM ComputeResidualStats CALL ProjectInput 2/2";
+  // LOG(INFO) << "FA FROM ComputeResidualStats CALL ProjectInput 2/2";
   SCANN_RETURN_IF_ERROR(
       projection.ProjectInput(original_dptr, &original_dptr_chunked));
   SCANN_RET_CHECK_EQ(maybe_residual_dptr_chunked.size(), num_subspaces);
   SCANN_RET_CHECK_EQ(original_dptr_chunked.size(), num_subspaces);
-  LOG(INFO) << "FA original_dptr_chunked.size() (expect M=50) " << original_dptr_chunked.size() + 0 << "";
-  // LOG(INFO) << "FA original_dptr_chunked[0].size() (expect D/M=100/50=2)" << original_dptr_chunked[0].size() + 0 << "";
+  // LOG(INFO) << "FA original_dptr_chunked.size() (expect M=50) " << original_dptr_chunked.size() + 0 << "";
 
-  LOG(INFO) << "FA original_dptr.values_slice()[0] value " << original_dptr.values_slice()[0] + 0 << "";
-  LOG(INFO) << "FA original_dptr_chunked[0].values_slice()[0] value " << original_dptr_chunked[0].values_slice()[0] + 0 << "";
+  // LOG(INFO) << "FA original_dptr.values_slice()[0] value " << original_dptr.values_slice()[0] + 0 << "";
+  // LOG(INFO) << "FA original_dptr_chunked[0].values_slice()[0] value " << original_dptr_chunked[0].values_slice()[0] + 0 << "";
   
-  LOG(INFO) << "FA original_dptr.values_slice()[99] value " << original_dptr.values_slice()[99] + 0 << "";
-  LOG(INFO) << "FA original_dptr_chunked[49].values_slice()[1] value " << original_dptr_chunked[49].values_slice()[1] + 0 << "";
+  // LOG(INFO) << "FA original_dptr.values_slice()[99] value " << original_dptr.values_slice()[99] + 0 << "";
+  // LOG(INFO) << "FA original_dptr_chunked[49].values_slice()[1] value " << original_dptr_chunked[49].values_slice()[1] + 0 << "";
 
   double chunked_norm = 0.0;
-  LOG(INFO) << "FA sum chunked_norm";
+  // LOG(INFO) << "FA sum chunked_norm";
   for (size_t subspace_idx : Seq(num_subspaces)) {
     for (FloatT x : original_dptr_chunked[subspace_idx].values_slice()) {
       chunked_norm += Square<double>(x);
-    LOG(INFO) << "FA chunked_norm original_dptr_chunked["<< subspace_idx << "] " << x + 0 << "";
-
+      // LOG(INFO) << "FA chunked_norm original_dptr_chunked["<< subspace_idx << "] " << x + 0 << "";
     }
   }
-  LOG(INFO) << "FA chunked_norm " << chunked_norm + 0.0 << "";
+  // LOG(INFO) << "FA chunked_norm " << chunked_norm + 0.0 << "";
   chunked_norm = std::sqrt(chunked_norm);
-  LOG(INFO) << "FA chunked_norm sqrt " << chunked_norm + 0.0 << "";
+  // LOG(INFO) << "FA chunked_norm sqrt " << chunked_norm + 0.0 << "";
 
   double inverse_chunked_norm = 1.0 / chunked_norm;
-  LOG(INFO) << "FA inverse_chunked_norm " << inverse_chunked_norm + 0.0 << "";
+  // LOG(INFO) << "FA inverse_chunked_norm " << inverse_chunked_norm + 0.0 << "";
 
-  LOG(INFO) << "FA LOOP IN ComputeResidualStats";
-  LOG(INFO) << "FA OVER ---> ComputeResidualStatsForCluster";
+  // LOG(INFO) << "FA LOOP IN ComputeResidualStats";
+  // LOG(INFO) << "FA OVER ---> ComputeResidualStatsForCluster";
   for (size_t subspace_idx : Seq(num_subspaces)) {
     auto& cur_subspace_residual_stats = residual_stats[subspace_idx];
     cur_subspace_residual_stats.resize(num_clusters_per_block);
@@ -515,17 +534,12 @@ Status CoordinateDescentAHQuantize(
     const ChunkingProjection<T>& projection, double threshold, MutableSpan<uint8_t> result) {
     //, int* num_changes = nullptr,
     // double* residual_ptr = nullptr, double* parallel_residual_ptr = nullptr) {
+
   LOG(INFO) << "FA CoordinateDescentAHQuantize";
-  // LOG(INFO) << "FA maybe_residual_dptr " << maybe_residual_dptr << "";
-  // LOG(INFO) << "FA original_dptr " << original_dptr << "";
-  // LOG(INFO) << "FA centers " << centers << "";
-  // LOG(INFO) << "FA projection " << projection << "";
-  // LOG(INFO) << "FA threshold " << threshold << "";
-  // LOG(INFO) << "FA result " << result << "";
-  LOG(INFO) << "FA CoordinateDescentAHQuantize value of result at start:";
-  for (size_t i = 0; i < result.size(); ++i) {
-    LOG(INFO) << "FA result[" << i << "]" << result[i] + 0 << "";
-  }
+  LOG(INFO) << "FA CoordinateDescentAHQuantize value of result at start: result[i] all zeros 0..49 M=50";
+  // for (size_t i = 0; i < result.size(); ++i) {
+  //   LOG(INFO) << "FA result[" << i << "] " << result[i] + 0 << "";
+  // }
 
   LOG(INFO) << "FA FROM CoordinateDescentAHQuantize CALL ComputeResidualStats";
   SCANN_RET_CHECK_EQ(result.size(), centers.size());
@@ -539,6 +553,8 @@ Status CoordinateDescentAHQuantize(
 
   SCANN_RET_CHECK_EQ(maybe_residual_dptr.dimensionality(),
                      original_dptr.dimensionality());
+  LOG(INFO) << "FA LOOP IN ComputeResidualStats";
+  LOG(INFO) << "FA OVER ---> ComputeResidualStatsForCluster";
   TF_ASSIGN_OR_RETURN(auto residual_stats,
                       ComputeResidualStats(maybe_residual_dptr, original_dptr,
                                            centers, projection));
@@ -550,10 +566,10 @@ Status CoordinateDescentAHQuantize(
   const double parallel_cost_multiplier = ComputeParallelCostMultiplier(
       threshold, SquaredL2Norm(original_dptr), original_dptr.dimensionality());
   InitializeToMinResidualNorm(residual_stats, result);
-  LOG(INFO) << "FA CoordinateDescentAHQuantize value of result at InitializeToMinResidualNorm:";
-  for (size_t i = 0; i < result.size(); ++i) {
-    LOG(INFO) << "FA result[" << i << "] " << result[i] + 0 << "";
-  }
+  LOG(INFO) << "FA CoordinateDescentAHQuantize value of result at InitializeToMinResidualNorm: result[i] diff values 0..15 k=16";
+  // for (size_t i = 0; i < result.size(); ++i) {
+  //   LOG(INFO) << "FA result[" << i << "] " << result[i] + 0 << "";
+  // }
   LOG(INFO) << "FA FROM CoordinateDescentAHQuantize CALL ComputeParallelResidualComponent";
   double parallel_residual_component =
       ComputeParallelResidualComponent(result, residual_stats);

@@ -93,7 +93,7 @@ void TypedDataset<T>::AppendOrDie(const GenericFeatureVector& gfv,
 
 template <typename T>
 Status TypedDataset<T>::MeanByDimension(Datapoint<double>* result) const {
-  LOG(INFO) << "FA TypedDataset<T>::MeanByDimension";
+  // LOG(INFO) << "FA TypedDataset<T>::MeanByDimension";
   const size_t size = this->size();
   if (size <= 0) {
     return FailedPreconditionError(

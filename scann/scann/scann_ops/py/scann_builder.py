@@ -42,6 +42,7 @@ class ScannBuilder(object):
   def __init__(self, db, num_neighbors, distance_measure):
     self.params = {}
     self.training_threads = 0
+    print(f"FA In ScannBuilder self.training_threads is {self.training_threads} (0 is standard")
     self.builder_lambda = None
     self.db = db
     self.num_neighbors = num_neighbors

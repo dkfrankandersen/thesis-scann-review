@@ -43,6 +43,8 @@ int32_t CountLeaves(const KMeansTreeNode& node) {
 KMeansTree::KMeansTree() {}
 
 KMeansTree::KMeansTree(const SerializedKMeansTree& serialized) {
+  LOG(INFO) << "FA KMeansTree::KMeansTree";
+
   learned_spilling_type_ = serialized.learned_spilling_type();
   max_spill_centers_ = serialized.max_centers_for_learned_spilling();
   root_.BuildFromProto(serialized.root());
@@ -55,6 +57,7 @@ Status KMeansTree::Train(const Dataset& training_data,
                          const DistanceMeasure& training_distance,
                          int32_t k_per_level,
                          KMeansTreeTrainingOptions* training_options) {
+  LOG(INFO) << "FA KMeansTree::Train";
   DCHECK(training_options);
 
   vector<DatapointIndex> subset(training_data.size());
@@ -66,6 +69,12 @@ Status KMeansTree::Train(const Dataset& training_data,
   root_.PopulateCurNodeCenters();
   learned_spilling_type_ = training_options->learned_spilling_type;
   max_spill_centers_ = training_options->max_spill_centers;
+  LOG(INFO) << "FA FROM KMeansTree::Train call CreateFixedPointCenters() Num Of Centroids=2000";
+  LOG(INFO) << "FA LOOP IN CreateFixedPointCenters() over self";
+  LOG(INFO) << "FA OVER scann/utils/scalar_quantization_helpers.cc:83] FA ScalarQuantizeFloatDataset";
+  LOG(INFO) << "FA OVER scann/utils/scalar_quantization_helpers.cc:38] FA ComputeMaxQuantizationMultipliers";
+  LOG(INFO) << "FA OVER scann/utils/scalar_quantization_helpers.cc:100] FA ScalarQuantizeFloatDatasetWithMultipliers";
+
   root_.CreateFixedPointCenters();
   return status;
 }

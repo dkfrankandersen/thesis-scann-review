@@ -117,7 +117,7 @@ Status KMeansTreeNode::Train(const Dataset& training_data,
   if (opts->max_num_levels <= current_level) {
     return OkStatus();
   }
-  LOG(INFO) << "FA KMeansTreeNode::Train";
+  LOG(INFO) << "FA KMeansTreeNode::Train BEGIN ------------";
 
   GmmUtils::Options gmm_opts;
   gmm_opts.max_iterations = opts->max_iterations;
@@ -134,9 +134,13 @@ Status KMeansTreeNode::Train(const Dataset& training_data,
   vector<vector<DatapointIndex>> subpartitions;
   DenseDataset<double> centers;
   if (opts->partitioning_type == PartitioningConfig::SPHERICAL) {
+    LOG(INFO) << "FA KMeansTreeNode::Train PartitioningConfig::SPHERICAL";
+
     SCANN_RETURN_IF_ERROR(gmm.SphericalKmeans(
         training_data, indices_, k_per_level, &centers, &subpartitions));
   } else {
+    LOG(INFO) << "FA KMeansTreeNode::Train PartitioningConfig::GENERIC";
+
     DCHECK_EQ(opts->partitioning_type, PartitioningConfig::GENERIC);
     SCANN_RETURN_IF_ERROR(gmm.GenericKmeans(
         training_data, indices_, k_per_level, &centers, &subpartitions));
@@ -146,6 +150,7 @@ Status KMeansTreeNode::Train(const Dataset& training_data,
       opts->learned_spilling_type;
   if (spilling_type != DatabaseSpillingConfig::NO_SPILLING &&
       opts->per_node_spilling_factor > 1.0) {
+    LOG(INFO) << "FA KMeansTreeNode::Train entering 1/2 DatabaseSpillingConfig::NO_SPILLING";
     TF_ASSIGN_OR_RETURN(
         learned_spilling_threshold_,
         gmm.ComputeSpillingThreshold(
@@ -155,6 +160,7 @@ Status KMeansTreeNode::Train(const Dataset& training_data,
 
   if (spilling_type != DatabaseSpillingConfig::NO_SPILLING &&
       opts->per_node_spilling_factor > 1.0) {
+    LOG(INFO) << "FA KMeansTreeNode::Train entering 2/2 DatabaseSpillingConfig::NO_SPILLING";
     vector<vector<DatapointIndex>> spilled(centers.size());
     for (DatapointIndex i : indices_) {
       Datapoint<double> double_dp;
@@ -175,6 +181,7 @@ Status KMeansTreeNode::Train(const Dataset& training_data,
       }
     }
 
+    LOG(INFO) << "FA KMeansTreeNode::Train KILL SPILL if exists (print if happens)";
     const size_t max_subpartition_size =
         static_cast<size_t>(floor(0.99 * indices_.size()));
     for (const auto& subpartition : spilled) {
@@ -192,6 +199,7 @@ Status KMeansTreeNode::Train(const Dataset& training_data,
   }
 
   if (opts->compute_residual_stdev) {
+    LOG(INFO) << "FA KMeansTreeNode::Train compute_residual_stdev (in ParallelFor)";
     residual_stdevs_.resize(centers.size());
     ParallelFor<1>(Seq(centers.size()),
                    opts->training_parallelization_pool.get(), [&](size_t i) {
@@ -226,12 +234,13 @@ Status KMeansTreeNode::Train(const Dataset& training_data,
   }
   
   centers.ConvertType(&float_centers_);
-  LOG(INFO) << "FA LOOP IN KMeansTreeNode::Train";
-  LOG(INFO) << "FA OVER ---> KMeansTreeNode::Train";
+  LOG(INFO) << "FA KMeansTreeNode::Train FINISHED -------------";
   return OkStatus();
 }
 
 void KMeansTreeNode::CreateFixedPointCenters() {
+  // LOG(INFO) << "FA KMeansTreeNode::CreateFixedPointCenters";
+
   if (!fixed_point_centers_.empty()) return;
 
   center_squared_l2_norms_.resize(float_centers_.size());

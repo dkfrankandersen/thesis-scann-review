@@ -378,7 +378,7 @@ Status GmmUtils::GenericKmeans(
     const Dataset& dataset, const int32_t num_clusters,
     DenseDataset<double>* final_centers,
     vector<vector<DatapointIndex>>* final_partitions) {
-  LOG(INFO) << "FA GmmUtils::GenericKmeans";
+  // LOG(INFO) << "FA GmmUtils::GenericKmeans";
   return KMeansImpl(false, dataset, {}, num_clusters,
                     GetPartitionAssignmentFn(opts_.partition_assignment_type),
                     final_centers, final_partitions);
@@ -506,7 +506,7 @@ Status GmmUtils::MeanDistanceInitializeCenters(
 Status GmmUtils::KMeansPPInitializeCenters(
     const Dataset& dataset, ConstSpan<DatapointIndex> subset,
     int32_t num_clusters, DenseDataset<double>* initial_centers) {
-  LOG(INFO) << "FA GmmUtils::KMeansPPInitializeCenters";
+  // LOG(INFO) << "FA GmmUtils::KMeansPPInitializeCenters";
   SCANN_RET_CHECK(initial_centers);
   initial_centers->clear();
   auto impl = GmmUtilsImplInterface::Create(*distance_, dataset, subset,
@@ -533,9 +533,9 @@ Status GmmUtils::KMeansPPInitializeCenters(
   vector<DatapointIndex> sample_ids;
   vector<double> distances(dataset_size, 0.0);
   vector<double> temp(dataset_size);
-  LOG(INFO) << "FA LOOP IN GmmUtils::KMeansPPInitializeCenters";
-  LOG(INFO) << "FA OVER ---> VerifyAllFinite";
-  LOG(INFO) << "FA OVER ---> DistancesFromPoint";
+  // LOG(INFO) << "FA LOOP IN GmmUtils::KMeansPPInitializeCenters";
+  // LOG(INFO) << "FA OVER ---> VerifyAllFinite";
+  // LOG(INFO) << "FA OVER ---> DistancesFromPoint";
   while (centers.size() < num_clusters) {
     SCANN_RETURN_IF_ERROR(VerifyAllFinite(last_center.values_slice()))
         << "(Center Number = " << centers.size() << ")";
@@ -636,8 +636,8 @@ SCANN_OUTLINE Status GmmUtils::KMeansImpl(
     int32_t num_clusters, PartitionAssignmentFn partition_assignment_fn,
     DenseDataset<double>* final_centers,
     vector<vector<DatapointIndex>>* final_partitions) {
-  LOG(INFO) << "FA GmmUtils::KMeansImpl";
-  LOG(INFO) << "FA CALL GmmUtils::InitializeCenters";
+  // LOG(INFO) << "FA GmmUtils::KMeansImpl";
+  // LOG(INFO) << "FA CALL GmmUtils::InitializeCenters";
 
   DCHECK(final_centers);
   if (dataset.IsDense() && subset.size() == dataset.size() &&
@@ -698,13 +698,13 @@ SCANN_OUTLINE Status GmmUtils::KMeansImpl(
   ThreadPool* pool = opts_.parallelization_pool.get();
   const absl::Time deadline = absl::Now() + opts_.max_iteration_duration;
 
-  LOG(INFO) << "FA LOOP IN GmmUtils::KMeansImpl";
-  LOG(INFO) << "FA OVER ---> FROM GetPartitionAssignmentFn CALL UnbalancedPartitionAssignment";
-  LOG(INFO) << "FA OVER ---> LOOP IN UnbalancedPartitionAssignment";
-  LOG(INFO) << "FA OVER ---> OVER ---> VerifyAllFinite";
-  LOG(INFO) << "FA OVER ---> OVER ---> DenseDistanceManyToManyTop1";
-  LOG(INFO) << "FA OVER ---> RecomputeCentroidsSimple";
-  LOG(INFO) << "FA OVER ---> RandomReinitializeCenters";
+  // LOG(INFO) << "FA LOOP IN GmmUtils::KMeansImpl";
+  // LOG(INFO) << "FA OVER ---> FROM GetPartitionAssignmentFn CALL UnbalancedPartitionAssignment";
+  // LOG(INFO) << "FA OVER ---> LOOP IN UnbalancedPartitionAssignment";
+  // LOG(INFO) << "FA OVER ---> OVER ---> VerifyAllFinite";
+  // LOG(INFO) << "FA OVER ---> OVER ---> DenseDistanceManyToManyTop1";
+  // LOG(INFO) << "FA OVER ---> RecomputeCentroidsSimple";
+  // LOG(INFO) << "FA OVER ---> RandomReinitializeCenters";
 
   for (size_t iteration : Seq(opts_.max_iterations + 1)) {
     top1_results =

@@ -126,7 +126,6 @@ Status ScannInterface::Initialize(ConstSpan<float> dataset,
     return InvalidArgumentError("training_threads must be non-negative");
   if (training_threads == 0) training_threads = GetNumCPUs();
   SingleMachineFactoryOptions opts;
-
   opts.parallelization_pool =
       StartThreadPool("scann_threadpool", training_threads - 1);
   return Initialize(InitDataset(dataset, n_points), opts);

@@ -301,21 +301,21 @@ Status TreeAHHybridResidual::BuildLeafSearchers(
           "At least one of dataset/hashed_dataset must be non-null in "
           "TreeAHHybridResidual::BuildLeafSearchersPreTrained.");
     }
-    LOG(INFO) << "FA CALL -> ResidualizeToFloat";
     get_hashed_datapoint =
         [&](DatapointIndex i, int32_t token,
             Datapoint<uint8_t>* storage) -> StatusOr<DatapointPtr<uint8_t>> {
       DCHECK(dataset);
       DatapointPtr<float> original = (*dataset)[i];
-      LOG(INFO) << "FA CALL -> ResidualizeToFloat";
+      // LOG(INFO) << "FA CALL -> ResidualizeToFloat";
       TF_ASSIGN_OR_RETURN(
           Datapoint<float> residual,
           partitioner->ResidualizeToFloat(original, token,
                                           normalize_residual_by_cluster_stdev));
       if (std::isnan(config.noise_shaping_threshold())) {
+        LOG(INFO) << "FA CALL -> Hash";
         SCANN_RETURN_IF_ERROR(indexer->Hash(residual.ToPtr(), storage));
       } else {
-        LOG(INFO) << "FA CALL -> HashWithNoiseShaping";
+        // LOG(INFO) << "FA CALL -> HashWithNoiseShaping";
         SCANN_RETURN_IF_ERROR(
             indexer->HashWithNoiseShaping(residual.ToPtr(), original, storage,
                                           config.noise_shaping_threshold()));
@@ -337,6 +337,14 @@ Status TreeAHHybridResidual::BuildLeafSearchers(
     absl::MutexLock mutex(&status_mutex);
     if (status.ok()) status = new_status;
   };
+  LOG(INFO) << "FA IN TreeAHHybridResidual::BuildLeafSearchers USING ParallelFor";
+  LOG(INFO) << "FA LOOP get_hashed_datapoint N times (dataset size)";
+  LOG(INFO) << "FA LOOP get_hashed_datapoint CALL -> ResidualizeToFloat";
+  LOG(INFO) << "FA LOOP get_hashed_datapoint CALL -> HashWithNoiseShaping threshold T=" << config.noise_shaping_threshold() << "";
+  LOG(INFO) << "FA LOOP get_hashed_datapoint CALL -> CALL IndexDatapointNoiseShaped";
+  LOG(INFO) << "FA LOOP get_hashed_datapoint CALL -> FROM IndexDatapointNoiseShaped CALL CoordinateDescentAHQuantize";
+
+
   ParallelFor<1>(IndicesOf(datapoints_by_token), pool, [&](size_t token) {
     const absl::Time token_start = absl::Now();
     auto hashed_partition = make_unique<DenseDataset<uint8_t>>();
@@ -579,7 +587,7 @@ Status TreeAHHybridResidual::FindNeighborsInternal1(
     leaf_specific_params->SetFastTopNeighbors(&top_n);
     leaf_params.set_searcher_specific_optional_parameters(leaf_specific_params);
     NNResultsVector unused_leaf_results;
-
+    LOG(INFO) << "FA in TreeAHHybridResidual::FindNeighborsInternal1 centers_to_search.size() = " << centers_to_search.size() << "";
     for (size_t i = 0; i < centers_to_search.size(); ++i) {
       const uint32_t token = centers_to_search[i].node->LeafId();
       const float distance_to_center = centers_to_search[i].distance_to_center;
