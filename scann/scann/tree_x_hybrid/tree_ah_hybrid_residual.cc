@@ -288,7 +288,7 @@ Status TreeAHHybridResidual::BuildLeafSearchers(
   const bool normalize_residual_by_cluster_stdev =
       config.use_normalized_residual_quantization();
 
-  LOG(INFO) << "FA config.use_normalized_residual_quantization" << normalize_residual_by_cluster_stdev << "";
+  LOG(INFO) << "FA config.use_normalized_residual_quantization " << normalize_residual_by_cluster_stdev << "";
   
 
   if (hashed_dataset) {
@@ -337,8 +337,9 @@ Status TreeAHHybridResidual::BuildLeafSearchers(
     absl::MutexLock mutex(&status_mutex);
     if (status.ok()) status = new_status;
   };
+
   LOG(INFO) << "FA IN TreeAHHybridResidual::BuildLeafSearchers USING ParallelFor";
-  LOG(INFO) << "FA LOOP get_hashed_datapoint N times (dataset size)";
+  LOG(INFO) << "FA LOOP get_hashed_datapoint N times (dataset size)\n";
   LOG(INFO) << "FA LOOP get_hashed_datapoint CALL -> ResidualizeToFloat";
   LOG(INFO) << "FA LOOP get_hashed_datapoint CALL -> HashWithNoiseShaping threshold T=" << config.noise_shaping_threshold() << "";
   LOG(INFO) << "FA LOOP get_hashed_datapoint CALL -> CALL IndexDatapointNoiseShaped";

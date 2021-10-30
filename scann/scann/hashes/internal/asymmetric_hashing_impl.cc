@@ -204,28 +204,29 @@ StatusOr<vector<DenseDataset<double>>> AhImpl<T>::TrainAsymmetricHashing(
   GmmUtils gmm(quantization_distance, gmm_opts);
 
   vector<DenseDataset<double>> all_centers(num_blocks);
-  LOG(INFO) << "FA LOOP IN AhImpl<T>::TrainAsymmetricHashing";
-  LOG(INFO) << "FA OVER ---> GenericKmeans";
-  LOG(INFO) << "FA OVER ---> num_blocks " << num_blocks << "";
-  LOG(INFO) << "FA OVER ---> opts.config().use_norm_biasing_correction() " << opts.config().use_norm_biasing_correction() << "";
 
-  LOG(INFO) << "\nFA LOOP OVER GenericKMeans M times " << num_blocks << " BEGIN ----------------------";
-  LOG(INFO) << "scann/utils/gmm_utils.cc:381] FA GmmUtils::GenericKmeans";
-  LOG(INFO) << "scann/utils/gmm_utils.cc:639] FA GmmUtils::KMeansImpl";
-  LOG(INFO) << "scann/utils/gmm_utils.cc:640] FA CALL GmmUtils::InitializeCenters";
-  LOG(INFO) << "scann/utils/gmm_utils.cc:509] FA GmmUtils::KMeansPPInitializeCenters";
-  LOG(INFO) << "scann/data_format/dataset.cc:96] FA TypedDataset<T>::MeanByDimension";
-  LOG(INFO) << "scann/utils/gmm_utils.cc:536] FA LOOP IN GmmUtils::KMeansPPInitializeCenters";
-  LOG(INFO) << "scann/utils/gmm_utils.cc:537] FA OVER ---> VerifyAllFinite";
-  LOG(INFO) << "scann/utils/gmm_utils.cc:538] FA OVER ---> DistancesFromPoint";
-  LOG(INFO) << "scann/data_format/dataset.cc:96] FA TypedDataset<T>::MeanByDimension";
-  LOG(INFO) << "scann/utils/gmm_utils.cc:701] FA LOOP IN GmmUtils::KMeansImpl";
-  LOG(INFO) << "scann/utils/gmm_utils.cc:702] FA OVER ---> FROM GetPartitionAssignmentFn CALL UnbalancedPartitionAssignment";
-  LOG(INFO) << "scann/utils/gmm_utils.cc:703] FA OVER ---> LOOP IN UnbalancedPartitionAssignment";
-  LOG(INFO) << "scann/utils/gmm_utils.cc:704] FA OVER ---> OVER ---> VerifyAllFinite";
-  LOG(INFO) << "scann/utils/gmm_utils.cc:705] FA OVER ---> OVER ---> DenseDistanceManyToManyTop1";
-  LOG(INFO) << "scann/utils/gmm_utils.cc:706] FA OVER ---> RecomputeCentroidsSimple";
-  LOG(INFO) << "scann/utils/gmm_utils.cc:707] FA OVER ---> RandomReinitializeCenters";
+  LOG(INFO) << "\nFA LOOP IN AhImpl<T>::TrainAsymmetricHashing\n";
+  LOG(INFO) << "FA OVER ---> GenericKmeans\n";
+  LOG(INFO) << "FA OVER ---> num_blocks " << num_blocks << "\n";
+  LOG(INFO) << "FA OVER ---> opts.config().use_norm_biasing_correction() " << opts.config().use_norm_biasing_correction() << "\n";
+
+  LOG(INFO) << "\nFA LOOP OVER GenericKMeans M times " << num_blocks << " BEGIN ----------------------\n";
+  LOG(INFO) << "FA scann/utils/gmm_utils.cc:381] FA GmmUtils::GenericKmeans";
+  LOG(INFO) << "FA scann/utils/gmm_utils.cc:639] FA GmmUtils::KMeansImpl";
+  LOG(INFO) << "FA scann/utils/gmm_utils.cc:640] FA CALL GmmUtils::InitializeCenters";
+  LOG(INFO) << "FA scann/utils/gmm_utils.cc:509] FA GmmUtils::KMeansPPInitializeCenters";
+  LOG(INFO) << "FA scann/data_format/dataset.cc:96] FA TypedDataset<T>::MeanByDimension";
+  LOG(INFO) << "FA scann/utils/gmm_utils.cc:536] FA LOOP IN GmmUtils::KMeansPPInitializeCenters";
+  LOG(INFO) << "FA scann/utils/gmm_utils.cc:537] FA OVER ---> VerifyAllFinite";
+  LOG(INFO) << "FA scann/utils/gmm_utils.cc:538] FA OVER ---> DistancesFromPoint";
+  LOG(INFO) << "FA scann/data_format/dataset.cc:96] FA TypedDataset<T>::MeanByDimension";
+  LOG(INFO) << "FA scann/utils/gmm_utils.cc:701] FA LOOP IN GmmUtils::KMeansImpl";
+  LOG(INFO) << "FA scann/utils/gmm_utils.cc:702] FA OVER ---> FROM GetPartitionAssignmentFn CALL UnbalancedPartitionAssignment\n";
+  LOG(INFO) << "FA scann/utils/gmm_utils.cc:703] FA OVER ---> LOOP IN UnbalancedPartitionAssignment";
+  LOG(INFO) << "FA scann/utils/gmm_utils.cc:704] FA OVER ---> OVER ---> VerifyAllFinite";
+  LOG(INFO) << "FA scann/utils/gmm_utils.cc:705] FA OVER ---> OVER ---> DenseDistanceManyToManyTop1";
+  LOG(INFO) << "FA scann/utils/gmm_utils.cc:706] FA OVER ---> RecomputeCentroidsSimple";
+  LOG(INFO) << "FA scann/utils/gmm_utils.cc:707] FA OVER ---> RandomReinitializeCenters";
 
   for (size_t i : Seq(num_blocks)) {
     DenseDataset<double> centers;
@@ -235,6 +236,8 @@ StatusOr<vector<DenseDataset<double>>> AhImpl<T>::TrainAsymmetricHashing(
         &subpartitions));
 
     if (opts.config().use_norm_biasing_correction()) {
+      LOG(INFO) << "FA IN AhImpl<T>::TrainAsymmetricHashing ComputeNormBiasCorrection";
+
       for (size_t center_idx : IndicesOf(centers)) {
         const double norm_bias_correction = ComputeNormBiasCorrection(
             chunked_dataset[i], centers[center_idx], subpartitions[center_idx]);
@@ -273,7 +276,10 @@ StatusOr<vector<DenseDataset<double>>> AhImpl<T>::TrainAsymmetricHashing(
       all_centers[i].AppendOrDie(centers[j], "");
     }
   }
-  LOG(INFO) << "FA LOOP OVER GenericKMeans M times " << num_blocks << " FINISHED ----------------------\n\n";
+  LOG(INFO) << "FA LOOP OVER GenericKMeans M times " << num_blocks << " FINISHED ----------------------";
+  LOG(INFO) << "FA Return all_centers size() (centers_permutation?): " << all_centers.size() << "";
+  LOG(INFO) << "FA Return all_centers [0].size(): " << all_centers[0].size() << "";
+  LOG(INFO) << "FA Return all_centers [0].dimensionality(): " << all_centers[0].dimensionality() << "\n\n";
   return std::move(all_centers);
 }
 
@@ -532,22 +538,19 @@ Status CoordinateDescentAHQuantize(
     DatapointPtr<T> maybe_residual_dptr, DatapointPtr<T> original_dptr,
     ConstSpan<DenseDataset<FloatingTypeFor<T>>> centers,
     const ChunkingProjection<T>& projection, double threshold, MutableSpan<uint8_t> result) {
-    //, int* num_changes = nullptr,
-    // double* residual_ptr = nullptr, double* parallel_residual_ptr = nullptr) {
 
   LOG(INFO) << "FA CoordinateDescentAHQuantize";
-  LOG(INFO) << "FA CoordinateDescentAHQuantize value of result at start: result[i] all zeros 0..49 M=50";
+  LOG(INFO) << "FA CoordinateDescentAHQuantize value of result at start: result[M=0..49] all zeros";
   // for (size_t i = 0; i < result.size(); ++i) {
   //   LOG(INFO) << "FA result[" << i << "] " << result[i] + 0 << "";
   // }
 
-  LOG(INFO) << "FA FROM CoordinateDescentAHQuantize CALL ComputeResidualStats";
   SCANN_RET_CHECK_EQ(result.size(), centers.size());
+  LOG(INFO) << "FA FROM CoordinateDescentAHQuantize CALL ComputeResidualStats";
   LOG(INFO) << "FA result.size() " << result.size() << "";
   LOG(INFO) << "FA centers.size() " << centers.size() << "";
   LOG(INFO) << "FA centers[0].size() " << centers[0].size() << "";
-
-
+  LOG(INFO) << "FA centers[0][0].values_slice().size() " << centers[0][0].values_slice().size() << "";
   LOG(INFO) << "FA maybe_residual_dptr.dimensionality() (expect 100) " << maybe_residual_dptr.dimensionality() + 0 << "";
   LOG(INFO) << "FA original_dptr.dimensionality() (expect 100) " << original_dptr.dimensionality() + 0 << "";
 
@@ -566,7 +569,7 @@ Status CoordinateDescentAHQuantize(
   const double parallel_cost_multiplier = ComputeParallelCostMultiplier(
       threshold, SquaredL2Norm(original_dptr), original_dptr.dimensionality());
   InitializeToMinResidualNorm(residual_stats, result);
-  LOG(INFO) << "FA CoordinateDescentAHQuantize value of result at InitializeToMinResidualNorm: result[i] diff values 0..15 k=16";
+  LOG(INFO) << "FA CoordinateDescentAHQuantize value of result at InitializeToMinResidualNorm: result[M=0..49] init values 0..15 K=16";
   // for (size_t i = 0; i < result.size(); ++i) {
   //   LOG(INFO) << "FA result[" << i << "] " << result[i] + 0 << "";
   // }
@@ -584,21 +587,29 @@ Status CoordinateDescentAHQuantize(
   }
   std::vector<uint8_t> result_sorted(result.begin(), result.end());
   
+  LOG(INFO) << "FA ZipSortBranchOptimized BEFORE [subspace_residual_norms | result_sorted | subspace_idxs]";
+  for (size_t i  : IndicesOf(result)) {
+    LOG(INFO) << "FA LOOP i = " << i << " [" << subspace_residual_norms[i]+0.0 <<  " | " << result_sorted[i] + 0 << " | " << subspace_idxs[i] + 0 << "]";
+  }
+
   ZipSortBranchOptimized(
       std::greater<double>(), subspace_residual_norms.begin(),
       subspace_residual_norms.end(), result_sorted.begin(), result_sorted.end(),
       subspace_idxs.begin(), subspace_idxs.end());
-  // LOG(INFO) << "FA result_sorted " << result_sorted << "";
+
+  LOG(INFO) << "FA ZipSortBranchOptimized AFTER [subspace_residual_norms | result_sorted | subspace_idxs]";
+  for (size_t i  : IndicesOf(result)) {
+    LOG(INFO) << "FA LOOP i = " << i << " [" << subspace_residual_norms[i]+0.0 <<  " | " << result_sorted[i] + 0 << " | " << subspace_idxs[i] + 0 << "]";
+  }
 
   enum { kMaxRounds = 10 };
   bool cur_round_changes = true;
-  // if (num_changes) *num_changes = 0;
 
   LOG(INFO) << "FA LOOP IN CoordinateDescentAHQuantize";
   LOG(INFO) << "FA OVER ---> OptimizeSingleSubspace";
   for (int round = 0; cur_round_changes && round < kMaxRounds; ++round) {
     cur_round_changes = false;
-    for (size_t i : IndicesOf(subspace_idxs)) {
+    for (size_t i : IndicesOf(result_sorted)) {
       const size_t subspace_idx = subspace_idxs[i];
       ConstSpan<SubspaceResidualStats> cur_subspace_residual_stats =
           residual_stats[subspace_idx];
@@ -607,7 +618,6 @@ Status CoordinateDescentAHQuantize(
           cur_subspace_residual_stats, cur_center_idx,
           parallel_residual_component, parallel_cost_multiplier);
       if (subspace_result.new_center_idx != cur_center_idx) {
-        // if (num_changes) ++*num_changes;
         parallel_residual_component =
             subspace_result.new_parallel_residual_component;
         result_sorted[i] = subspace_result.new_center_idx;
@@ -615,25 +625,19 @@ Status CoordinateDescentAHQuantize(
       }
     }
   }
-  // LOG(INFO) << "FA result_sorted " << result_sorted << "";
-  double final_residual_norm = 0.0;
+  // double final_residual_norm = 0.0;
   for (size_t i : IndicesOf(result_sorted)) {
     const size_t subspace_idx = subspace_idxs[i];
     const uint8_t center_idx = result_sorted[i];
     result[subspace_idx] = center_idx;
-    final_residual_norm +=
-        residual_stats[subspace_idx][center_idx].residual_norm;
+    // final_residual_norm +=
+    //     residual_stats[subspace_idx][center_idx].residual_norm;
   }
-  // if (residual_ptr) *residual_ptr = final_residual_norm;
-  // if (parallel_residual_ptr) {
-  //   *parallel_residual_ptr = Square(parallel_residual_component);
-  // }
-  // LOG(INFO) << "FA result " << result << "";
-  LOG(INFO) << "FA CoordinateDescentAHQuantize value of result at finish:";
-  for (size_t i = 0; i < result.size(); ++i) {
-    LOG(INFO) << "FA result[" << i << "] " << result[i] + 0 << "";
 
-  }
+  LOG(INFO) << "FA CoordinateDescentAHQuantize value of result at finish : result[M=0..49] updated values 0..15 K=16";
+  // for (size_t i = 0; i < result.size(); ++i) {
+  //   LOG(INFO) << "FA result[" << i << "] " << result[i] + 0 << "";
+  // }
   LOG(INFO) << "FA exit() IN CoordinateDescentAHQuantize";
   exit(EXIT_SUCCESS);
   return OkStatus();

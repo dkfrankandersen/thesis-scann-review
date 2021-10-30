@@ -117,7 +117,7 @@ Status KMeansTreeNode::Train(const Dataset& training_data,
   if (opts->max_num_levels <= current_level) {
     return OkStatus();
   }
-  LOG(INFO) << "FA KMeansTreeNode::Train BEGIN ------------";
+  LOG(INFO) << "\nFA KMeansTreeNode::Train BEGIN ------------";
 
   GmmUtils::Options gmm_opts;
   gmm_opts.max_iterations = opts->max_iterations;
@@ -234,7 +234,7 @@ Status KMeansTreeNode::Train(const Dataset& training_data,
   }
   
   centers.ConvertType(&float_centers_);
-  LOG(INFO) << "FA KMeansTreeNode::Train FINISHED -------------";
+  LOG(INFO) << "FA KMeansTreeNode::Train FINISHED -------------\n";
   return OkStatus();
 }
 

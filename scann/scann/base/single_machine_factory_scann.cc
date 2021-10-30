@@ -211,6 +211,7 @@ StatusOrSearcherUntyped TreeAhHybridResidualFactory<float>(
 
   shared_ptr<const asymmetric_hashing2::Model<float>> ah_model;
   if (opts->ah_codebook) {
+    LOG(INFO) << "FA IN TreeAhHybridResidualFactory get ah_model from FromProto";
     TF_ASSIGN_OR_RETURN(ah_model, asymmetric_hashing2::Model<float>::FromProto(
                                       *opts->ah_codebook));
   } else if (config.hash().asymmetric_hash().has_centers_filename()) {
@@ -232,8 +233,15 @@ StatusOrSearcherUntyped TreeAhHybridResidualFactory<float>(
             config.hash()
                 .asymmetric_hash()
                 .use_normalized_residual_quantization()));
+
+    LOG(INFO) << "FA IN TreeAhHybridResidualFactory find quantization_distance: " << quantization_distance << "";
+    LOG(INFO) << "FA IN TreeAhHybridResidualFactory compute residuals size: " << residuals.size() << "";
+    LOG(INFO) << "FA IN TreeAhHybridResidualFactory compute residuals dimensionality: " << residuals.dimensionality() << "";
+
     asymmetric_hashing2::TrainingOptions<float> training_opts(
         config.hash().asymmetric_hash(), quantization_distance, residuals);
+    
+    LOG(INFO) << "FA IN TreeAhHybridResidualFactory get ah_model from TrainSingleMachine";
     TF_ASSIGN_OR_RETURN(
         ah_model, asymmetric_hashing2::TrainSingleMachine(
                       residuals, training_opts, opts->parallelization_pool));
@@ -251,6 +259,7 @@ StatusOrSearcherUntyped TreeAhHybridResidualFactory<float>(
   result->set_database_tokenizer(
       absl::WrapUnique(down_cast<KMeansTreeLikePartitioner<float>*>(
           kmeans_tree_partitioner->Clone().release())));
+    LOG(INFO) << "FA IN TreeAhHybridResidualFactory CALL BuildLeafSearchers";
   SCANN_RETURN_IF_ERROR(result->BuildLeafSearchers(
       config.hash().asymmetric_hash(), std::move(kmeans_tree_partitioner),
       std::move(ah_model), std::move(datapoints_by_token),
