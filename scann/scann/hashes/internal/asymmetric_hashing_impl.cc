@@ -273,6 +273,7 @@ StatusOr<vector<DenseDataset<double>>> AhImpl<T>::TrainAsymmetricHashing(
     }
     
     for (uint32_t j : centers_permutation) {
+      LOG(INFO) << "FA centers_permutation: all_centers[" << i << "] centers[" << j << "][0] = " << centers[j].values_slice()[0] + 0 << "";
       all_centers[i].AppendOrDie(centers[j], "");
     }
   }

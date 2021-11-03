@@ -30,7 +30,7 @@ namespace {
 
 float ComputeSamplingFraction(const PartitioningConfig& config,
                               const Dataset* dataset) {
-  LOG(INFO) << "FA ComputeSamplingFraction";
+  LOG(INFO) << "FA ComputeSamplingFraction with config.expected_sample_size()" << config.expected_sample_size() + 0 << "";
   return (config.has_expected_sample_size())
              ? std::min(1.0,
                         static_cast<double>(config.expected_sample_size()) /

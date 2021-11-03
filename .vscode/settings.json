@@ -63,6 +63,7 @@
         "cwctype": "cpp",
         "memory_resource": "cpp",
         "string_view": "cpp",
-        "ranges": "cpp"
+        "ranges": "cpp",
+        "*.inc": "cpp"
     }
 }

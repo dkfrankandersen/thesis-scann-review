@@ -215,8 +215,10 @@ StatusOr<const LookupTable*> Searcher<T>::GetOrCreateLookupTable(
       dynamic_cast<const AsymmetricHashingOptionalParameters*>(
           params.searcher_specific_optional_parameters());
   if (per_query_opts && !per_query_opts->precomputed_lookup_table_.empty()) {
+    LOG(INFO) << "FA Searcher<T>::GetOrCreateLookupTable use precomputed_lookup_table";
     return &per_query_opts->precomputed_lookup_table_;
   } else {
+    LOG(INFO) << "FA Searcher<T>::GetOrCreateLookupTable use CreateLookupTable";
     TF_ASSIGN_OR_RETURN(*created_lookup_table_storage,
                         opts_.asymmetric_queryer_->CreateLookupTable(
                             query, opts_.asymmetric_lookup_type_,

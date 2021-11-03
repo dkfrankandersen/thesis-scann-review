@@ -280,12 +280,15 @@ StatusOr<LookupTable> AsymmetricQueryer<T>::CreateLookupTable(
         "1.0].");
   }
   if (IsSame<LookupElement, float>()) {
+    LOG(INFO) << "FA AsymmetricQueryer<T>::CreateLookupTable USE LookupElement float";
     result.float_lookup_table = std::move(raw_float_lookup);
   } else if (IsSameAny<LookupElement, int16_t, uint16_t>()) {
+    LOG(INFO) << "FA AsymmetricQueryer<T>::CreateLookupTable USE LookupElement int16_t, uint16_t";
     result.int16_lookup_table = ai::ConvertLookupToFixedPoint<uint16_t>(
         raw_float_lookup, float_int_conversion_options,
         &result.fixed_point_multiplier);
   } else {
+    LOG(INFO) << "FA AsymmetricQueryer<T>::CreateLookupTable USE LookupElement else";
     result.int8_lookup_table = ai::ConvertLookupToFixedPoint<uint8_t>(
         raw_float_lookup, float_int_conversion_options,
         &result.fixed_point_multiplier);
